@@ -19,15 +19,31 @@ function init() {
     controls = new THREE.TrackballControls(camera, renderer.domElement);
 }
 
-function loadModels() {
-	var geometry = new THREE.BoxGeometry(1, 1, 1);
-	var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-	var cube = new THREE.Mesh(geometry, material);
-	scene.add(cube);
+async function loadModels() {
+	const stars = await getJSON('data/UMa.json');
+	
+	const vertices = [];
+	for (var i = 0; i < stars.length; i++) {
+		if (stars[i].vmag < 4) {
+			vertices.push(...stars[i].pos);
+		}
+	}
+	
+	const geometry = new THREE.BufferGeometry();
+	geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
+	const material = new THREE.PointsMaterial({size: 5, sizeAttenuation: false, color: 0xf20000, alphaTest: 0.5});
+	const points = new THREE.Points(geometry, material);
+	points.scale.set(0.1,0.1,0.1);
+	
+	scene.add(points);
 }
 
 function animate() {
 	requestAnimationFrame(animate);
 	controls.update();
 	renderer.render(scene, camera);
+}
+
+function getJSON(uri) {
+	return fetch(uri).then(response => response.json());
 }

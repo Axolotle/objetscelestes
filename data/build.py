@@ -21,9 +21,9 @@ for star in data['stars']:
 
 
 stars = sorted(stars, key=lambda star: star['vmag'])
-with open('final/' + code + '.json', 'w') as output:
+with open('../website/data/' + code + '.json', 'w') as output:
     output.write((
-        '{\n  "stars": [\n    '
+        '[\n    '
         + ',\n    '.join([json.dumps(star) for star in stars])
-        + '\n  ]\n}'
+        + '\n]'
     ))
