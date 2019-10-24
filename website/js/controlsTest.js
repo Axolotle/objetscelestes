@@ -23,13 +23,13 @@ async function loadModels () {
 	var geo2 = new THREE.BoxGeometry(1, 1, 1);
 	var mat2 = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
 	cube = new THREE.Mesh(geo2, mat2);
-	cube.position.set(1, 0, 0);
+	cube.position.set(0, 0, 0);
 	scene.add(cube);
 
 	var geometry = new THREE.SphereGeometry( 0.01 );
 	var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
 	var sphere = new THREE.Mesh( geometry, material );
-	sphere.position.set(1, 0, 0);
+	sphere.position.set(0, 0, 0);
 	scene.add(sphere);
 }
 
