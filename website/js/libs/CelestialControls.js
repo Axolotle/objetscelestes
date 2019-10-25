@@ -13,17 +13,21 @@ class CelestialControls {
 
 		this.speed = {
 			roll: 0.01,
-			dolly: 0.004,
-			rot: 0.005,
+			dolly: 0.1,
+			zoom: 0.05,
+			rot: 0.01,
 			rotPos: 1
 		};
 
 		this.state = {
-			DOLLY: 0,
+			// DOLLY: 0,
 			ROLL: 0,
 			YAW: 0,
 			PITCH: 0
 		};
+		
+		this.dollyLimit = 0.1;
+		this.zoomType = 'dolly';
 		
 		this.moving = false;
 		this.move = {
@@ -97,17 +101,29 @@ class CelestialControls {
 		}
 	}
 
-	updateMovement () {
-		// Dolly
-		if (this.state.DOLLY !== 0) {
-			this.camera.position.addScaledVector(this.eye, this.state.DOLLY * this.speed.dolly);
+	dolly (delta) {
+		let nextPos = this.camera.position.clone().addScaledVector(this.eye, delta * this.speed.dolly)
+		if (nextPos.length() <= this.dollyLimit) {
+			this.zoomType = 'zoom';
+			this.camera.position.setLength(this.dollyLimit);
+			this.zoom(delta);
+		} else {
+			this.camera.position.copy(nextPos);
 		}
 		
-		// Zoom
-		// this.camera.zoom -= 0.005;
-		// this.camera.updateProjectionMatrix();
-		
-		this.eye.subVectors(this.camera.position, this.target);
+	}
+	
+	zoom (delta) {
+		console.log(this.camera.zoom);
+		let nextValue = this.camera.zoom - delta * this.speed.zoom;
+		if (nextValue < 1) {
+			this.zoomType = 'dolly';
+			this.camera.zoom = 1;
+			this.dolly(delta);
+		} else {
+			this.camera.zoom = nextValue;
+		}
+		this.camera.updateProjectionMatrix();
 	}
 	
 	// UTILITIES
@@ -134,6 +150,7 @@ class CelestialControls {
 		window.addEventListener('keyup', this);
 		
 		this.domElem.addEventListener('mousedown', this);
+		this.domElem.addEventListener('wheel', this);
 	}
 	
 	handleEvent (event) {
@@ -189,6 +206,10 @@ class CelestialControls {
 		document.removeEventListener('mouseup', this);
 		this.moving = false;
 	}
+	
+	wheel (event) {
+		this[this.zoomType](Math.sign(event.deltaY));
+	}
 
 	update () {
 		if (this.state.ROLL !== 0) {
@@ -198,7 +219,8 @@ class CelestialControls {
 		if (this.moving) {
 			this.rotatePosition();
 		}
-		this.updateMovement();
+
+		this.eye.subVectors(this.camera.position, this.target);
 		this.updateRotation();
 	}
 }
