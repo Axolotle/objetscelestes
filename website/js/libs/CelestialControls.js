@@ -36,6 +36,7 @@ class CelestialControls {
 
 		this.up = this.camera.up;
 		this.rotationQt = new THREE.Quaternion();
+		this.angle = 0;
 		
 		this.initListeners();
 		this.updateRotation();
@@ -119,10 +120,11 @@ class CelestialControls {
 	};
 	
 	getMouseOnCircle(pageX, pageY) {
-		return new THREE.Vector2(
+		let v = new THREE.Vector2(
 			(pageX - this.screen.width * 0.5 - this.screen.left) / (this.screen.width * 0.5),
 			(this.screen.height + 2 * (this.screen.top - pageY)) / this.screen.width // screen.width intentional
 		);
+		return v.rotateAround(new THREE.Vector2(), this.angle);
 	};
 	
 	// EVENT LISTERNERS
@@ -189,6 +191,10 @@ class CelestialControls {
 	}
 
 	update () {
+		if (this.state.ROLL !== 0) {
+			let roll = new THREE.Quaternion(this.state.ROLL * this.speed.rot, 0, 0).normalize();
+			this.angle += this.state.ROLL * (roll.angleTo(new THREE.Quaternion()) * 2);
+		}
 		if (this.moving) {
 			this.rotatePosition();
 		}
