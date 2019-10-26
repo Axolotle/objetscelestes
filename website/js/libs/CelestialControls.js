@@ -25,7 +25,7 @@ class CelestialControls {
 			PITCH: 0
 		};
 
-		this.dollyLimit = 0.1;
+		this.dollyLimit = 0.05;
 		this.zoomType = 'dolly';
 
 		this.moving = false;
@@ -113,7 +113,6 @@ class CelestialControls {
 	}
 
 	zoom (delta) {
-		console.log(this.camera.zoom);
 		let nextValue = this.camera.zoom - delta * this.speed.zoom;
 		if (nextValue < 1) {
 			this.zoomType = 'dolly';
