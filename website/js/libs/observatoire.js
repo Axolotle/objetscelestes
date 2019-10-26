@@ -16,11 +16,10 @@ class Observatoire {
 
         this.constellations.push(new Constellation(data), this.scene);
 
-        this.scene.add(this.constellations[0].object)
+        this.scene.add(this.constellations[0])
 
         // temp lookAt constellations
-        let v = new THREE.Vector3(...this.constellations[0].coords.slice(3,6))
-        let mx = new THREE.Matrix4().lookAt(this.controls.target, v, this.camera.up);
+        let mx = new THREE.Matrix4().lookAt(this.controls.target, this.constellations[0].center, this.camera.up);
         this.controls.rotationQt.setFromRotationMatrix(mx);
 		this.camera.quaternion.setFromRotationMatrix(mx);
         this.camera.rotation.setFromQuaternion(this.camera.quaternion, this.camera.rotation.order);
@@ -35,19 +34,24 @@ class Observatoire {
     }
 }
 
-class Constellation {
+
+// https://github.com/mrdoob/three.js/blob/master/src/objects/Points.js
+class Constellation extends THREE.Points {
     constructor(stars) {
-        this.coords = [];
+        let vertices = []
     	for (var i = 0; i < stars.length; i++) {
     		if (stars[i].vmag < 4) {
-    			this.coords.push(...stars[i].pos);
+    			vertices.push(...stars[i].pos);
     		}
     	}
 
-        const geometry = new THREE.BufferGeometry();
-        geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(this.coords), 3));
-    	const material = new THREE.PointsMaterial({size: 5, sizeAttenuation: false, color: 0xf20000, alphaTest: 0.5});
-    	this.object = new THREE.Points(geometry, material);
-    	this.object.scale.set(0.1,0.1,0.1);
+        let geometry = new THREE.BufferGeometry();
+        geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
+    	let material = new THREE.PointsMaterial({size: 5, sizeAttenuation: false, color: 0xf20000, alphaTest: 0.5});
+
+    	super(geometry, material);
+
+    	this.scale.set(0.1,0.1,0.1);
+        this.center = new THREE.Vector3(...stars[4].pos);
     }
 }
