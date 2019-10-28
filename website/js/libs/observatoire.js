@@ -17,7 +17,7 @@ class Observatoire {
             pick: new THREE.Color("rgb(255, 0, 0)"),
         }
 
-        this.constellations = [];
+        this.constellations = new THREE.Group();
     }
 
     init (data) {
@@ -26,9 +26,10 @@ class Observatoire {
 
         this.camera.position.set(1, 1, 1);
 
-        this.constellations.push(new Constellation(data, this.colors.point));
+        this.constellations.add(new Constellation(data, this.colors.point));
 
-        this.scene.add(this.constellations[0])
+        this.scene.add(this.constellations)
+        console.log(this.constellations);
 
         this.initListeners();
         this.animate();
@@ -58,8 +59,8 @@ class Observatoire {
 		this.raycaster.setFromCamera(this.mouse, this.camera);
         this.drawRaycaster(this.raycaster.ray);
 
-		let intersects = this.raycaster.intersectObject(this.constellations[0]);
-        let colorAttr = this.constellations[0].geometry.attributes.color;
+		let intersects = this.raycaster.intersectObjects(this.constellations.children);
+        let colorAttr = this.constellations.children[0].geometry.attributes.color;
 		if (intersects.length > 0) {
 			if (this.intersected != intersects[ 0 ].index) {
 				this.colors.point.toArray(colorAttr.array, this.intersected * 3)
@@ -100,31 +101,31 @@ class Observatoire {
 // https://github.com/mrdoob/three.js/blob/master/src/objects/Points.js
 class Constellation extends THREE.Points {
     constructor(stars, color) {
+        stars = stars.filter(star => star.vmag < 4)
         let vertices = []
-    	for (let i = 0; i < stars.length; i++) {
-    		if (stars[i].vmag < 4) {
-    			vertices.push(...stars[i].pos);
-    		}
+        let sizes = []
+        let colors = new Float32Array(stars.length * 3);
+    	for (let i = 0, l = stars.length; i < l; i++) {
+			vertices.push(...stars[i].pos);
+            color.toArray(colors, i * 3);
+            sizes.push((5 - Math.floor(stars[i].vmag))/4)
     	}
-
-        let colors = new Float32Array(vertices.length);
-        for (let i = 0, l = vertices.length / 3; i < l ; i++) {
-            color.toArray(colors, i * 3)
-        }
 
         let geometry = new THREE.BufferGeometry();
         geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
         geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3));
+        geometry.addAttribute('size', new THREE.BufferAttribute(new Float32Array(sizes), 1));
 
         let shaderMaterial = new THREE.ShaderMaterial( {
             vertexShader: `
             attribute vec3 color;
+            attribute float size;
             varying vec3 vColor;
 
             void main () {
                 vColor = color;
                 vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-                gl_PointSize = 10.0;
+                gl_PointSize = 10.0 * size;
                 gl_Position = projectionMatrix * mvPosition;
             }
             `,
@@ -133,12 +134,15 @@ class Constellation extends THREE.Points {
 
             void main () {
                 gl_FragColor = vec4(vColor, 1.0);
+                vec2 coord = gl_PointCoord - vec2(0.5);
+                if(length(coord) > 0.5)
+                    discard;
             }
             `,
         });
 
     	super(geometry, shaderMaterial);
 
-    	this.scale.set(10,10,10);
+    	this.scale.set(2,2,2);
     }
 }
