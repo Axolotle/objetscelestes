@@ -25,8 +25,8 @@ class Observatoire {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     	document.body.firstElementChild.appendChild(this.renderer.domElement);
 
-        this.camera.position.set(1, 0, 0);
-        this.camera.position.setLength(200);
+        this.camera.position.set(0, 0, -1);
+        this.camera.position.setLength(0.1);
 
         this.constellations.add(new Constellation(data, this.colors.point));
         this.drawCelestialSphere();
@@ -52,7 +52,10 @@ class Observatoire {
             this.sphere.add(point)
         }
 
-        const divisions = 100;
+        // smoothness of the circle (number of straight lines)
+        const smoothness = 3;
+        const parallelsDiv = 24 * smoothness;
+        const meridiansDiv = 20 * smoothness;
         const r = 500;
         const pi2 = Math.PI * 2;
         const material = new THREE.LineBasicMaterial({color: 0xffff00, linewidth: 1});
@@ -60,30 +63,44 @@ class Observatoire {
         let circle = null;
         let vertices = [];
 
-        for (let i = 0; i <= divisions; i++) {
-        	let t = (i/divisions) * pi2;
+        // define the series of vertices necessary to draw a semicircle
+        for (let i = 0; i <= meridiansDiv; i++) {
+        	let t = (i/meridiansDiv) * Math.PI;
         	let x = Math.sin(t) * r;
         	let z = Math.cos(t) * r;
         	vertices.push(x, 0, z);
         }
         geometry = new THREE.BufferGeometry();
-        geometry.addAttribute('position', new THREE.Float32BufferAttribute(vertices,3));
+        geometry.addAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
         circle = new THREE.Line(geometry, material);
-        this.sphere.add(circle);
+        geometry = new THREE.BufferGeometry();
+        // removes first and last vertices so the semicircle starts at the
+        // first parallel and ends at the last.
+        geometry.addAttribute('position', new THREE.Float32BufferAttribute(vertices.slice(3 * smoothness, -3 * smoothness), 3));
+        let cutCircle = new THREE.Line(geometry, material);
 
-        for (let i = 1; i < 12; i++) {
-            let next = circle.clone().rotateZ(( i / 24 ) * ( Math.PI * 2 ));
-            this.sphere.add(next);
+        for (let i = 0; i < 24; i++) {
+            if (i < 4) {
+                // draw semicircles for each main axis (0h, 6h, 12h and 18h)
+                this.sphere.add(circle.clone().rotateZ((i / 4) * pi2));
+            }
+            if (i % 6 !== 0) {
+                this.sphere.add(cutCircle.clone().rotateZ((i / 24) * pi2));
+            }
         }
 
+        // define the series of vertices necessary to draw a parallel with
+        // a radius and a z-position according to its latitude
         for (let n = 0; n <= 9; n++) {
-            let z = r * Math.sin(Math.PI / 20 * n);
+            // latitude
+            let z = r * Math.sin((n / 20) * Math.PI);
+            // radius of the parallel at this latitude
             let r2 = Math.sqrt(r*r - z*z)
 
             let revertices = [];
             vertices = [];
-            for (let i = 0; i <= divisions; i++) {
-            	let t = (i / divisions) * pi2;
+            for (let i = 0; i <= parallelsDiv; i++) {
+            	let t = (i / parallelsDiv) * pi2;
                 let x = Math.cos(t) * r2;
             	let y = Math.sin(t) * r2;
                 if (n === 0) {
