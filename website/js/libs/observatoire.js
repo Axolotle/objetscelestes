@@ -6,7 +6,7 @@ class Observatoire {
         this.controls = new CelestialControls(this.camera, this.renderer.domElement);
 
         this.raycaster = new THREE.Raycaster();
-        this.raycaster.params.Points.threshold = 3;
+        this.raycaster.params.Points.threshold = 0.5;
         this.intersected = null;
 
         this.mouse = new THREE.Vector2();
@@ -17,6 +17,7 @@ class Observatoire {
             pick: new THREE.Color("rgb(255, 0, 0)"),
         }
 
+        this.sphere = new THREE.Group();
         this.constellations = new THREE.Group();
     }
 
@@ -24,12 +25,13 @@ class Observatoire {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     	document.body.firstElementChild.appendChild(this.renderer.domElement);
 
-        this.camera.position.set(1, 1, 1);
+        this.camera.position.set(1, 0, 0);
+        this.camera.position.setLength(200);
 
         this.constellations.add(new Constellation(data, this.colors.point));
+        this.drawCelestialSphere();
 
-        this.scene.add(this.constellations)
-        console.log(this.constellations);
+        this.scene.add(this.constellations);
 
         this.initListeners();
         this.animate();
@@ -39,6 +41,70 @@ class Observatoire {
         requestAnimationFrame(this.animate.bind(this));
     	this.controls.update();
         this.renderer.render(this.scene, this.camera);
+    }
+
+    drawCelestialSphere () {
+        let pointsGeo = new THREE.SphereGeometry(5, 2, 2);
+        let pointsMat = new THREE.MeshBasicMaterial({color: new THREE.Color("rgb(255, 0, 255)")});
+        for (let i = -1; i < 2; i++) {
+            var point = new THREE.Mesh(pointsGeo, pointsMat);
+            point.position.copy(new THREE.Vector3(0, 0, (i * -1) * 500))
+            this.sphere.add(point)
+        }
+
+        const divisions = 100;
+        const r = 500;
+        const pi2 = Math.PI * 2;
+        const material = new THREE.LineBasicMaterial({color: 0xffff00, linewidth: 1});
+        let geometry = null;
+        let circle = null;
+        let vertices = [];
+
+        for (let i = 0; i <= divisions; i++) {
+        	let t = (i/divisions) * pi2;
+        	let x = Math.sin(t) * r;
+        	let z = Math.cos(t) * r;
+        	vertices.push(x, 0, z);
+        }
+        geometry = new THREE.BufferGeometry();
+        geometry.addAttribute('position', new THREE.Float32BufferAttribute(vertices,3));
+        circle = new THREE.Line(geometry, material);
+        this.sphere.add(circle);
+
+        for (let i = 1; i < 12; i++) {
+            let next = circle.clone().rotateZ(( i / 24 ) * ( Math.PI * 2 ));
+            this.sphere.add(next);
+        }
+
+        for (let n = 0; n <= 9; n++) {
+            let z = r * Math.sin(Math.PI / 20 * n);
+            let r2 = Math.sqrt(r*r - z*z)
+
+            let revertices = [];
+            vertices = [];
+            for (let i = 0; i <= divisions; i++) {
+            	let t = (i / divisions) * pi2;
+                let x = Math.cos(t) * r2;
+            	let y = Math.sin(t) * r2;
+                if (n === 0) {
+                    vertices.push(x, y, 0)
+                } else {
+                    vertices.push(x, y, z);
+                    revertices.push(x, y, -z);
+                }
+            }
+            geometry = new THREE.BufferGeometry();
+            geometry.addAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+            circle = new THREE.Line(geometry, material);
+            this.sphere.add(circle);
+            if (n !== 0) {
+                geometry = new THREE.BufferGeometry();
+                geometry.addAttribute('position', new THREE.Float32BufferAttribute(revertices, 3));
+                circle = new THREE.Line(geometry, material);
+                this.sphere.add(circle);
+            }
+        }
+        this.scene.add(this.sphere);
     }
 
     // EVENT LISTERNERS
@@ -112,9 +178,9 @@ class Constellation extends THREE.Points {
     	}
 
         let geometry = new THREE.BufferGeometry();
-        geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
+        geometry.addAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
         geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3));
-        geometry.addAttribute('size', new THREE.BufferAttribute(new Float32Array(sizes), 1));
+        geometry.addAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
 
         let shaderMaterial = new THREE.ShaderMaterial( {
             vertexShader: `
