@@ -1,4 +1,6 @@
-class CelestialControls {
+import * as THREE from '../libs/three.module.js';
+
+export class CelestialControls {
 	constructor (camera, domElem, targetPos) {
 		this.camera = camera;
 		this.domElem = domElem;

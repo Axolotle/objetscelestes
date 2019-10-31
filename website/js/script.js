@@ -1,3 +1,5 @@
+import { Observatoire } from './observatoire/Observatoire.js';
+
 
 window.onload = async () => {
     var obs = new Observatoire();

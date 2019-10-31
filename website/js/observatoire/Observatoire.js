@@ -1,4 +1,7 @@
-class Observatoire {
+import { CelestialControls } from './CelestialControls.js';
+import * as THREE from '../libs/three.module.js';
+
+export class Observatoire {
     constructor() {
         this.scene = new THREE.Scene();
         this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, canvas: document.getElementById('canvas')});
@@ -95,12 +98,12 @@ class Observatoire {
             this.latLine.elems.push(elem);
         }
         geometry = new THREE.BufferGeometry();
-        geometry.addAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
         circle = new THREE.Line(geometry, material);
         geometry = new THREE.BufferGeometry();
         // removes first and last vertices so the semicircle starts at the
         // first parallel and ends at the last.
-        geometry.addAttribute('position', new THREE.Float32BufferAttribute(vertices.slice(3 * smoothness, -3 * smoothness), 3));
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices.slice(3 * smoothness, -3 * smoothness), 3));
         let cutCircle = new THREE.Line(geometry, material);
 
         for (let i = 0; i < 24; i++) {
@@ -138,12 +141,12 @@ class Observatoire {
                 }
             }
             geometry = new THREE.BufferGeometry();
-            geometry.addAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
             circle = new THREE.Line(geometry, material);
             this.sphere.add(circle);
             if (n !== 0) {
                 geometry = new THREE.BufferGeometry();
-                geometry.addAttribute('position', new THREE.Float32BufferAttribute(revertices, 3));
+                geometry.setAttribute('position', new THREE.Float32BufferAttribute(revertices, 3));
                 circle = new THREE.Line(geometry, material);
                 this.sphere.add(circle);
             }
@@ -230,9 +233,9 @@ class Constellation extends THREE.Points {
     	}
 
         let geometry = new THREE.BufferGeometry();
-        geometry.addAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-        geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3));
-        geometry.addAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        geometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
 
         let shaderMaterial = new THREE.ShaderMaterial( {
             vertexShader: `
