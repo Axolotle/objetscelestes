@@ -1,13 +1,39 @@
 html, body {
     margin: 0;
-    overflow: hidden;
 }
 
 main {
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+    overflow: hidden;
+}
+#canvas {
     background-color: blue;
 }
 
-canvas {
-    width: 100%;
-    height: 100%;
+#labels {
+    font-family: 'Fira Code';
+    font-size: 0.9rem;
+    color: white;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+#labels div {
+    position: absolute;
+    left: 0;
+    top: 0;
+    text-shadow:
+        -1px -1px 0 blue,
+         0   -1px 0 blue,
+         1px -1px 0 blue,
+         1px  0   0 blue,
+         1px  1px 0 blue,
+         0    1px 0 blue,
+        -1px  1px 0 blue,
+        -1px  0   0 blue;
+}
+#labels .hide {
+    display: none;
 }
