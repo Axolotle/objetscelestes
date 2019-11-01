@@ -46,6 +46,6 @@ export class Constellation extends THREE.Points {
 
     	super(geometry, shaderMaterial);
 
-    	this.scale.set(2,2,2);
+    	this.geometry.scale(5,5,5);
     }
 }

@@ -2,6 +2,7 @@ import * as THREE from '../libs/three.module.js';
 import { CelestialControls } from './CelestialControls.js';
 import { Grid } from './Grid.js';
 import { Constellation } from './Constellation.js';
+import { Asterism } from './Asterism.js';
 
 
 export class Observatoire {
@@ -15,13 +16,6 @@ export class Observatoire {
         this.raycaster.params.Points.threshold = 0.5;
         this.intersected = null;
 
-        this.labelsPos = [];
-        this.latLine = {
-            object: null,
-            vertices: [],
-            elems: []
-        };
-
         this.mouse = new THREE.Vector2();
 
         this.colors = {
@@ -31,7 +25,11 @@ export class Observatoire {
         }
 
         this.grid = new Grid();
+
         this.constellations = new THREE.Group();
+
+        this.asterisms = new THREE.Group();
+        this.asterism = null;
     }
 
     init (data) {
@@ -41,10 +39,10 @@ export class Observatoire {
         this.camera.position.setLength(100);
 
         this.scene.add(this.grid);
+        this.scene.add(this.asterisms);
 
         this.constellations.add(new Constellation(data, this.colors.point));
         this.scene.add(this.constellations);
-
 
         this.initListeners();
         this.animate();
@@ -70,26 +68,40 @@ export class Observatoire {
     }
 
     keydown (event) {
-        if (event.code !== 'KeyR') return;
+        if (event.code !== 'KeyR' && event.code !== 'KeyF') return;
 
 		this.raycaster.setFromCamera(this.mouse, this.camera);
-        this.drawRaycaster(this.raycaster.ray);
+        // this.drawRaycaster(this.raycaster.ray);
 
 		let intersects = this.raycaster.intersectObjects(this.constellations.children);
-        let colorAttr = this.constellations.children[0].geometry.attributes.color;
+        let attrs = this.constellations.children[0].geometry.attributes
 		if (intersects.length > 0) {
 			if (this.intersected != intersects[ 0 ].index) {
-				this.colors.point.toArray(colorAttr.array, this.intersected * 3)
+				this.colors.point.toArray(attrs.color.array, this.intersected * 3)
 
 				this.intersected = intersects[ 0 ].index;
-				this.colors.pick.toArray(colorAttr.array, this.intersected * 3)
-				colorAttr.needsUpdate = true;
+				this.colors.pick.toArray(attrs.color.array, this.intersected * 3)
+				attrs.color.needsUpdate = true;
 
-                this.controls.target = intersects[0].point;
+                let target = new THREE.Vector3(...attrs.position.array.slice(
+                    this.intersected * 3,
+                    this.intersected * 3 + 3
+                ));
+                if (event.code === 'KeyR') {
+                    this.controls.target = target;
+                } else {
+                    if (this.asterism === null) {
+                        this.asterism = new Asterism(target);
+                        this.asterisms.add(this.asterism);
+                    } else {
+                        this.asterism.addPoint(target)
+                    }
+                }
+
 			}
 		} else if (this.intersected !== null) {
-			this.colors.point.toArray(colorAttr.array, this.intersected * 3)
-			colorAttr.needsUpdate = true;
+			this.colors.point.toArray(attrs.color.array, this.intersected * 3)
+			attrs.color.needsUpdate = true;
 			this.intersected = null;
 		}
     }
