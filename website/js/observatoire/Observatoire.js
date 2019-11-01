@@ -1,11 +1,14 @@
-import { CelestialControls } from './CelestialControls.js';
 import * as THREE from '../libs/three.module.js';
+import { CelestialControls } from './CelestialControls.js';
+import { Grid } from './Grid.js';
+import { Constellation } from './Constellation.js';
+
 
 export class Observatoire {
     constructor() {
         this.scene = new THREE.Scene();
         this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, canvas: document.getElementById('canvas')});
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.0000000001, 10000);
+        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.00001, 10000);
         this.controls = new CelestialControls(this.camera, this.renderer.domElement);
 
         this.raycaster = new THREE.Raycaster();
@@ -27,7 +30,7 @@ export class Observatoire {
             pick: new THREE.Color("rgb(255, 0, 0)"),
         }
 
-        this.sphere = new THREE.Group();
+        this.grid = new Grid();
         this.constellations = new THREE.Group();
     }
 
@@ -37,10 +40,11 @@ export class Observatoire {
         this.camera.position.set(0, 0, -1);
         this.camera.position.setLength(100);
 
-        this.drawCelestialSphere();
-        this.constellations.add(new Constellation(data, this.colors.point));
+        this.scene.add(this.grid);
 
+        this.constellations.add(new Constellation(data, this.colors.point));
         this.scene.add(this.constellations);
+
 
         this.initListeners();
         this.animate();
@@ -50,22 +54,22 @@ export class Observatoire {
         requestAnimationFrame(this.animate.bind(this));
     	this.controls.update();
 
-        // this.latLine.object.updateMatrixWorld();
-        for (let i = 0; i < this.latLine.vertices.length; i++) {
-            let v = this.latLine.vertices[i].clone();
-            v.applyMatrix4(this.latLine.object.matrixWorld)
-            v.project(this.camera)
-            if (Math.abs(v.z) > 1) {
-                this.latLine.elems[i].classList.add('hide');
-            } else {
-                const x = (v.x *  .5 + .5) * this.renderer.domElement.clientWidth;
-                const y = (v.y * -.5 + .5) * this.renderer.domElement.clientHeight;
-                this.latLine.elems[i].style.transform = `translate(-50%, -50%) translate(${x}px,${y}px)`;
-                this.latLine.elems[i].classList.remove('hide');
-            }
-
-        }
-
+        // // this.latLine.object.updateMatrixWorld();
+        // for (let i = 0; i < this.latLine.vertices.length; i++) {
+        //     let v = this.latLine.vertices[i].clone();
+        //     v.applyMatrix4(this.latLine.object.matrixWorld)
+        //     v.project(this.camera)
+        //     if (Math.abs(v.z) > 1) {
+        //         this.latLine.elems[i].classList.add('hide');
+        //     } else {
+        //         const x = (v.x *  .5 + .5) * this.renderer.domElement.clientWidth;
+        //         const y = (v.y * -.5 + .5) * this.renderer.domElement.clientHeight;
+        //         this.latLine.elems[i].style.transform = `translate(-50%, -50%) translate(${x}px,${y}px)`;
+        //         this.latLine.elems[i].classList.remove('hide');
+        //     }
+        //
+        // }
+        this.grid.update(this.camera, this.renderer.domElement);
         this.renderer.render(this.scene, this.camera);
     }
 
@@ -215,55 +219,5 @@ export class Observatoire {
         );
         let line = new THREE.Line(geometry, material);
         this.scene.add(line);
-    }
-}
-
-
-// https://github.com/mrdoob/three.js/blob/master/src/objects/Points.js
-class Constellation extends THREE.Points {
-    constructor(stars, color) {
-        stars = stars.filter(star => star.vmag < 4)
-        let vertices = []
-        let sizes = []
-        let colors = new Float32Array(stars.length * 3);
-    	for (let i = 0, l = stars.length; i < l; i++) {
-			vertices.push(...stars[i].pos);
-            color.toArray(colors, i * 3);
-            sizes.push((5 - Math.floor(stars[i].vmag))/4)
-    	}
-
-        let geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-        geometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
-
-        let shaderMaterial = new THREE.ShaderMaterial( {
-            vertexShader: `
-            attribute vec3 color;
-            attribute float size;
-            varying vec3 vColor;
-
-            void main () {
-                vColor = color;
-                vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-                gl_PointSize = 10.0 * size;
-                gl_Position = projectionMatrix * mvPosition;
-            }
-            `,
-            fragmentShader: `
-            varying vec3 vColor;
-
-            void main () {
-                gl_FragColor = vec4(vColor, 1.0);
-                vec2 coord = gl_PointCoord - vec2(0.5);
-                if(length(coord) > 0.5)
-                    discard;
-            }
-            `,
-        });
-
-    	super(geometry, shaderMaterial);
-
-    	this.scale.set(2,2,2);
     }
 }
