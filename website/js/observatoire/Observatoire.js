@@ -91,7 +91,7 @@ export class Observatoire {
                     this.controls.target = target;
                 } else {
                     if (this.asterism === null) {
-                        this.asterism = new Asterism(target);
+                        this.asterism = new Asterism(target, this.renderer.domElement, this.camera);
                         this.asterisms.add(this.asterism);
                     } else {
                         this.asterism.addPoint(target)
