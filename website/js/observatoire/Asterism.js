@@ -31,13 +31,13 @@ export class Asterism extends THREE.Line {
     // EVENTS LISTENERS
     
     initListeners (rendererElem) {
-		this.renderElem.addEventListener('mousemove', this);
+        this.renderElem.addEventListener('mousemove', this);
         this.renderElem.addEventListener('contextmenu', this)
-	}
+    }
     
     handleEvent(event) {
         if (event.repeat) return;
-	  	this[event.type](event);
+            this[event.type](event);
     }
     
     // display a line from last point to mouse position while drawing

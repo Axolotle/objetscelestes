@@ -50,7 +50,7 @@ export class Observatoire {
 
     animate () {
         requestAnimationFrame(this.animate.bind(this));
-    	this.controls.update();
+        this.controls.update();
         this.grid.update(this.camera, this.renderer.domElement);
         this.renderer.render(this.scene, this.camera);
     }
@@ -58,30 +58,31 @@ export class Observatoire {
     // EVENT LISTERNERS
 
     initListeners () {
-		window.addEventListener('keydown', this);
-		this.renderer.domElement.addEventListener('mousemove', this);
-	}
+        window.addEventListener('resize', this);
+        window.addEventListener('keydown', this);
+        this.renderer.domElement.addEventListener('mousemove', this);
+    }
 
     handleEvent(event) {
         if (event.repeat) return;
-	  	this[event.type](event);
+        this[event.type](event);
     }
 
     keydown (event) {
         if (event.code !== 'KeyR' && event.code !== 'KeyF') return;
 
-		this.raycaster.setFromCamera(this.mouse, this.camera);
+        this.raycaster.setFromCamera(this.mouse, this.camera);
         // this.drawRaycaster(this.raycaster.ray);
 
-		let intersects = this.raycaster.intersectObjects(this.constellations.children);
+        let intersects = this.raycaster.intersectObjects(this.constellations.children);
         let attrs = this.constellations.children[0].geometry.attributes
-		if (intersects.length > 0) {
-			if (this.intersected != intersects[ 0 ].index) {
-				this.colors.point.toArray(attrs.color.array, this.intersected * 3)
+        if (intersects.length > 0) {
+            if (this.intersected != intersects[ 0 ].index) {
+                this.colors.point.toArray(attrs.color.array, this.intersected * 3)
 
-				this.intersected = intersects[ 0 ].index;
-				this.colors.pick.toArray(attrs.color.array, this.intersected * 3)
-				attrs.color.needsUpdate = true;
+                this.intersected = intersects[ 0 ].index;
+                this.colors.pick.toArray(attrs.color.array, this.intersected * 3)
+                attrs.color.needsUpdate = true;
 
                 let target = new THREE.Vector3(...attrs.position.array.slice(
                     this.intersected * 3,
@@ -98,17 +99,23 @@ export class Observatoire {
                     }
                 }
 
-			}
-		} else if (this.intersected !== null) {
-			this.colors.point.toArray(attrs.color.array, this.intersected * 3)
-			attrs.color.needsUpdate = true;
-			this.intersected = null;
-		}
+            }
+        } else if (this.intersected !== null) {
+            this.colors.point.toArray(attrs.color.array, this.intersected * 3)
+            attrs.color.needsUpdate = true;
+            this.intersected = null;
+        }
     }
 
     mousemove (event) {
         this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
         this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    }
+    
+    resize () {
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize( window.innerWidth, window.innerHeight );
     }
 
     // HELPERS

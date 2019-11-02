@@ -8,11 +8,11 @@ export class Constellation extends THREE.Points {
         let vertices = []
         let sizes = []
         let colors = new Float32Array(stars.length * 3);
-    	for (let i = 0, l = stars.length; i < l; i++) {
-			vertices.push(...stars[i].pos);
+        for (let i = 0, l = stars.length; i < l; i++) {
+            vertices.push(...stars[i].pos);
             color.toArray(colors, i * 3);
             sizes.push((5 - Math.floor(stars[i].vmag))/4)
-    	}
+        }
 
         let geometry = new THREE.BufferGeometry();
         geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
@@ -24,7 +24,7 @@ export class Constellation extends THREE.Points {
             attribute vec3 color;
             attribute float size;
             varying vec3 vColor;
-
+        
             void main () {
                 vColor = color;
                 vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
@@ -34,7 +34,7 @@ export class Constellation extends THREE.Points {
             `,
             fragmentShader: `
             varying vec3 vColor;
-
+        
             void main () {
                 gl_FragColor = vec4(vColor, 1.0);
                 vec2 coord = gl_PointCoord - vec2(0.5);
@@ -44,8 +44,8 @@ export class Constellation extends THREE.Points {
             `,
         });
 
-    	super(geometry, shaderMaterial);
+        super(geometry, shaderMaterial);
 
-    	this.geometry.scale(5,5,5);
+        this.geometry.scale(5,5,5);
     }
 }

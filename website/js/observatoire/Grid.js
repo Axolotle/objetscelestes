@@ -45,10 +45,10 @@ export class Grid extends THREE.Group {
         let vertices = [];
         // define the series of vertices necessary to draw a semicircle
         for (let i = 0; i <= meridiansDiv; i++) {
-        	let t = (i / meridiansDiv) * Math.PI;
-        	let x = Math.sin(t) * r;
-        	let z = Math.cos(t) * r;
-        	vertices.push(x, 0, z);
+            let t = (i / meridiansDiv) * Math.PI;
+            let x = Math.sin(t) * r;
+            let z = Math.cos(t) * r;
+            vertices.push(x, 0, z);
         }
 
         let semiCircle = Grid.getCircle(vertices, material);
@@ -79,9 +79,9 @@ export class Grid extends THREE.Group {
             let revertices = [];
             vertices = [];
             for (let i = 0; i <= parallelsDiv; i++) {
-            	let t = (i / parallelsDiv) * pi2;
+                let t = (i / parallelsDiv) * pi2;
                 let x = Math.cos(t) * r2;
-            	let y = Math.sin(t) * r2;
+                let y = Math.sin(t) * r2;
                 if (n === 0) {
                     vertices.push(x, y, 0)
                 } else {
