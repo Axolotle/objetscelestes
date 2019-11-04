@@ -154,7 +154,7 @@ export class CelestialControls {
     }
 
     handleEvent (event) {
-        if (event.repeat) return;
+        if (event.repeat || event.ctrlKey) return;
         this[event.type](event);
     }
 
