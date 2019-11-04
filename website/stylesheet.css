@@ -12,7 +12,7 @@ main {
     background-color: blue;
 }
 
-#labels {
+#labels, #options {
     font-family: 'Fira Code';
     font-size: 0.9rem;
     color: white;

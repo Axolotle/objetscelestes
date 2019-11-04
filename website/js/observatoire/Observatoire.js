@@ -3,14 +3,15 @@ import { CelestialControls } from './CelestialControls.js';
 import { Grid } from './Grid.js';
 import { Constellation } from './Constellation.js';
 import { Asterism } from './Asterism.js';
-
+import { Options } from './Options.js';
 
 export class Observatoire {
     constructor() {
         this.scene = new THREE.Scene();
-        this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, canvas: document.getElementById('canvas')});
+        this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, premultipliedAlpha: true, canvas: document.getElementById('canvas')});
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.00001, 10000);
         this.controls = new CelestialControls(this.camera, this.renderer.domElement);
+        this.options = new Options();
 
         this.raycaster = new THREE.Raycaster();
         this.raycaster.params.Points.threshold = 0.5;
@@ -32,11 +33,11 @@ export class Observatoire {
         this.asterism = null;
     }
 
-    init (data) {
+    init (data, distance) {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
 
         this.camera.position.set(0, 0, -1);
-        this.camera.position.setLength(100);
+        this.camera.position.setLength(distance);
 
         this.scene.add(this.grid);
         this.scene.add(this.asterisms);
@@ -59,7 +60,7 @@ export class Observatoire {
 
     initListeners () {
         window.addEventListener('resize', this);
-        window.addEventListener('keydown', this);
+        window.addEventListener('click', this);
         this.renderer.domElement.addEventListener('mousemove', this);
     }
 
@@ -68,9 +69,7 @@ export class Observatoire {
         this[event.type](event);
     }
 
-    keydown (event) {
-        if (event.code !== 'KeyR' && event.code !== 'KeyF') return;
-
+    click (event) {
         this.raycaster.setFromCamera(this.mouse, this.camera);
         // this.drawRaycaster(this.raycaster.ray);
 
@@ -88,9 +87,10 @@ export class Observatoire {
                     this.intersected * 3,
                     this.intersected * 3 + 3
                 ));
-                if (event.code === 'KeyR') {
+                if (this.options.targetMode) {
                     this.controls.target = target;
-                } else {
+                }
+                if (this.options.drawMode) {
                     if (this.asterism === null) {
                         this.asterism = new Asterism(target, this.renderer.domElement, this.camera);
                         this.asterisms.add(this.asterism);
@@ -111,7 +111,7 @@ export class Observatoire {
         this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
         this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
     }
-    
+
     resize () {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
