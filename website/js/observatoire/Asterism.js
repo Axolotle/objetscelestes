@@ -1,20 +1,27 @@
 import * as THREE from '../libs/three.module.js';
 
+var _start = new THREE.Vector3();
+var _end = new THREE.Vector3();
+var _inverseMatrix = new THREE.Matrix4();
+var _ray = new THREE.Ray();
+var _sphere = new THREE.Sphere();
 
 export class Asterism extends THREE.LineSegments {
     constructor (point, rendererElem, camera) {
         const MAX = 50;
 
-        const material = new THREE.LineBasicMaterial({color: 0xff0000, linewidth: 1, depthTest: false});
+        const material = new THREE.LineBasicMaterial({color: 0xff0000, linewidth: 1.5, depthTest: false});
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(MAX * 3), 3));
         geometry.setDrawRange(0, 2);
-        point.toArray(geometry.attributes.position.array, 0);
-        point.toArray(geometry.attributes.position.array, 3);
+        for (var i = 0; i < MAX; i++) {
+            point.toArray(geometry.attributes.position.array, i * 3);
+        }
         super(geometry, material);
         this.drawCount = 2;
         this.preDraw = true;
         this.matrixAutoUpdate = false;
+        this.selected = true;
 
         this.camera = camera;
         this.renderElem = rendererElem;
@@ -76,9 +83,17 @@ export class Asterism extends THREE.LineSegments {
     contextmenu (event) {
         event.preventDefault();
         if (this.preDraw) {
+            if (this.drawCount === 2) return;
             this.preDraw = false;
             this.drawCount -= 2;
             this.geometry.setDrawRange(0, this.drawCount);
+        } else {
+            let pts = this.geometry.attributes.position.array;
+            for (let i = 0; i < 6; i++) {
+                pts[this.drawCount * 3 + i] = pts[i % 3]
+            }
+            this.selected = false;
+            this.material.color.setHex(0x000000);
         }
     }
 

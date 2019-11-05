@@ -24,7 +24,7 @@ export class Constellation extends THREE.Points {
             attribute vec3 color;
             attribute float size;
             varying vec3 vColor;
-        
+
             void main () {
                 vColor = color;
                 vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
@@ -34,7 +34,7 @@ export class Constellation extends THREE.Points {
             `,
             fragmentShader: `
             varying vec3 vColor;
-        
+
             void main () {
                 gl_FragColor = vec4(vColor, 1.0);
                 vec2 coord = gl_PointCoord - vec2(0.5);
@@ -45,7 +45,7 @@ export class Constellation extends THREE.Points {
         });
 
         super(geometry, shaderMaterial);
-
-        this.geometry.scale(5,5,5);
+        this.matrixAutoUpdate = false;
+        this.geometry.scale(10,10,10);
     }
 }
