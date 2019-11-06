@@ -1,40 +1,51 @@
 import * as THREE from '../libs/three.module.js';
 
-var _start = new THREE.Vector3();
-var _end = new THREE.Vector3();
-var _inverseMatrix = new THREE.Matrix4();
-var _ray = new THREE.Ray();
-var _sphere = new THREE.Sphere();
+
+const _MAX = 50;
+const _selectColor = 0xffaa00;
+const _renderColor = 0x000000;
+const _selectSegmentColor = 0xff0000;
+const _color = new THREE.Color();
+let _mouse = new THREE.Vector3();
+let _pt = new THREE.Vector3();
 
 export class Asterism extends THREE.LineSegments {
-    constructor (point, rendererElem, camera) {
-        const MAX = 50;
-
-        const material = new THREE.LineBasicMaterial({color: 0xff0000, linewidth: 1.5, depthTest: false});
+    constructor (startPt) {
+        const material = new THREE.LineBasicMaterial({vertexColors: THREE.VertexColors, linewidth: 1.5, depthTest: false});
         const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(MAX * 3), 3));
-        geometry.setDrawRange(0, 2);
-        for (var i = 0; i < MAX; i++) {
-            point.toArray(geometry.attributes.position.array, i * 3);
+        let positions = new Float32Array(_MAX * 3);
+        let colors = new Float32Array(_MAX * 3);
+        _color.setHex(_selectColor);
+        for (let i = 0; i < _MAX; i++) {
+            _color.toArray(colors, i * 3);
+            // set all positions to first vertex to avoid raycasting and bounding errors
+            startPt.toArray(positions, i * 3)
         }
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        geometry.setDrawRange(0, 2);
+
         super(geometry, material);
+        this.matrixAutoUpdate = false;
+        
         this.drawCount = 2;
         this.preDraw = true;
-        this.matrixAutoUpdate = false;
-        this.selected = true;
+        this.isSelected = true;
+        this.selectedSegments = [];
 
-        this.camera = camera;
-        this.renderElem = rendererElem;
         this.initListeners();
     }
 
     addPoint (point) {
         let pts = this.geometry.attributes.position.array;
         let prev = (this.drawCount - 2) * 3;
-        // do not draw the point if it is the same as the previous one
-        if (pts[prev] === point.x && pts[prev+1] === point.y && pts[prev+2] === point.z) return;
         if (this.preDraw) {
+            // do not draw the point if it is the same as the previous one
+            if (pts[prev] === point.x && pts[prev+1] === point.y && pts[prev+2] === point.z) return;
             point.toArray(pts, (this.drawCount -1) * 3);
+        }
+        if (this.selectedSegments.length > 0) {
+            this.unselect(null, true);
         }
         point.toArray(pts, this.drawCount * 3);
         point.toArray(pts, (this.drawCount + 1) * 3);
@@ -46,55 +57,120 @@ export class Asterism extends THREE.LineSegments {
         // update bounding sphere so frustum culling works
         this.geometry.computeBoundingSphere();
     }
+    
+    // display a line from last point to mouse position while drawing
+    // from https://stackoverflow.com/a/13091694
+    preDrawSegment (mouse, camera) {
+        _mouse.set(mouse.x, mouse.y, 0.5);
+        _mouse.unproject(camera);
+        _mouse.sub(camera.position).normalize();
+        let dist = -camera.position.z / _mouse.z;
+        _pt.copy(camera.position).add(_mouse.multiplyScalar(dist));
+
+        let pts = this.geometry.attributes.position;
+        _pt.toArray(pts.array, (this.drawCount - 1) * 3);
+        pts.needsUpdate = true;
+    }
+    
+    select (index, additive) {
+        let colors = this.geometry.attributes.color;
+        if (index !== undefined) {
+            if (!additive) {
+                _color.setHex(_selectColor);
+                for (let i = 0, l = this.selectedSegments.length; i < l; i++) {
+                    _color.toArray(colors.array, this.selectedSegments[i] * 3);
+                    _color.toArray(colors.array, (this.selectedSegments[i] + 1) * 3);
+                }
+                this.selectedSegments.length = 0;
+            } else if (this.selectedSegments.includes(index)) {
+                this.unselect(index);
+                return;
+            }
+            _color.setHex(_selectSegmentColor);
+            this.selectedSegments.push(index);
+            _color.toArray(colors.array, index * 3);
+            _color.toArray(colors.array, (index + 1) * 3);
+        } else {
+            _color.setHex(_selectColor);
+            for (let i = 0; i < _MAX; i++) {
+                _color.toArray(colors.array, i * 3);
+            }
+            this.isSelected = true;
+        }
+        colors.needsUpdate = true;
+    }
+    
+    unselect (index, allSelected) {
+        let colors = this.geometry.attributes.color;
+        if (typeof index === 'number') {
+            _color.setHex(_selectColor);
+            _color.toArray(colors.array, index * 3);
+            _color.toArray(colors.array, (index + 1) * 3);
+            this.selectedSegments.splice(this.selectedSegments.indexOf(index), 1)
+        } else if (allSelected) {
+            _color.setHex(_selectColor);
+            for (const index of this.selectedSegments) {
+                _color.toArray(colors.array, index * 3);
+                _color.toArray(colors.array, (index + 1) * 3);
+            }
+            this.selectedSegments.length = 0;
+        } else {
+            this.isSelected = false;
+            _color.setHex(_renderColor);
+            for (let i = 0; i < _MAX; i++) {
+                _color.toArray(colors.array, i * 3);
+            }
+        }
+        
+        colors.needsUpdate = true;
+    }
+    
+    removeSegments (segments) {
+        if (segments === undefined) segments = this.selectedSegments;
+        segments.sort((a, b) => b - a);
+        let pts = this.geometry.attributes.position;
+        for (let s = 0, l = segments.length; s < l; s++) {
+            // FIXME this.unselect() removes one selected segment and force to use segments[0] to get the next
+            for (let i = segments[s] * 3, len = this.drawCount * 3; i < len; i++) {
+                pts.array[i] = pts.array[i+6];
+                pts.array[i+3] = pts.array[i+9];
+            }
+            this.drawCount -= 2;
+        }
+        this.unselect(null, true);
+        this.geometry.setDrawRange(0, this.drawCount);
+        // segments.length = 0;
+        pts.needsUpdate = true;
+    }
+    
+    stopAction () {
+        if (this.preDraw) {
+            if (this.drawCount === 2) return;
+            this.preDraw = false;
+            this.drawCount -= 2;
+            this.geometry.setDrawRange(0, this.drawCount);
+            // reset predrawn points to avoid raycasting and bounding errors
+            this.geometry.attributes.position.array.copyWithin(this.drawCount * 3, -6);
+        } else {
+            this.unselect();
+        }
+    }
+    
+    dispose () {
+        this.parent.remove(this);
+        this.geometry.dispose();
+        this.material.dispose();
+    }
 
     // EVENTS LISTENERS
 
     initListeners () {
-        this.renderElem.addEventListener('mousemove', this);
-        this.renderElem.addEventListener('contextmenu', this);
         window.addEventListener('keydown', this);
     }
 
     handleEvent(event) {
         if (event.repeat) return;
         this[event.type](event);
-    }
-
-    // display a line from last point to mouse position while drawing
-    // from https://stackoverflow.com/a/13091694
-    mousemove (event) {
-        if (!this.preDraw) return;
-
-        let v = new THREE.Vector3(
-            (event.clientX / window.innerWidth) * 2 - 1,
-            - (event.clientY / window.innerHeight) * 2 + 1,
-            0.5
-        );
-        v.unproject(this.camera);
-        v.sub(this.camera.position).normalize();
-        var distance = - this.camera.position.z / v.z;
-        var pos = this.camera.position.clone().add(v.multiplyScalar(distance));
-
-        let pts = this.geometry.attributes.position.array;
-        pos.toArray(pts, (this.drawCount - 1) * 3);
-        this.geometry.attributes.position.needsUpdate = true;
-    }
-
-    contextmenu (event) {
-        event.preventDefault();
-        if (this.preDraw) {
-            if (this.drawCount === 2) return;
-            this.preDraw = false;
-            this.drawCount -= 2;
-            this.geometry.setDrawRange(0, this.drawCount);
-        } else {
-            let pts = this.geometry.attributes.position.array;
-            for (let i = 0; i < 6; i++) {
-                pts[this.drawCount * 3 + i] = pts[i % 3]
-            }
-            this.selected = false;
-            this.material.color.setHex(0x000000);
-        }
     }
 
     keydown (event) {

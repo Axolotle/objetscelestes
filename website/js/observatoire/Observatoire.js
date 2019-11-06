@@ -15,7 +15,7 @@ export class Observatoire {
 
         this.raycaster = new THREE.Raycaster();
         this.raycaster.params.Points.threshold = 1.5;
-        this.raycaster.linePrecision = 1;
+        this.raycaster.linePrecision = 1.5;
         this.intersected = null;
         this.lineIntersected = null;
 
@@ -66,7 +66,9 @@ export class Observatoire {
     initListeners () {
         window.addEventListener('resize', this);
         window.addEventListener('click', this);
+        window.addEventListener('keydown', this);
         this.renderer.domElement.addEventListener('mousemove', this);
+        this.renderer.domElement.addEventListener('contextmenu', this);
     }
 
     handleEvent(event) {
@@ -82,10 +84,10 @@ export class Observatoire {
         let intersects = this.raycaster.intersectObjects(this.constellations.children);
         let attrs = this.constellations.children[0].geometry.attributes;
         if (intersects.length > 0) {
-            if (this.intersected != intersects[ 0 ].index) {
+            if (this.intersected != intersects[0].index) {
                 this.colors.point.toArray(attrs.color.array, this.intersected * 3)
 
-                this.intersected = intersects[ 0 ].index;
+                this.intersected = intersects[0].index;
                 this.colors.pick.toArray(attrs.color.array, this.intersected * 3)
                 attrs.color.needsUpdate = true;
 
@@ -97,7 +99,7 @@ export class Observatoire {
                     this.controls.target = target;
                 }
                 if (this.options.drawMode) {
-                    if (this.asterism === null || !this.asterism.selected) {
+                    if (this.asterism === null || !this.asterism.isSelected) {
                         this.asterism = new Asterism(target, this.renderer.domElement, this.camera);
                         this.asterisms.add(this.asterism);
                     } else {
@@ -113,10 +115,19 @@ export class Observatoire {
         } else {
             intersects = this.raycaster.intersectObjects(this.asterisms.children);
             if (intersects.length > 0) {
-                this.lineIntersected = intersects[ 0 ].index;
-                if (intersects[0].object === this.asterism && this.asterism.selected) return;
-                this.asterism = intersects[0].object;
-                this.asterism.material.color.setHex(0xff0000)
+                this.lineIntersected = intersects[0].index;
+                if (intersects[0].object === this.asterism) {
+                    if (this.asterism.isSelected) {
+                        if (this.asterism.preDraw) return;
+                        this.asterism.select(this.lineIntersected, event.shiftKey);
+                    } else {
+                        this.asterism.select();
+                    }
+                } else {
+                    if (this.asterism) this.asterism.unselect();
+                    this.asterism = intersects[0].object;
+                    this.asterism.select();
+                }
             }
         }
     }
@@ -124,6 +135,34 @@ export class Observatoire {
     mousemove (event) {
         this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
         this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+        // predraw next line if drawing
+        if (this.asterism && this.asterism.preDraw) {
+            this.asterism.preDrawSegment(this.mouse, this.camera);
+        }
+    }
+    
+    contextmenu (event) {
+        if (this.asterism && this.asterism.isSelected) {
+            event.preventDefault();
+            this.asterism.stopAction();
+        }
+    }
+    
+    keydown (event) {
+        if (event.key !== 'Delete') return;
+        if (this.asterism && this.asterism.isSelected) {
+            if (this.asterism.preDraw) {
+                this.asterism.stopAction();
+                return;
+            }
+            let selectLen = this.asterism.selectedSegments.length;
+            if (selectLen === 0 || selectLen * 2 === this.asterism.drawCount) {
+                this.asterism.dispose();
+                this.asterism = null;
+            } else {
+                this.asterism.removeSegments();
+            }
+        }
     }
 
     resize () {
