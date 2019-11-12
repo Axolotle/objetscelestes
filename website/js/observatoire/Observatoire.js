@@ -1,12 +1,12 @@
 import * as THREE from '../libs/three.module.js';
 import { CelestialControls } from './CelestialControls.js';
 import { Grid } from './Grid.js';
-import { Constellation } from './Constellation.js';
+import { Stars } from './Constellation.js';
 import { Asterism } from './Asterism.js';
 import { Options } from './Options.js';
 
 export class Observatoire {
-    constructor() {
+    constructor(data) {
         this.scene = new THREE.Scene();
         this.renderer = new THREE.WebGLRenderer({antialias: false, alpha: true, premultipliedAlpha: true, canvas: document.getElementById('canvas')});
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.000000001, 10000);
@@ -29,10 +29,12 @@ export class Observatoire {
 
         this.grid = new Grid();
 
-        this.constellations = new THREE.Group();
-
         this.asterisms = new THREE.Group();
+        this.asterisms.renderOrder = 0;
         this.asterism = null;
+
+        this.stars = null;
+
     }
 
     init (data, distance) {
@@ -44,11 +46,11 @@ export class Observatoire {
         this.scene.add(this.grid);
         this.scene.add(this.asterisms);
 
-        this.constellations.add(new Constellation(data, this.colors.point));
-        this.scene.add(this.constellations);
+        this.stars = new Stars(data);
+        this.scene.add(this.stars);
 
-        const centerGeo = new THREE.SphereGeometry(0.1,10,10);
-        this.scene.add(new THREE.Mesh(centerGeo))
+        const centerGeo = new THREE.SphereGeometry(0.1, 10, 10);
+        this.scene.add(new THREE.Mesh(centerGeo));
 
         this.initListeners();
         this.animate();
@@ -65,8 +67,8 @@ export class Observatoire {
 
     initListeners () {
         window.addEventListener('resize', this);
-        window.addEventListener('click', this);
         window.addEventListener('keydown', this);
+        this.renderer.domElement.addEventListener('click', this);
         this.renderer.domElement.addEventListener('mousemove', this);
         this.renderer.domElement.addEventListener('contextmenu', this);
     }
@@ -81,53 +83,49 @@ export class Observatoire {
         this.raycaster.setFromCamera(this.mouse, this.camera);
         // this.drawRaycaster(this.raycaster.ray);
 
-        let intersects = this.raycaster.intersectObjects(this.constellations.children);
-        let attrs = this.constellations.children[0].geometry.attributes;
+        let drawMode = this.options.drawMode;
+        let targetMode = this.options.targetMode;
+
+        // Checks intersections with stars
+        let intersects = this.raycaster.intersectObject(this.stars);
         if (intersects.length > 0) {
-            if (this.intersected != intersects[0].index) {
-                this.colors.point.toArray(attrs.color.array, this.intersected * 3)
-
-                this.intersected = intersects[0].index;
-                this.colors.pick.toArray(attrs.color.array, this.intersected * 3)
-                attrs.color.needsUpdate = true;
-
-                let target = new THREE.Vector3(...attrs.position.array.slice(
-                    this.intersected * 3,
-                    this.intersected * 3 + 3
-                ));
-                if (this.options.targetMode) {
-                    this.controls.target = target;
-                }
-                if (this.options.drawMode) {
-                    if (this.asterism === null || !this.asterism.isSelected) {
-                        this.asterism = new Asterism(target, this.renderer.domElement, this.camera);
-                        this.asterisms.add(this.asterism);
-                    } else {
-                        this.asterism.addPoint(target)
-                    }
-                }
-
+            // unselect if already selected and not drawing
+            if (!drawMode && this.stars.selected === intersects[0].index) {
+                this.stars.unselect();
+            } else {
+                this.stars.unselect();
+                this.stars.select(intersects[0].index);
             }
-        } else if (this.intersected !== null) {
-            this.colors.point.toArray(attrs.color.array, this.intersected * 3);
-            attrs.color.needsUpdate = true;
-            this.intersected = null;
-        } else {
-            intersects = this.raycaster.intersectObjects(this.asterisms.children);
-            if (intersects.length > 0) {
-                this.lineIntersected = intersects[0].index;
-                if (intersects[0].object === this.asterism) {
-                    if (this.asterism.isSelected) {
-                        if (this.asterism.preDraw) return;
-                        this.asterism.select(this.lineIntersected, event.shiftKey);
-                    } else {
-                        this.asterism.select();
-                    }
+
+            let target = this.stars.getTarget(intersects[0].index);
+            if (this.options.targetMode) {
+                this.controls.target = target;
+            }
+            if (this.options.drawMode) {
+                if (this.asterism === null || !this.asterism.isSelected) {
+                    this.asterism = new Asterism(target, this.renderer.domElement, this.camera);
+                    this.asterisms.add(this.asterism);
                 } else {
-                    if (this.asterism) this.asterism.unselect();
-                    this.asterism = intersects[0].object;
-                    this.asterism.select();
+                    this.asterism.addPoint(target)
                 }
+                return;
+            }
+        } else if (!targetMode && (!drawMode || !this.asterism || !this.asterism.isSelected)) {
+            this.stars.unselect();
+        }
+        // Checks intersections with asterisms
+        intersects = this.raycaster.intersectObjects(this.asterisms.children);
+        if (intersects.length > 0) {
+            if (this.asterism.preDraw) return;
+            this.stars.unselect();
+            if (this.asterism !== intersects[0].object) {
+                this.asterism.unselect();
+                this.asterism = intersects[0].object;
+                this.asterism.select();
+            } else if (this.asterism.isSelected) {
+                this.asterism.select(intersects[0].index, event.shiftKey);
+            } else if (!this.asterism.isSelected) {
+                this.asterism.select();
             }
         }
     }
@@ -140,14 +138,25 @@ export class Observatoire {
             this.asterism.preDrawSegment(this.mouse, this.camera);
         }
     }
-    
+
     contextmenu (event) {
         if (this.asterism && this.asterism.isSelected) {
             event.preventDefault();
-            this.asterism.stopAction();
+            if (this.asterism.preDraw) {
+                if (this.asterism.drawCount === 2) {
+                    this.asterism.dispose();
+                    this.asterism = null;
+                    this.stars.unselect();
+                } else {
+                    this.asterism.stopAction();
+                }
+            } else {
+                this.asterism.unselect();
+                this.stars.unselect();
+            }
         }
     }
-    
+
     keydown (event) {
         if (event.key !== 'Delete') return;
         if (this.asterism && this.asterism.isSelected) {
