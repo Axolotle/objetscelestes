@@ -102,7 +102,7 @@ export class Grid extends THREE.Group {
     }
 
     setupLabels () {
-        const container = document.getElementById('labels');
+        const container = document.getElementById('coordinates');
         const points = {
             meridian: this.meridian.object.geometry.attributes.position.array,
             parallel: this.parallel.object.geometry.attributes.position.array

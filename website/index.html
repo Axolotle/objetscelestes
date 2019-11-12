@@ -13,20 +13,25 @@
 <body>
     <main>
         <canvas id="canvas"></canvas>
-        <div id="labels">
+        <div id="coordinates">
         </div>
         <form id="options">
-            <div>
-                <label for="draw">Draw Mode</label>
-                <input id="drawMode" type="checkbox" name="draw">
-            </div>
-            <div>
-                <label for="target">Target Mode</label>
-                <input id="targetMode" type="checkbox" name="target">
-            </div>
+            <fieldset>
+                <legend>Modes:</legend>
+                <label>
+                    <span class="text">DRAW</span>
+                    <input id="drawMode" name="draw" type="checkbox">
+                    <span class="checker"></span>
+                </label>
+                <label>
+                    <span class="text">TARGET</span>
+                    <input id="targetMode" name="target" type="checkbox" checked="checked">
+                    <span class="checker"></span>
+                </label>
+            </fieldset>
         </form>
     </main>
 
-    <script type="module" src="js/script.js"></script>
+<script type="module" src="js/script.js"></script>
 </body>
 </html>
