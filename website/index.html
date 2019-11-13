@@ -16,20 +16,74 @@
         <div id="coordinates">
         </div>
         <form id="options">
+            <h3>MODES</h3>
             <fieldset>
-                <legend>Modes:</legend>
+                <legend>Click</legend>
                 <label>
-                    <span class="text">DRAW</span>
+                    <span class="text">DESSIN</span>
                     <input id="drawMode" name="draw" type="checkbox">
                     <span class="checker"></span>
                 </label>
                 <label>
-                    <span class="text">TARGET</span>
+                    <span class="text">CIBLE</span>
                     <input id="targetMode" name="target" type="checkbox" checked="checked">
                     <span class="checker"></span>
                 </label>
             </fieldset>
+            <fieldset>
+                <legend>Camera</legend>
+                <div class="row">
+                    <button name="zoom">ZOOM</button>
+                    <button name="dolly">DOLLY</button>
+                </div>
+            </fieldset>
         </form>
+        <article id="card">
+            <div id="subCard" class="hide">
+                <h2></h2>
+            </div>
+            <div id="mainCard" class="hide">
+                <div class="bar">
+                    <h2></h2>
+                    <p>Constellation : <span id="constellation"></span></p>
+                </div>
+                <dl>
+                    <div class="container">
+                        <dt>Coordonnées ICRS (époque J2000)</dt>
+                        <dd>
+                            <dl>
+                                <div>
+                                    <dt>Ascension droite</dt>
+                                    <dd id="asc" class="highlight"></dd>
+                                </div>
+                                <div>
+                                    <dt>Déclinaison</dt>
+                                    <dd id="dec" class="highlight"></dd>
+                                </div>
+                            </dl>
+                        </dd>
+                    </div>
+
+                    <div class="container">
+                        <dt>Distance du Système Solaire</dt>
+                        <dd id="dist" class="highlight"></dd>
+                    </div>
+
+                    <div class="container">
+                        <dt>Magnitude apparente</dt>
+                        <dd id="mag" class="highlight"></dd>
+                    </div>
+
+                    <div class="container">
+                        <dt>Type</dt>
+                        <dd id="type" class="highlight"></dd>
+                    </div>
+                    <span id="helpStar">?</span>
+                </dl>
+
+                <a id="simbad" href="" target="_blank">Plus d'infos</a>
+            </div>
+        </article>
     </main>
 
 <script type="module" src="js/script.js"></script>

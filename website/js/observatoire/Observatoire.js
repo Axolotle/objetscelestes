@@ -88,14 +88,18 @@ export class Observatoire {
 
         // Checks intersections with stars
         let intersects = this.raycaster.intersectObject(this.stars);
+        console.log(intersects[0]);
         if (intersects.length > 0) {
             // unselect if already selected and not drawing
             if (!drawMode && this.stars.selected === intersects[0].index) {
                 this.stars.unselect();
+                this.stars.hideInfos();
             } else {
                 this.stars.unselect();
                 this.stars.select(intersects[0].index);
+                this.stars.displayInfos(drawMode);
             }
+
 
             let target = this.stars.getTarget(intersects[0].index);
             if (this.options.targetMode) {
@@ -108,10 +112,12 @@ export class Observatoire {
                 } else {
                     this.asterism.addPoint(target)
                 }
-                return;
             }
+            return;
+
         } else if (!targetMode && (!drawMode || !this.asterism || !this.asterism.isSelected)) {
-            this.stars.unselect();
+            // this.stars.unselect();
+            // this.stars.hideInfos();
         }
         // Checks intersections with asterisms
         intersects = this.raycaster.intersectObjects(this.asterisms.children);

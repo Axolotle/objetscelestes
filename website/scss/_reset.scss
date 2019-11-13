@@ -29,3 +29,10 @@ article, aside, details, figcaption, figure,
 footer, header, hgroup, main, menu, nav, section {
 	display: block;
 }
+button {
+    display: inline-block;
+	background-color: $dark;
+	color: $light;
+	border: none;
+	font: inherit;
+}
