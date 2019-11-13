@@ -1,0 +1,75 @@
+#options {
+    position: absolute;
+    top: $ui-margin;
+    right: $ui-margin;
+    width: 11rem;
+
+    fieldset {
+        border: 1px $light solid;
+        padding: 1rem;
+    }
+
+    legend {
+        display: inline-block;
+        position: relative;
+        bottom: .5rem;
+        height: 0;
+    }
+
+    label {
+        display: block;
+        position: relative;
+        height: $ui-size;
+        padding-left: $ui-size;
+        cursor: pointer;
+        user-select: none;
+
+        &:not(:last-of-type) {
+            margin-bottom: 0.5rem;
+        }
+
+        span.text {
+            display: inline-block;
+            height: $ui-size;
+            min-width: 100%;
+            padding: 0 1rem;
+            background-color: $dark;
+            font-size: $ui-fs;
+            line-height: $ui-size;
+        }
+
+        input {
+            position: absolute;
+            opacity: 0;
+            height: 0;
+            width: 0;
+        }
+
+        .checker {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: $ui-size;
+            width: $ui-size;
+            background-color: $light;
+
+            &:after {
+                content: '';
+                position: absolute;
+                left: .5rem;
+                top: .5rem;
+                width: 1rem;
+                height: 1rem;
+                border-radius: 50%;
+            }
+        }
+
+        &:hover input ~ .checker:after {
+            background-color: $color;
+        }
+
+        & input:checked ~ .checker:after {
+            background-color: $dark;
+        }
+    }
+}
