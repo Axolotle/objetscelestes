@@ -52,6 +52,7 @@ export class Observatoire {
         const centerGeo = new THREE.SphereGeometry(0.1, 10, 10);
         this.scene.add(new THREE.Mesh(centerGeo));
 
+        this.options.init(this.stars)
         this.initListeners();
         this.animate();
     }
@@ -88,7 +89,6 @@ export class Observatoire {
 
         // Checks intersections with stars
         let intersects = this.raycaster.intersectObject(this.stars);
-        console.log(intersects[0]);
         if (intersects.length > 0) {
             // unselect if already selected and not drawing
             if (!drawMode && this.stars.selected === intersects[0].index) {
@@ -103,7 +103,7 @@ export class Observatoire {
 
             let target = this.stars.getTarget(intersects[0].index);
             if (this.options.targetMode) {
-                this.controls.target = target;
+                this.controls.target.copy(target);
             }
             if (this.options.drawMode) {
                 if (this.asterism === null || !this.asterism.isSelected) {

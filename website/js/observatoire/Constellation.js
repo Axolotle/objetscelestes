@@ -68,12 +68,12 @@ export class Stars extends THREE.Points {
             sizes[i] = (5 - Math.floor(stars[i].vmag)) / 4;
         }
 
-        let geometry = new THREE.BufferGeometry();
+        const geometry = new THREE.BufferGeometry();
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
         geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
-        let shaderMaterial = new THREE.ShaderMaterial({
+        const shaderMaterial = new THREE.ShaderMaterial({
             vertexShader: _vertexShader,
             fragmentShader: _fragmentShader,
             depthTest: false
@@ -89,6 +89,13 @@ export class Stars extends THREE.Points {
         this.selected = null;
         this.infos = stars;
 
+    }
+
+    get minMaxMag () {
+        return [
+            this.infos[0].vmag,
+            this.infos[this.infos.length-1].vmag
+        ]
     }
 
     getTarget(index) {
@@ -108,6 +115,12 @@ export class Stars extends THREE.Points {
         colors.set(_color, this.selected * 3);
         this.selected = null;
         colors.needsUpdate = true;
+    }
+
+    updateDrawRange (min, max) {
+        let minIdx = this.infos.findIndex(star => star.vmag >= min);
+        let maxIdx = this.infos.findIndex(star => star.vmag >= max);
+        this.geometry.setDrawRange(minIdx - 1, maxIdx < 0 ? this.infos.length + 1 : maxIdx)
     }
 
     displayInfos (sub) {

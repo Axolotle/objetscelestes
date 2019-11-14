@@ -29,8 +29,10 @@
     legend {
         display: inline-block;
         position: relative;
-        bottom: .5rem;
-        height: 0;
+        bottom: -.3rem;
+        height: 1rem;
+        margin-top: -1rem;
+        background-color: $color;
 
         &:before, &:after {
             content: ':';
@@ -106,5 +108,85 @@
             background-color: $inter;
             color: $dark;
         }
+    }
+    
+    input[type=range].multirange {
+        width: calc(10rem - 2px);
+        height: 1.5rem;
+        display: inline-block;
+        border: none;
+        border-radius: 0;
+        margin: 0;
+        padding: 0;
+        outline: none;
+        background-color: $color;
+        
+        
+        
+        @mixin rangeButton {
+            height: 1.5rem;
+            width: 1.5rem;
+            background-color: $dark;
+            border: none;
+            border-radius: 0;
+            cursor: pointer;
+            
+            &:hover {
+                background-color: $inter; 
+            }
+        }
+        
+        &.original {
+    		position: absolute;
+    	}
+        
+        // FF
+        &::-moz-range-thumb {
+            @include rangeButton;
+        }
+        &.original::-moz-range-thumb {
+            transform: scale(1); /* FF doesn't apply position it seems */
+            z-index: 1;
+        }
+        &::-moz-focus-outer {
+            border: 0;
+        }
+        // CHROME
+        &::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          @include rangeButton;
+          margin-top: -14px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+        }
+        &.original::-webkit-slider-thumb {
+            position: relative;
+            z-index: 2;
+        }
+        &:focus {
+            outline: none;
+        }
+        // IE
+        &::-ms-thumb {
+            @include rangeButton;
+        }
+        
+        &.ghost {
+            // from https://github.com/leaverou/multirange
+    		position: relative;
+    		background: var(--track-background);
+    		--track-background: linear-gradient(to right,
+    				transparent var(--low), var(--range-color) 0,
+    				var(--range-color) var(--high), transparent 0
+    			) no-repeat 0 50% / 100% 100%;
+    		--range-color: hsl(240, 100%, 100%);
+            height: 1.5rem;
+            
+            &::-webkit-slider-runnable-track {
+    			background: var(--track-background);
+    		}
+            
+            &::-moz-range-track {
+    			background: var(--track-background);
+    		}
+    	}    
     }
 }
