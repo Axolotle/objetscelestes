@@ -78,6 +78,7 @@ export class Stars extends THREE.Points {
             fragmentShader: _fragmentShader,
             depthTest: false
         });
+        // const shaderMaterial = new THREE.PointsMaterial({vertexColors: THREE.VertexColors, size: 10, sizeAttenuation: false, depthTest: false})
 
         super(geometry, shaderMaterial);
         this.matrixAutoUpdate = false;
@@ -120,7 +121,7 @@ export class Stars extends THREE.Points {
     updateDrawRange (min, max) {
         let minIdx = this.infos.findIndex(star => star.vmag >= min);
         let maxIdx = this.infos.findIndex(star => star.vmag >= max);
-        this.geometry.setDrawRange(minIdx - 1, maxIdx < 0 ? this.infos.length + 1 : maxIdx)
+        this.geometry.setDrawRange(minIdx < 0 ? this.infos.length : minIdx , maxIdx < 0 ? this.infos.length : maxIdx)
     }
 
     displayInfos (sub) {

@@ -15,9 +15,9 @@
         <canvas id="canvas"></canvas>
         <div id="coordinates">
         </div>
-        <form id="options">
+        <form id="options" onSubmit="return false;">
             <h3>MODES</h3>
-            <fieldset>
+            <fieldset class="checkboxes">
                 <legend>Click</legend>
                 <label>
                     <span class="text">DESSIN</span>
@@ -37,9 +37,20 @@
                     <button name="dolly">DOLLY</button>
                 </div>
             </fieldset>
-            <fieldset>
+            <fieldset id="starMag">
                 <legend>Étoiles</legend>
-                <input class="starRange" type="range" multiple value="" min="0" max="6.5" step="0.001"/>
+                <div class="container">
+                    <input class="starRange" type="range" multiple value="" min="0" max="6.5" step="0.001"/>
+                </div>
+                
+                <div class="row">
+                    <label class="bg" for="minRange">min mag.</label>
+                    <input id="minRange" name="minRange" type="number" min="0" max="6.5" step="0.001" value="0.765"/>
+                </div>
+                <div class="row">
+                    <label class="bg" for="minRange">max mag.</label>
+                    <input id="maxRange" name="maxRange" type="number" min="0" max="6.5" step="0.001"/>
+                </div>
             </fieldset>
         </form>
         <article id="card">

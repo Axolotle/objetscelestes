@@ -5,16 +5,19 @@ export class Options {
     }
     
     init (stars) {
-        this.initRange(document.querySelector('.starRange'), stars);
+        this.initRange(stars);
     }
     
     // modified version of https://github.com/leaverou/multirange by Lea Verou (MIT License)
-    initRange (input, stars) {
+    initRange (stars) {
         var descriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
-        var values = stars.minMaxMag;
-        var min = +(input.min || 0);
-        var max = +(input.max || 6.5);
-        var ghost = input.cloneNode();
+        let input = document.querySelector('.starRange');
+        let values = stars.minMaxMag;
+        let min = +(input.min || 0);
+        let max = +(input.max || 6.5);
+        let ghost = input.cloneNode();
+        let minInput = document.getElementById('minRange');
+        let maxInput = document.getElementById('maxRange');
         
         input.classList.add("multirange", "original");
         ghost.classList.add("multirange", "ghost");
@@ -48,7 +51,7 @@ export class Options {
             Object.defineProperty(input, "value", {
                 get: function() { return this.valueLow + "," + this.valueHigh; },
                 set: function(v) {
-                    var values = v.split(",");
+                    let values = v.split(",");
                     this.valueLow = values[0];
                     this.valueHigh = values[1];
                     update();
@@ -61,16 +64,28 @@ export class Options {
             ghost.oninput = input.oninput.bind(input);
         }
         
-        function update() {
+        function update () {
             ghost.style.setProperty("--low", 100 * ((input.valueLow - min) / (max - min)) + 1 + "%");
             ghost.style.setProperty("--high", 100 * ((input.valueHigh - min) / (max - min)) - 1 + "%");
+            minInput.value = input.valueLow;
+            maxInput.value = input.valueHigh;
         }
         
-        function end() {
+        function change (e) {
+            if (e.target.validity.badInput) return;
+            let min = minInput.value;
+            let max = maxInput.value;
+            input.valueLow = min > max ? max : min;
+            input.valueHigh = max < min ? min : max ;
+            update();
+            end();
+        }
+        
+        function end () {
             stars.updateDrawRange(input.valueLow, input.valueHigh);
         }
         
-        ghost.addEventListener("mousedown", function passClick(evt) {
+        ghost.addEventListener("mousedown", function passClick (evt) {
             // Find the horizontal position that was clicked
             let clickValue = min + (max - min)*evt.offsetX / this.offsetWidth;
             let middleValue = (input.valueHigh + input.valueLow)/2;
@@ -83,6 +98,8 @@ export class Options {
         ghost.addEventListener("input", update);
         input.addEventListener("mouseup", end);
         ghost.addEventListener("mouseup", end);
+        minInput.addEventListener('change', change);
+        maxInput.addEventListener('change', change);
         
         update();
     }

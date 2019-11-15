@@ -38,8 +38,18 @@
             content: ':';
         }
     }
+    
+    .row {
+        display: flex;
+        justify-content: space-between;
+    }
+    .container {
+        height: 1.6rem;
+        border: 1px $dark solid;
+        margin-bottom: 1rem;
+    }
 
-    label {
+    .checkboxes label {
         display: block;
         position: relative;
         height: $ui-size;
@@ -93,11 +103,6 @@
         & input:checked ~ .checker:after {
             background-color: $dark;
         }
-    }
-
-    .row {
-        display: flex;
-        justify-content: space-between;
     }
 
     button {
@@ -189,4 +194,40 @@
     		}
     	}    
     }
+    
+    input[type=number] {
+        width: 4rem;
+        height: 1.5rem;
+        text-align: center;
+        background-color: $light;
+        
+        &:focus, &:hover {
+            background-color: $inter;
+            color: $light;
+        }
+        &:invalid {
+            background-color: red;
+            color: $light;
+        }
+        
+        -moz-appearance: textfield;
+        &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+    }
+    
+    label {
+        &.bg {
+            background-color: $dark;
+            color: $light;
+            height: 1.5rem;
+            width: 100%;
+            text-align: center;
+            line-height: 1.5rem;
+        }
+    }
+    
+    
+    
 }
