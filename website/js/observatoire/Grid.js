@@ -1,7 +1,12 @@
-import * as THREE from '../libs/three.module.js';
+import {
+    Vector3, Float32BufferAttribute, // Helpers
+    LineBasicMaterial, // Materials
+    BufferGeometry, // Geometries
+    Group, Line // 3D objects
+} from '../libs/three.module.js';
 
 
-export class Grid extends THREE.Group {
+export class Grid extends Group {
     constructor () {
         super();
 
@@ -34,7 +39,7 @@ export class Grid extends THREE.Group {
     }
 
     draw () {
-        const material = new THREE.LineBasicMaterial({color: 0xffff00, linewidth: 1});
+        const material = new LineBasicMaterial({color: 0xffff00, linewidth: 1});
         const pi2 = Math.PI * 2;
         // smoothness of the circle (number of straight lines)
         const smoothness = 1;
@@ -110,7 +115,7 @@ export class Grid extends THREE.Group {
 
         for (const [name, pos] of Object.entries(points)) {
             for (let i = 0, l = pos.length / 3; i < l; i++) {
-                this[name].vertices.push(new THREE.Vector3(pos[i*3], pos[i*3+1], pos[i*3+2]));
+                this[name].vertices.push(new Vector3(pos[i*3], pos[i*3+1], pos[i*3+2]));
                 const elem = document.createElement('div');
                 if (name === 'meridian') {
                     elem.textContent = (90 - i * 10) + '°';
@@ -125,8 +130,8 @@ export class Grid extends THREE.Group {
     }
 
     static getCircle (vertices, material) {
-        let geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-        return new THREE.Line(geometry, material);
+        let geometry = new BufferGeometry();
+        geometry.setAttribute('position', new Float32BufferAttribute(vertices, 3));
+        return new Line(geometry, material);
     }
 }

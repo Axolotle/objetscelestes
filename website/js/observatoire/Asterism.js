@@ -1,15 +1,20 @@
-import * as THREE from '../libs/three.module.js';
+import {
+    Color, Vector3, VertexColors, BufferAttribute, // Helpers
+    BufferGeometry, // Geometries
+    LineBasicMaterial , // Materials
+    LineSegments, // 3D objects
+} from '../libs/three.module.js';
 
 
 const _MAX = 50;
 const _selectColor = 0xff00ff;
 const _renderColor = 0x000000;
 const _selectSegmentColor = 0xff0000;
-const _color = new THREE.Color();
-let _mouse = new THREE.Vector3();
-let _pt = new THREE.Vector3();
+const _color = new Color();
+let _mouse = new Vector3();
+let _pt = new Vector3();
 
-export class Asterism extends THREE.LineSegments {
+export class Asterism extends LineSegments {
     constructor (startPt) {
         let positions = new Float32Array(_MAX * 3);
         let colors = new Float32Array(_MAX * 3);
@@ -20,12 +25,12 @@ export class Asterism extends THREE.LineSegments {
             startPt.toArray(positions, i * 3)
         }
 
-        const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        const geometry = new BufferGeometry();
+        geometry.setAttribute('position', new BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new BufferAttribute(colors, 3));
         geometry.setDrawRange(0, 2);
 
-        const material = new THREE.LineBasicMaterial({vertexColors: THREE.VertexColors, linewidth: 1.5, depthTest: false});
+        const material = new LineBasicMaterial({vertexColors: VertexColors, linewidth: 1.5, depthTest: false});
 
         super(geometry, material);
 

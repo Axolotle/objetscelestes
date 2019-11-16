@@ -1,9 +1,14 @@
-import * as THREE from '../libs/three.module.js';
+import {
+    Color, Vector3, BufferAttribute, VertexColors, // Helpers
+    BufferGeometry, // Geometries
+    ShaderMaterial, PointsMaterial, // Materials
+    Points // 3D objects
+} from '../libs/three.module.js';
 
 
-const _color = new THREE.Color(0x00ff00).toArray();
-const _selectColor = new THREE.Color(0xff0000).toArray();
-const _target = new THREE.Vector3();
+const _color = new Color(0x00ff00).toArray();
+const _selectColor = new Color(0xff0000).toArray();
+const _target = new Vector3();
 const _vertexShader = `
 attribute vec3 color;
 attribute float size;
@@ -54,8 +59,8 @@ const _type = {
     'RotV*alf2CVn': 'Variable Star of alpha2 CVn type',
 }
 
-// https://github.com/mrdoob/three.js/blob/master/src/objects/Points.js
-export class Stars extends THREE.Points {
+// https://github.com/mrdoob/js/blob/master/src/objects/Points.js
+export class Stars extends Points {
     constructor(stars) {
         stars = stars.filter(star => star.vmag < 4);
 
@@ -68,17 +73,17 @@ export class Stars extends THREE.Points {
             sizes[i] = (5 - Math.floor(stars[i].vmag)) / 4;
         }
 
-        const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-        geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+        const geometry = new BufferGeometry();
+        geometry.setAttribute('position', new BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new BufferAttribute(colors, 3));
+        geometry.setAttribute('size', new BufferAttribute(sizes, 1));
 
-        const shaderMaterial = new THREE.ShaderMaterial({
+        const shaderMaterial = new ShaderMaterial({
             vertexShader: _vertexShader,
             fragmentShader: _fragmentShader,
             depthTest: false
         });
-        // const shaderMaterial = new THREE.PointsMaterial({vertexColors: THREE.VertexColors, size: 10, sizeAttenuation: false, depthTest: false})
+        // const shaderMaterial = new PointsMaterial({vertexColors: VertexColors, size: 10, sizeAttenuation: false, depthTest: false})
 
         super(geometry, shaderMaterial);
         this.matrixAutoUpdate = false;

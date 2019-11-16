@@ -1,4 +1,17 @@
-import * as THREE from '../libs/three.module.js';
+import {
+    // Renderers
+    WebGLRenderer,
+    // Misc
+    Scene, PerspectiveCamera, Raycaster,
+    // Helpers
+    Vector2, Color,
+    // Geometries
+    Geometry, SphereGeometry,
+    // Materials
+    LineBasicMaterial,
+    // 3D Objects
+    Group, Mesh, Line,
+} from '../libs/three.module.js';
 import { CelestialControls } from './CelestialControls.js';
 import { Grid } from './Grid.js';
 import { Stars } from './Constellation.js';
@@ -7,29 +20,29 @@ import { Options } from './Options.js';
 
 export class Observatoire {
     constructor(data) {
-        this.scene = new THREE.Scene();
-        this.renderer = new THREE.WebGLRenderer({antialias: false, alpha: true, premultipliedAlpha: true, canvas: document.getElementById('canvas')});
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.000000001, 10000);
+        this.scene = new Scene();
+        this.renderer = new WebGLRenderer({antialias: false, alpha: true, premultipliedAlpha: true, canvas: document.getElementById('canvas')});
+        this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.000000001, 10000);
         this.controls = new CelestialControls(this.camera, this.renderer.domElement);
         this.options = new Options();
 
-        this.raycaster = new THREE.Raycaster();
+        this.raycaster = new Raycaster();
         this.raycaster.params.Points.threshold = 1.5;
         this.raycaster.linePrecision = 1.5;
         this.intersected = null;
         this.lineIntersected = null;
 
-        this.mouse = new THREE.Vector2();
+        this.mouse = new Vector2();
 
         this.colors = {
-            point: new THREE.Color("rgb(0, 255, 0)"),
-            ray: new THREE.Color("rgb(255, 0, 0)"),
-            pick: new THREE.Color("rgb(255, 0, 0)"),
+            point: new Color("rgb(0, 255, 0)"),
+            ray: new Color("rgb(255, 0, 0)"),
+            pick: new Color("rgb(255, 0, 0)"),
         }
 
         this.grid = new Grid();
 
-        this.asterisms = new THREE.Group();
+        this.asterisms = new Group();
         this.asterisms.renderOrder = 0;
         this.asterism = null;
 
@@ -49,10 +62,10 @@ export class Observatoire {
         this.stars = new Stars(data);
         this.scene.add(this.stars);
 
-        const centerGeo = new THREE.SphereGeometry(0.1, 10, 10);
-        this.scene.add(new THREE.Mesh(centerGeo));
+        const centerGeo = new SphereGeometry(0.1, 10, 10);
+        this.scene.add(new Mesh(centerGeo));
 
-        this.options.init(this.stars)
+        this.options.init(this.stars, this.controls);
         this.initListeners();
         this.animate();
     }
@@ -189,13 +202,13 @@ export class Observatoire {
     // HELPERS
 
     drawRaycaster (ray) {
-        let material = new THREE.LineBasicMaterial({color: this.colors.ray});
-        let geometry = new THREE.Geometry();
+        let material = new LineBasicMaterial({color: this.colors.ray});
+        let geometry = new Geometry();
         geometry.vertices.push(
             ray.origin,
             ray.origin.clone().addScaledVector(this.raycaster.ray.direction, 10000),
         );
-        let line = new THREE.Line(geometry, material);
+        let line = new Line(geometry, material);
         this.scene.add(line);
     }
 }

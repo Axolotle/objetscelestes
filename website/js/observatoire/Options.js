@@ -1,13 +1,13 @@
 export class Options {
     constructor() {
-        this.drawElem = document.getElementById('drawMode');
-        this.targetElem = document.getElementById('targetMode');
+        this.drawElem = document.getElementById('drawMode', false);
+        this.targetElem = document.getElementById('targetMode', false);
     }
-    
+
     init (stars) {
         this.initRange(stars);
     }
-    
+
     // modified version of https://github.com/leaverou/multirange by Lea Verou (MIT License)
     initRange (stars) {
         var descriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
@@ -18,21 +18,21 @@ export class Options {
         let ghost = input.cloneNode();
         let minInput = document.getElementById('minRange');
         let maxInput = document.getElementById('maxRange');
-        
+
         input.classList.add("multirange", "original");
         ghost.classList.add("multirange", "ghost");
-        
+
         input.value = values[0] - 0.01;
         ghost.value = values[1] + 0.01;
-        
+
         input.parentNode.insertBefore(ghost, input.nextSibling);
-        
+
         Object.defineProperty(input, "originalValue", descriptor.get ? descriptor : {
             // Fuck you Safari >:(
             get: function() { return this.value; },
             set: function(v) { this.value = v; }
         });
-        
+
         Object.defineProperties(input, {
             valueLow: {
                 get: function() { return Math.min(this.originalValue, ghost.value); },
@@ -45,7 +45,7 @@ export class Options {
                 enumerable: true
             }
         });
-        
+
         if (descriptor.get) {
             // Again, fuck you Safari
             Object.defineProperty(input, "value", {
@@ -59,18 +59,18 @@ export class Options {
                 enumerable: true
             });
         }
-        
+
         if (typeof input.oninput === "function") {
             ghost.oninput = input.oninput.bind(input);
         }
-        
+
         function update () {
             ghost.style.setProperty("--low", 100 * ((input.valueLow - min) / (max - min)) + 1 + "%");
             ghost.style.setProperty("--high", 100 * ((input.valueHigh - min) / (max - min)) - 1 + "%");
             minInput.value = input.valueLow;
             maxInput.value = input.valueHigh;
         }
-        
+
         function change (e) {
             if (e.target.validity.badInput) return;
             let min = minInput.value;
@@ -80,11 +80,11 @@ export class Options {
             update();
             end();
         }
-        
+
         function end () {
             stars.updateDrawRange(input.valueLow, input.valueHigh);
         }
-        
+
         ghost.addEventListener("mousedown", function passClick (evt) {
             // Find the horizontal position that was clicked
             let clickValue = min + (max - min)*evt.offsetX / this.offsetWidth;
@@ -100,17 +100,17 @@ export class Options {
         ghost.addEventListener("mouseup", end);
         minInput.addEventListener('change', change);
         maxInput.addEventListener('change', change);
-        
+
         update();
     }
-    
+
     get drawMode () {
         return this.drawElem.checked;
     }
-    
+
     get targetMode () {
         return this.targetElem.checked;
     }
-    
-    
+
+
 }

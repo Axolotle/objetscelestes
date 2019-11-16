@@ -1,10 +1,10 @@
-import * as THREE from '../libs/three.module.js';
+import { Vector2, Vector3, Quaternion, Matrix4 } from '../libs/three.module.js';
 
 export class CelestialControls {
     constructor (camera, domElem, targetPos) {
         this.camera = camera;
         this.domElem = domElem;
-        this.target = targetPos !== undefined ? targetPos : new THREE.Vector3();
+        this.target = targetPos !== undefined ? targetPos : new Vector3();
 
         this.screen = {
             left: 0,
@@ -32,15 +32,15 @@ export class CelestialControls {
 
         this.moving = false;
         this.move = {
-            prev: new THREE.Vector2(),
-            curr: new THREE.Vector2(),
+            prev: new Vector2(),
+            curr: new Vector2(),
         };
 
         // direction vector : camera - target
         this.eye = this.camera.position.clone().sub(this.target);
 
         this.up = this.camera.up;
-        this.rotationQt = new THREE.Quaternion();
+        this.rotationQt = new Quaternion();
         this.angle = 0;
 
         this.initListeners();
@@ -48,7 +48,7 @@ export class CelestialControls {
     }
 
     updateRotation () {
-        let quaternion = new THREE.Quaternion();
+        let quaternion = new Quaternion();
         quaternion.set(
             this.state.PITCH * this.speed.rot,
             this.state.YAW * this.speed.rot,
@@ -57,7 +57,7 @@ export class CelestialControls {
         ).normalize();
         this.rotationQt.multiply(quaternion);
 
-        let mx = new THREE.Matrix4().lookAt(this.camera.position, this.target, this.up);
+        let mx = new Matrix4().lookAt(this.camera.position, this.target, this.up);
         this.camera.quaternion.setFromRotationMatrix(mx);
         this.camera.quaternion.multiply(this.rotationQt);
 
@@ -68,7 +68,7 @@ export class CelestialControls {
     rotatePosition() {
         // taken from three.js script 'TrackballControls.js'
         // https://github.com/mrdoob/three.js/blob/master/examples/js/controls/TrackballControls.js
-        let moveDir = new THREE.Vector3(
+        let moveDir = new Vector3(
             this.move.curr.x - this.move.prev.x,
             this.move.curr.y - this.move.prev.y,
             0
@@ -80,9 +80,9 @@ export class CelestialControls {
 
             let eyeDir = this.eye.clone().normalize();
             let cameraUpDir = this.camera.up.clone().normalize();
-            let cameraSideDir = new THREE.Vector3();
-            let axis = new THREE.Vector3();
-            let quaternion = new THREE.Quaternion();
+            let cameraSideDir = new Vector3();
+            let axis = new Vector3();
+            let quaternion = new Quaternion();
 
             cameraSideDir.crossVectors(cameraUpDir, eyeDir).normalize();
             cameraUpDir.setLength(this.move.curr.y - this.move.prev.y);
@@ -129,18 +129,18 @@ export class CelestialControls {
     // UTILITIES
 
     getMouseOnScreen(pageX, pageY) {
-        return new THREE.Vector2(
+        return new Vector2(
             (pageX - this.screen.left) / this.screen.width,
             (pageY - this.screen.top) / this.screen.height
         );
     };
 
     getMouseOnCircle(pageX, pageY) {
-        let v = new THREE.Vector2(
+        let v = new Vector2(
             (pageX - this.screen.width * 0.5 - this.screen.left) / (this.screen.width * 0.5),
             (this.screen.height + 2 * (this.screen.top - pageY)) / this.screen.width // screen.width intentional
         );
-        return v.rotateAround(new THREE.Vector2(), this.angle);
+        return v.rotateAround(new Vector2(), this.angle);
     };
 
     // EVENT LISTERNERS
@@ -213,8 +213,8 @@ export class CelestialControls {
 
     update () {
         if (this.state.ROLL !== 0) {
-            let roll = new THREE.Quaternion(this.state.ROLL * this.speed.rot, 0, 0).normalize();
-            this.angle += this.state.ROLL * (roll.angleTo(new THREE.Quaternion()) * 2);
+            let roll = new Quaternion(this.state.ROLL * this.speed.rot, 0, 0).normalize();
+            this.angle += this.state.ROLL * (roll.angleTo(new Quaternion()) * 2);
         }
         if (this.moving) {
             this.rotatePosition();
