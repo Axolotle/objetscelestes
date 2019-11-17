@@ -199,6 +199,12 @@ export class Observatoire {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize( window.innerWidth, window.innerHeight );
+        this.controls.screen = {
+            left: 0,
+            top: 0,
+            width: window.innerWidth,
+            height: window.innerHeight
+        };
     }
 
     // HELPERS

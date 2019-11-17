@@ -104,6 +104,7 @@ export class CelestialControls {
 
             this.camera.position.addVectors(this.target, this.eye);
             this.lookAt();
+            this.hasMoved = false;
         }
     }
 
@@ -161,8 +162,8 @@ export class CelestialControls {
             let roll = new Quaternion(this.state.ROLL * this.speed.roll, 0, 0).normalize();
             this.rollValue += this.state.ROLL * (roll.angleTo(new Quaternion()));
         }
-        if (this.moving) {
-            this.rotatePosition();
+        if (this.hasMoved) {
+            if (this.wheelMode === 'dolly') this.rotatePosition();
         }
     }
 
@@ -231,7 +232,6 @@ export class CelestialControls {
                 this.move.curr.copy(this.move.prev);
                 document.addEventListener('mousemove', this);
                 document.addEventListener('mouseup', this);
-                this.moving = true;
                 break;
         }
     }
@@ -239,12 +239,12 @@ export class CelestialControls {
     mousemove (event) {
         this.move.prev.copy(this.move.curr);
         this.move.curr.copy(this.getMouseOnCircle(event.pageX, event.pageY));
+        this.hasMoved = true;
     }
 
     mouseup (event) {
         document.removeEventListener('mousemove', this);
         document.removeEventListener('mouseup', this);
-        this.moving = false;
     }
 
     wheel (event) {
