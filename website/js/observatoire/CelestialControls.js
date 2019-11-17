@@ -1,5 +1,9 @@
 import { Vector2, Vector3, Quaternion, Matrix4 } from '../libs/three.module.js';
 
+
+const _VECZERO = new Vector3();
+let _nextPos = new Vector3();
+
 export class CelestialControls {
     constructor (camera, domElem, targetPos) {
         this.camera = camera;
@@ -15,10 +19,11 @@ export class CelestialControls {
 
         this.speed = {
             roll: 0.01,
+            pitch: 0.005,
+            yaw: 0.005,
+            orbit: 1,
             dolly: 0.1,
-            zoom: 0.05,
-            rot: 0.005,
-            rotPos: 1
+            zoom: 0.05
         };
 
         this.state = {
@@ -28,7 +33,7 @@ export class CelestialControls {
         };
 
         this.dollyLimit = 0.05;
-        this.zoomType = 'dolly';
+        this.wheelMode = 'dolly';
 
         this.moving = false;
         this.move = {
@@ -36,12 +41,11 @@ export class CelestialControls {
             curr: new Vector2(),
         };
 
-        // direction vector : camera - target
+        // direction vector of camera -> target not normalized
         this.eye = this.camera.position.clone().sub(this.target);
-
         this.up = this.camera.up;
         this.rotationQt = new Quaternion();
-        this.angle = 0;
+        this.rollValue = 0;
 
         this.initListeners();
         this.updateRotation();
@@ -50,23 +54,23 @@ export class CelestialControls {
     updateRotation () {
         let quaternion = new Quaternion();
         quaternion.set(
-            this.state.PITCH * this.speed.rot,
-            this.state.YAW * this.speed.rot,
+            this.state.PITCH * this.speed.pitch,
+            this.state.YAW * this.speed.yaw,
             this.state.ROLL * this.speed.roll,
             1
         ).normalize();
         this.rotationQt.multiply(quaternion);
 
-        let mx = new Matrix4().lookAt(this.camera.position, this.target, this.up);
-        this.camera.quaternion.setFromRotationMatrix(mx);
-        this.camera.quaternion.multiply(this.rotationQt);
+        // let mx = new Matrix4().lookAt(this.camera.position, this.target, this.up);
+        // this.camera.quaternion.setFromRotationMatrix(mx);
+        // this.camera.quaternion.multiply(this.rotationQt);
 
-        // expose the rotation vector for convenience (taken from Three.js 'flyControls.js')
-        this.camera.rotation.setFromQuaternion(this.camera.quaternion, this.camera.rotation.order);
+        // expose the rotation vector for convenience (taken from js 'flyControls.js')
+        // this.camera.rotation.setFromQuaternion(this.camera.quaternion, this.camera.rotation.order);
     }
 
     rotatePosition() {
-        // taken from three.js script 'TrackballControls.js'
+        // taken from js script 'TrackballControls.js'
         // https://github.com/mrdoob/three.js/blob/master/examples/js/controls/TrackballControls.js
         let moveDir = new Vector3(
             this.move.curr.x - this.move.prev.x,
@@ -92,38 +96,74 @@ export class CelestialControls {
 
             axis.crossVectors(moveDir, this.eye).normalize();
 
-            angle *= this.speed.rotPos;
+            angle *= this.speed.orbit;
             quaternion.setFromAxisAngle(axis, angle);
 
             this.eye.applyQuaternion(quaternion);
             this.camera.up.applyQuaternion(quaternion);
 
             this.camera.position.addVectors(this.target, this.eye);
+            this.lookAt();
         }
     }
 
-    dolly (delta) {
-        let nextPos = this.camera.position.clone().addScaledVector(this.eye, delta * this.speed.dolly)
-        if (nextPos.length() <= this.dollyLimit) {
-            this.zoomType = 'zoom';
-            this.camera.position.setLength(this.dollyLimit);
-            this.zoom(delta);
-        } else {
-            this.camera.position.copy(nextPos);
-        }
+    lookAt (target) {
+        let mx = new Matrix4().lookAt(this.camera.position, target || this.target, this.up);
+        this.camera.quaternion.setFromRotationMatrix(mx);
+        // expose the rotation vector for convenience (taken from js 'flyControls.js')
+        this.camera.rotation.setFromQuaternion(this.camera.quaternion, this.camera.rotation.order);
+    }
 
+    switchWheelMode (mode, selectedTarget) {
+        if (mode === 'zoom') {
+            this.camera.position.copy(this.target);
+            // if there's a selected target that is different than the actual target
+            if (selectedTarget && !this.target.equals(selectedTarget)) {
+                this.lookAt(selectedTarget);
+            }
+            this.camera.zoom = 1;
+        } else if (mode === 'dolly') {
+            let direction = this.camera.getWorldDirection(_VECZERO).multiplyScalar(this.eye.length());
+            this.camera.position.subVectors(this.target, direction);
+            this.camera.zoom = 1;
+        }
+        this.wheelMode = mode;
+        this.camera.updateProjectionMatrix();
+    }
+
+    dolly (delta) {
+        _nextPos.copy(this.camera.position).addScaledVector(this.eye, delta * this.speed.dolly);
+        if (_nextPos.length() > 0) {
+            this.camera.position.copy(_nextPos);
+            this.eye.subVectors(this.camera.position, this.target);
+        } else {
+            // Switch to zoom mode ?
+        }
     }
 
     zoom (delta) {
         let nextValue = this.camera.zoom - delta * this.speed.zoom;
-        if (nextValue < 1) {
-            this.zoomType = 'dolly';
-            this.camera.zoom = 1;
-            this.dolly(delta);
-        } else {
+        if (nextValue >= 1) {
             this.camera.zoom = nextValue;
+            this.camera.updateProjectionMatrix();
+        } else {
+            if (nextValue !== 1) {
+                this.camera.zoom = 1;
+                this.camera.updateProjectionMatrix();
+            } else {
+                // Switch to dolly mode ?
+            }
         }
-        this.camera.updateProjectionMatrix();
+    }
+
+    update () {
+        if (this.state.ROLL !== 0) {
+            let roll = new Quaternion(this.state.ROLL * this.speed.roll, 0, 0).normalize();
+            this.rollValue += this.state.ROLL * (roll.angleTo(new Quaternion()));
+        }
+        if (this.moving) {
+            this.rotatePosition();
+        }
     }
 
     // UTILITIES
@@ -140,7 +180,7 @@ export class CelestialControls {
             (pageX - this.screen.width * 0.5 - this.screen.left) / (this.screen.width * 0.5),
             (this.screen.height + 2 * (this.screen.top - pageY)) / this.screen.width // screen.width intentional
         );
-        return v.rotateAround(new Vector2(), this.angle);
+        return v.rotateAround(new Vector2(), this.rollValue);
     };
 
     // EVENT LISTERNERS
@@ -208,18 +248,6 @@ export class CelestialControls {
     }
 
     wheel (event) {
-        this[this.zoomType](Math.sign(event.deltaY));
-    }
-
-    update () {
-        if (this.state.ROLL !== 0) {
-            let roll = new Quaternion(this.state.ROLL * this.speed.rot, 0, 0).normalize();
-            this.angle += this.state.ROLL * (roll.angleTo(new Quaternion()) * 2);
-        }
-        if (this.moving) {
-            this.rotatePosition();
-        }
-
-        this.updateRotation();
+        this[this.wheelMode](Math.sign(event.deltaY));
     }
 }

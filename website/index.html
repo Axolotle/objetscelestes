@@ -33,23 +33,24 @@
             <fieldset>
                 <legend>Camera</legend>
                 <div class="row">
-                    <button name="zoom">ZOOM</button>
-                    <button name="dolly">DOLLY</button>
+                    <button id="zoomMode" name="zoom">ZOOM</button>
+                    <button id="dollyMode" name="dolly">DOLLY</button>
                 </div>
             </fieldset>
+            <h3>SELECTEURS</h3>
             <fieldset id="starMag">
                 <legend>Étoiles</legend>
                 <div class="container">
-                    <input class="starRange" type="range" multiple value="" min="0" max="6.5" step="0.001"/>
+                    <input class="starRange" type="range" multiple value="" min="0" max="6.5" step="0.01"/>
                 </div>
-                
+
                 <div class="row">
                     <label class="bg" for="minRange">min mag.</label>
-                    <input id="minRange" name="minRange" type="number" min="0" max="6.5" step="0.001" value="0.765"/>
+                    <input id="minRange" name="minRange" type="number" min="0" max="6.5" step="0.01" value="0.765"/>
                 </div>
                 <div class="row">
                     <label class="bg" for="minRange">max mag.</label>
-                    <input id="maxRange" name="maxRange" type="number" min="0" max="6.5" step="0.001"/>
+                    <input id="maxRange" name="maxRange" type="number" min="0" max="6.5" step="0.01"/>
                 </div>
             </fieldset>
         </form>

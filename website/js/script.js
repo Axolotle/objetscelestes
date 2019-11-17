@@ -4,7 +4,7 @@ import { Observatoire } from './observatoire/Observatoire.js';
 window.onload = async () => {
     var obs = new Observatoire();
     var data = await getJSON('data/UMa.json');
-    obs.init(data, 0.001)
+    obs.init(data, 10)
 };
 
 function getJSON(uri) {

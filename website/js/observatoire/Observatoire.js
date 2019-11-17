@@ -55,6 +55,7 @@ export class Observatoire {
 
         this.camera.position.set(0, 0, -1);
         this.camera.position.setLength(distance);
+        this.controls.lookAt();
 
         this.scene.add(this.grid);
         this.scene.add(this.asterisms);
@@ -117,6 +118,7 @@ export class Observatoire {
             let target = this.stars.getTarget(intersects[0].index);
             if (this.options.targetMode) {
                 this.controls.target.copy(target);
+                this.controls.lookAt();
             }
             if (this.options.drawMode) {
                 if (this.asterism === null || !this.asterism.isSelected) {

@@ -105,6 +105,10 @@ export class Stars extends Points {
     }
 
     getTarget(index) {
+        if (index === undefined) {
+            if (this.selected === null) return null;
+            index = this.selected;
+        }
         return _target.fromBufferAttribute(this.geometry.attributes.position, index);
     }
 

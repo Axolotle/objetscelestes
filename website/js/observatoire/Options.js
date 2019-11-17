@@ -2,10 +2,20 @@ export class Options {
     constructor() {
         this.drawElem = document.getElementById('drawMode', false);
         this.targetElem = document.getElementById('targetMode', false);
+        this.zoomElem = document.getElementById('zoomMode', false);
+        this.dollyElem = document.getElementById('dollyMode', false);
     }
 
-    init (stars) {
+    init (stars, controls) {
         this.initRange(stars);
+        this.zoomElem.addEventListener('click', () => {
+            let target = stars.getTarget();
+            controls.switchWheelMode('zoom', target);
+        }, false);
+        this.dollyElem.addEventListener('click',  () => {
+            let target = stars.getTarget();
+            controls.switchWheelMode('dolly', target);
+        }, false);
     }
 
     // modified version of https://github.com/leaverou/multirange by Lea Verou (MIT License)
