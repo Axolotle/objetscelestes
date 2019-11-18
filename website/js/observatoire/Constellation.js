@@ -94,6 +94,8 @@ export class Stars extends Points {
         // Custom properties
         this.selected = null;
         this.infos = stars;
+        this.labels = [];
+        this.setupLabels();
 
     }
 
@@ -179,5 +181,39 @@ export class Stars extends Points {
     hideInfos () {
         document.getElementById('subCard').classList.add('hide');
         document.getElementById('mainCard').classList.add('hide');
+    }
+
+    setupLabels () {
+        const container = document.getElementById('starsLabels');
+        for (let i = 0, l = this.infos.length; i < l; i++) {
+            const elem = document.createElement('div');
+            // FIXME Rework naming
+            let name = this.infos[i].name.replace('*', '').replace('UMa', '').trim();
+            let greek = name.substring(0, 3);
+            if (greek in _greek) {
+                name = name.replace(greek, _greek[greek]);
+            }
+            elem.textContent = name;
+            container.appendChild(elem);
+            this.labels.push(elem);
+        }
+    }
+
+    update (camera, renderElem) {
+        let v = new Vector3();
+        const drawRange = this.geometry.drawRange;
+        const vertices = this.geometry.attributes.position.array;
+        for (let i = 0, l = this.infos.length; i < l; i++) {
+            v.set(vertices[i * 3], vertices[i * 3 + 1], vertices[i * 3 + 2]);
+            v.project(camera);
+            if (Math.abs(v.z) > 1 || i < drawRange.start || i >= drawRange.start + drawRange.count) {
+                this.labels[i].classList.add('hide');
+            } else {
+                const x = (v.x *  .5 + .5) * renderElem.clientWidth;
+                const y = (v.y * -.5 + .5) * renderElem.clientHeight;
+                this.labels[i].style.transform = `translate(${x+7}px,${y-15}px)`;
+                this.labels[i].classList.remove('hide');
+            }
+        }
     }
 }

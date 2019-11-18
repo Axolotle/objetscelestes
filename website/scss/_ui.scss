@@ -38,13 +38,14 @@
             content: ':';
         }
     }
-    
+
     .row {
         display: flex;
         justify-content: space-between;
     }
     .container {
-        height: 1.6rem;
+        height: 1.5rem;
+        box-sizing: content-box;
         border: 1px $dark solid;
         margin-bottom: 1rem;
     }
@@ -114,7 +115,7 @@
             color: $dark;
         }
     }
-    
+
     input[type=range].multirange {
         width: calc(10rem - 2px);
         height: 1.5rem;
@@ -125,26 +126,25 @@
         padding: 0;
         outline: none;
         background-color: $color;
-        
-        
-        
+
         @mixin rangeButton {
             height: 1.5rem;
-            width: 1.5rem;
+            width: 1rem;
             background-color: $dark;
             border: none;
             border-radius: 0;
             cursor: pointer;
-            
+
             &:hover {
-                background-color: $inter; 
+                background-color: $inter;
+                width: 1.5rem;
             }
         }
-        
+
         &.original {
     		position: absolute;
     	}
-        
+
         // FF
         &::-moz-range-thumb {
             @include rangeButton;
@@ -173,7 +173,7 @@
         &::-ms-thumb {
             @include rangeButton;
         }
-        
+
         &.ghost {
             // from https://github.com/leaverou/multirange
     		position: relative;
@@ -183,40 +183,40 @@
     				var(--range-color) var(--high), transparent 0
     			) no-repeat 0 50% / 100% 100%;
     		--range-color: hsl(240, 100%, 100%);
-            height: 1.5rem;
-            
+
             &::-webkit-slider-runnable-track {
     			background: var(--track-background);
     		}
-            
+
             &::-moz-range-track {
     			background: var(--track-background);
     		}
-    	}    
+    	}
     }
-    
+
     input[type=number] {
         width: 4rem;
         height: 1.5rem;
         text-align: center;
         background-color: $light;
-        
+        -moz-appearance: textfield;
+
         &:focus, &:hover {
             background-color: $inter;
             color: $light;
         }
+
         &:invalid {
             background-color: red;
             color: $light;
         }
-        
-        -moz-appearance: textfield;
-        &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
+
+        &::-webkit-inner-spin-button, &::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
     }
-    
+
     label {
         &.bg {
             background-color: $dark;
@@ -227,7 +227,7 @@
             line-height: 1.5rem;
         }
     }
-    
-    
-    
+
+
+
 }

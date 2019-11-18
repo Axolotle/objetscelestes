@@ -75,6 +75,7 @@ export class Observatoire {
         requestAnimationFrame(this.animate.bind(this));
         this.controls.update();
         this.grid.update(this.camera, this.renderer.domElement);
+        this.stars.update(this.camera, this.renderer.domElement);
         this.renderer.render(this.scene, this.camera);
     }
 
