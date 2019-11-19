@@ -113,12 +113,18 @@ export class CelestialControls {
         this.hasMoved = false;
     }
 
-    lookAt (target) {
+    lookAt (target, prevRollAngle) {
         let mx = new Matrix4().lookAt(this.camera.position, target || this.target, this.camera.up);
         this.camera.quaternion.setFromRotationMatrix(mx);
+        if (prevRollAngle !== undefined) {
+            // expose the rotation vector
+            this.camera.rotation.setFromQuaternion(this.camera.quaternion, this.camera.rotation.order);
+            // reset the rolling quaternion from previous rolling angle difference
+            this.rollQt.setFromEuler(new Euler(0, 0, prevRollAngle - this.camera.rotation.z, 'XYZ'));
+        }
         // Reapply the rolling quaternion since the camera's quaternion has been reseted by the lookAt
         this.camera.quaternion.multiply(this.rollQt);
-        // expose the rotation vector for convenience (taken from js 'flyControls.js')
+        // expose again the rotation vector for convenience (taken from js 'flyControls.js')
         this.camera.rotation.setFromQuaternion(this.camera.quaternion, this.camera.rotation.order);
     }
 
@@ -134,9 +140,9 @@ export class CelestialControls {
             if (mode === this.wheelMode) return;
             let direction = this.camera.getWorldDirection(_VEC3ZERO).multiplyScalar(this.prevDist || 10).negate();
             this.camera.position.add(direction);
-            // FIXME: the lookAt method resets the quaternion so there is a
-            // rotation that would need to be reapplied
-            this.lookAt();
+            // lookAt target and give the actual value of the rollingg angle
+            // to reapply it after quaternion's reset
+            this.lookAt(this.target, this.camera.rotation.z);
             this.camera.zoom = 1;
         }
         this.wheelMode = mode;
