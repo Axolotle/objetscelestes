@@ -123,10 +123,10 @@ export class Observatoire {
             }
             if (this.options.drawMode) {
                 if (this.asterism === null || !this.asterism.isSelected) {
-                    this.asterism = new Asterism(target, this.renderer.domElement, this.camera);
+                    this.asterism = new Asterism(target, intersects[0].index);
                     this.asterisms.add(this.asterism);
                 } else {
-                    this.asterism.addPoint(target)
+                    this.asterism.addPoint(target, intersects[0].index);
                 }
             }
             return;
@@ -180,20 +180,29 @@ export class Observatoire {
     }
 
     keydown (event) {
-        if (event.key !== 'Delete') return;
-        if (this.asterism && this.asterism.isSelected) {
-            if (this.asterism.preDraw) {
-                this.asterism.stopAction();
-                return;
+        if (event.code === 'Delete' || event.code === 'Backspace') {
+            if (this.asterism && this.asterism.isSelected) {
+                if (this.asterism.preDraw) {
+                    this.asterism.stopAction();
+                    return;
+                }
+                let selectLen = this.asterism.selectedSegments.length;
+                if (selectLen === 0 || selectLen * 2 === this.asterism.drawCount) {
+                    this.asterism.dispose();
+                    this.asterism = null;
+                } else {
+                    this.asterism.removeSegments();
+                }
             }
-            let selectLen = this.asterism.selectedSegments.length;
-            if (selectLen === 0 || selectLen * 2 === this.asterism.drawCount) {
-                this.asterism.dispose();
-                this.asterism = null;
-            } else {
-                this.asterism.removeSegments();
+        } else if (event.code === 'KeyS' && event.ctrlKey) {
+            event.preventDefault();
+            console.log('SAVING');
+            for (const asterism of this.asterisms.children) {
+                const save = asterism.save();
+                console.log(save);
             }
         }
+
     }
 
     resize () {

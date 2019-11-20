@@ -15,7 +15,7 @@ let _mouse = new Vector3();
 let _pt = new Vector3();
 
 export class Asterism extends LineSegments {
-    constructor (startPt) {
+    constructor (startPt, index) {
         let positions = new Float32Array(_MAX * 3);
         let colors = new Float32Array(_MAX * 3);
         _color.setHex(_selectColor);
@@ -42,17 +42,21 @@ export class Asterism extends LineSegments {
         this.preDraw = true;
         this.isSelected = true;
         this.selectedSegments = [];
+        this.starsIndex = [index];
 
         this.initListeners();
     }
 
-    addPoint (point) {
+    addPoint (point, index) {
         let pts = this.geometry.attributes.position.array;
         let prev = (this.drawCount - 2) * 3;
         if (this.preDraw) {
             // do not draw the point if it is the same as the previous one
             if (pts[prev] === point.x && pts[prev+1] === point.y && pts[prev+2] === point.z) return;
             point.toArray(pts, (this.drawCount -1) * 3);
+            this.starsIndex = [...this.starsIndex, index, index];
+        } else {
+            this.starsIndex.push(index);
         }
         if (this.selectedSegments.length > 0) {
             this.unselect(null, true);
@@ -146,6 +150,7 @@ export class Asterism extends LineSegments {
                 pts.array[i+3] = pts.array[i+9];
             }
             this.drawCount -= 2;
+            this.starsIndex.splice(segments[s], 2);
         }
         this.unselect(null, true);
         this.geometry.setDrawRange(0, this.drawCount);
@@ -158,8 +163,16 @@ export class Asterism extends LineSegments {
         this.preDraw = false;
         this.drawCount -= 2;
         this.geometry.setDrawRange(0, this.drawCount);
+        this.starsIndex.pop();
         // reset predrawn points to avoid raycasting and bounding errors
         this.geometry.attributes.position.array.copyWithin(this.drawCount * 3, -6);
+    }
+    
+    save () {
+        return {
+            name: '',
+            indexes: this.starsIndex
+        }
     }
 
     dispose () {
