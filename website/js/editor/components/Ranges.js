@@ -120,11 +120,5 @@ class IntervalRangeNumber extends IntervalRange {
     }
 }
 
-/**
- * Callback function to execute.
- * Can be any function and may receive an indefinite series of arguments.
- * @callback publish
- * @param {...*}
- */
 
 export { IntervalRange, IntervalRangeNumber };
