@@ -5,59 +5,14 @@ import {
     Points // 3D objects
 } from '../libs/three.module.js';
 
+import { pointShaders } from '../misc/shaders.js';
+import { greekAbbr, constName, starType } from '../misc/starDictionnary.js';
+
 
 const _color = new Color(0x00ff00).toArray();
 const _selectColor = new Color(0xff0000).toArray();
 const _target = new Vector3();
-const _vertexShader = `
-attribute vec3 color;
-attribute float size;
-varying vec3 vColor;
 
-void main () {
-    vColor = color;
-    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-    gl_PointSize = 10.0 * size;
-    gl_Position = projectionMatrix * mvPosition;
-}
-`;
-const _fragmentShader = `
-varying vec3 vColor;
-
-void main () {
-    gl_FragColor = vec4(vColor, 1.0);
-    vec2 coord = gl_PointCoord - vec2(0.5);
-    if (length(coord) > 0.5)
-        discard;
-}
-`;
-
-// temp name converter for Bayer designation
-// https://en.wikibooks.org/wiki/Celestia/STC_File#Bayer_Star_Names
-// https://fr.wikipedia.org/wiki/Alphabet_grec
-const _greek = {
-    'alf': 'α', 'bet': 'β', 'gam': 'γ', 'del': 'δ',
-    'eps': 'ε', 'zet': 'ζ', 'eta': 'η', 'tet': 'θ',
-    'iot': 'ι', 'kap': 'κ', 'lam': 'λ', 'mu.': 'μ',
-    'nu.': 'ν', 'ksi': 'ξ', 'omi': 'ο', 'pi.': 'π',
-    'rho': 'ρ', 'sig': 'σ', 'tau': 'τ', 'ups': 'υ',
-    'phi': 'φ', 'chi': 'χ', 'psi': 'ψ', 'ome': 'ω',
-}
-
-const _const = {
-    'UMa': 'Grande Ourse (Ursa Major)'
-}
-
-const _type = {
-    'Star': 'Star',
-    'PM*': 'High proper-motion Star',
-    'SB*': 'Spectroscopic binary',
-    'Em*': 'Emission-line Star',
-    '**': 'Double or multiple star',
-    'RSCVn': 'Variable Star of RS CVn type',
-    'PulsV*delSct': 'Variable Star of delta Sct type',
-    'RotV*alf2CVn': 'Variable Star of alpha2 CVn type',
-}
 
 // https://github.com/mrdoob/js/blob/master/src/objects/Points.js
 export class Stars extends Points {
@@ -79,8 +34,8 @@ export class Stars extends Points {
         geometry.setAttribute('size', new BufferAttribute(sizes, 1));
 
         const shaderMaterial = new ShaderMaterial({
-            vertexShader: _vertexShader,
-            fragmentShader: _fragmentShader,
+            vertexShader: pointShaders.vertex,
+            fragmentShader: pointShaders.fragment,
             depthTest: false
         });
         // const shaderMaterial = new PointsMaterial({vertexColors: VertexColors, size: 10, sizeAttenuation: false, depthTest: false})
@@ -146,8 +101,8 @@ export class Stars extends Points {
         }
         let extraname = star.name.replace('*', '').trim();
         let greek = extraname.substring(0, 3);
-        if (greek in _greek) {
-            extraname = extraname.replace(greek, _greek[greek]);
+        if (greek in greekAbbr) {
+            extraname = extraname.replace(greek, greekAbbr[greek]);
         }
         name += extraname;
         if (sub) {
@@ -162,7 +117,7 @@ export class Stars extends Points {
 
         document.querySelector('#mainCard h2').textContent = name;
         // Constellation name
-        document.getElementById('constellation').textContent = _const[extraname.slice(-3)];
+        document.getElementById('constellation').textContent = constName[extraname.slice(-3)];
         // Position
         let ra = star.ra.split(' ');
         document.getElementById('asc').innerHTML = ra[0] + '<sup>h</sup> ' + ra[1] + '<sup>m</sup> ' + ra[2] + '<sup>s</sup>';
@@ -173,7 +128,7 @@ export class Stars extends Points {
         // Vmag
         document.getElementById('mag').textContent = star.vmag.toFixed(2);
         // Type
-        document.getElementById('type').textContent = _type[star.type];
+        document.getElementById('type').textContent = starType[star.type];
         // URL to symbad query
         document.getElementById('simbad').href = 'http://simbad.u-strasbg.fr/simbad/sim-id?Ident=' + star.name;
     }
@@ -190,8 +145,8 @@ export class Stars extends Points {
             // FIXME Rework naming
             let name = this.infos[i].name.replace('*', '').replace('UMa', '').trim();
             let greek = name.substring(0, 3);
-            if (greek in _greek) {
-                name = name.replace(greek, _greek[greek]);
+            if (greek in greekAbbr) {
+                name = name.replace(greek, greekAbbr[greek]);
             }
             elem.textContent = name;
             container.appendChild(elem);
