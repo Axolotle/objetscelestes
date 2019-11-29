@@ -1,6 +1,6 @@
 import Subscriber from '../utilities/Subscriber.js';
 import Mouse from './components/Mouse.js';
-import UiFactory from './UiFactory.js';
+import { UiFactory } from './UiFactory.js';
 
 
 class Ui extends Subscriber {
@@ -16,7 +16,7 @@ class Ui extends Subscriber {
             this.mouse.setFromPage(this.canvas, e.pageX, e.pageY)
         });
 
-        // disable the 'click' event to fire at 'mouseup' while dragging.
+        // prevent the 'click' event to fire at 'mouseup' event when loosing drag.
         let captureClick = (e) => {
             e.stopPropagation();
             window.removeEventListener('click', captureClick, true);
@@ -33,8 +33,7 @@ class Ui extends Subscriber {
             this.canvas.addEventListener('mousemove', drag, false);
             this.canvas.addEventListener('mouseup', (e) => {
                 this.canvas.removeEventListener('mousemove', drag, false);
-
-            }, false)
+            }, false);
         }, false);
         this.canvas.addEventListener('click', click, false);
 

@@ -1,28 +1,27 @@
-import { IntervalRange, IntervalRangeNumber } from './components/Ranges.js'
+import * as components from './components/index.js';
 
-const UiFactory = {
 
-    _registeredTypes: new Map([
-        ['IntervalRange', IntervalRange],
-        ['IntervalRangeNumber', IntervalRangeNumber]
-    ]),
+const registeredTypes = new Map();
 
+for (let name in components) {
+    registeredTypes.set(name, components[name])
+}
+
+export const UiFactory = {
     register(clsName, cls) {
-        if (!UiFactory._registeredTypes.has(clsName)) {
-            UiFactory._registeredTypes.set(clsName, cls);
+        if (!registeredTypes.has(clsName)) {
+            registeredTypes.set(clsName, cls);
         } else {
             console.warn(`${clsName} is already registered.`)
         }
     },
 
     create(clsName, elem, params) {
-        if (!UiFactory._registeredTypes.has(clsName)) {
+        if (!registeredTypes.has(clsName)) {
             console.error(`${clsName} is not registered, can't create instance of ${clsName}.`);
             return null;
         }
-        let cls = this._registeredTypes.get(clsName);
+        let cls = registeredTypes.get(clsName);
         return new cls(elem, params);
     }
 }
-
-export { UiFactory as default };
