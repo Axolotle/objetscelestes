@@ -8,27 +8,28 @@ class IntervalRange {
      * @param {Object} elem - an DOM object containing an input[type=range].
      * @param {Array} interval - Initial values of the interval.
      */
-    constructor(elem, interval, onChangeFunc) {
+    constructor(elem, interval) {
         this.original = elem.querySelector('input[type=range]');
         this.ghost = this.original.cloneNode();
-
-        this.interval = interval;
-
-        this.original.classList.add("original");
-        this.ghost.classList.add("ghost");
 
         this.min = this.original.min;
         this.max = this.original.max;
 
+        this.valueLow = interval ? interval[0] : this.min;
+        this.valueHigh = interval ? interval[1] : this.max;
+
+        this.original.classList.add("original");
+        this.ghost.classList.add("ghost");
+
         this.original.parentNode.insertBefore(this.ghost, this.original.nextSibling);
-        
-        this.onChange = onChangeFunc;
-        
+
         this.original.addEventListener('input', this.render.bind(this), false);
         this.ghost.addEventListener('input', this.render.bind(this), false);
-        this.original.addEventListener('mouseup', this.onChange, false);
-        this.ghost.addEventListener('mouseup', this.onChange, false);
+        this.original.addEventListener('mouseup', () => {this.onChange()}, false);
+        this.ghost.addEventListener('mouseup', () => {this.onChange()}, false);
         this.ghost.addEventListener('mousedown', this.mousedown.bind(this), false);
+
+        if (this.__proto__.constructor.name === 'IntervalRange') this.render();
     }
 
     get valueLow() { return Math.min(this.original.value, this.ghost.value); }
@@ -36,11 +37,12 @@ class IntervalRange {
 
     get valueHigh() { return Math.max(this.original.value, this.ghost.value); }
     set valueHigh(value) { this.ghost.value = value; }
-    
+
     get interval() { return [this.valueLow, this.valueHigh] }
-    set interval(values) { 
-        this.original.value = values[0] - 0.01;
-        this.ghost.value = values[1] + 0.01;
+    set interval(values) {
+        this.original.value = values[0];
+        this.ghost.value = values[1];
+        this.render();
     }
 
     /** Change the style of the range accordingly. */
@@ -68,11 +70,11 @@ class IntervalRange {
             this.original.value = this.ghost.value;
         }
     }
-    
+
     /**
      * onChange function set by the Ui editor and used to publish changes.
      */
-    onChange() {}
+    onChange() { }
 }
 
 
@@ -86,16 +88,17 @@ class IntervalRangeNumber extends IntervalRange {
      * @param {Object} elem - an DOM object containing an input[type=range].
      * @param {Array} interval - Initial values of the interval.
      */
-    constructor(elem, interval, onChangeFunc) {
-        super(elem, interval, onChangeFunc);
+    constructor(elem, interval) {
+        super(elem, interval);
         this.minInput = elem.querySelector('.minRange');
         this.maxInput = elem.querySelector('.maxRange');
 
-        this.minInput.value = interval[0] - 0.01;
-        this.maxInput.value = interval[1] + 0.01;
-        
+        this.minInput.value = this.valueLow;
+        this.maxInput.value = this.valueHigh;
+
         this.minInput.addEventListener('change', this.change.bind(this), false);
         this.maxInput.addEventListener('change', this.change.bind(this), false);
+        this.render();
     }
 
     /** Change the style of the range accordingly and update inputs[type=number] values. */
@@ -113,9 +116,7 @@ class IntervalRangeNumber extends IntervalRange {
         if (e.target.validity.badInput) return;
         let min = this.minInput.value;
         let max = this.maxInput.value;
-        this.valueLow = min > max ? max : min;
-        this.valueHigh = max < min ? min : max;
-        this.render();
+        this.interval = [min, max]
         this.onChange();
     }
 }
