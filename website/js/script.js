@@ -1,6 +1,5 @@
 import { Observatoire } from './observatoire/Observatoire.js';
 import Ui from './editor/Ui.js';
-import { IntervalRangeNumber } from './editor/components/index.js';
 
 
 let sw = false;
@@ -15,19 +14,16 @@ if (sw && 'serviceWorker' in navigator) {
 window.onload = async () => {
     let obs = new Observatoire();
     let ui = new Ui(document.getElementById('canvas'));
-    
+
     initUiComponents(ui);
-    
+
     let data = await getJSON('data/UMa.json');
     obs.init({stars: data, grid: true, cameraDistance: 10});
 };
 
 function initUiComponents(ui) {
-    let magnitudeRange = new IntervalRangeNumber(
-        document.getElementById('starMag'),
-        [1.76, 3.31],
-        () => { ui.publish('starMag-change', magnitudeRange.interval);}
-    );
+    let magn = ui.add('IntervalRangeNumber', document.getElementById('magnitude'), [1.75, 3.32]);
+    magn.onChange = () => { ui.publish('magnitude-change', magn.interval); };
 }
 
 function getJSON(uri) {

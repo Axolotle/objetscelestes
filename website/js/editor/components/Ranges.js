@@ -114,9 +114,7 @@ class IntervalRangeNumber extends IntervalRange {
      */
     change(e) {
         if (e.target.validity.badInput) return;
-        let min = this.minInput.value;
-        let max = this.maxInput.value;
-        this.interval = [min, max]
+        this.interval = [this.minInput.value, this.maxInput.value];
         this.onChange();
     }
 }
