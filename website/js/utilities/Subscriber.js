@@ -1,7 +1,7 @@
-import events from './EventManager.js';
+import { events } from './EventManager.js';
 
 /** Helper class to handle events. */
-class Subscriber {
+export class Subscriber {
     /**
      * Setup events handling.
      * @param {EventManager} events - an EventManager instance.
@@ -44,5 +44,3 @@ class Subscriber {
  * @callback func
  * @param {...*}
  */
-
-export { Subscriber as default };

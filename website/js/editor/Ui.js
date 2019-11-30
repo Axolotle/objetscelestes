@@ -1,9 +1,9 @@
-import Subscriber from '../utilities/Subscriber.js';
-import Mouse from './components/Mouse.js';
+import { Subscriber } from '../utilities/Subscriber.js';
+import { Mouse } from './components/Mouse.js';
 import { UiFactory } from './UiFactory.js';
 
 
-class Ui extends Subscriber {
+export class Ui extends Subscriber {
     constructor(canvas) {
         super();
         this.canvas = canvas;
@@ -43,6 +43,3 @@ class Ui extends Subscriber {
         return UiFactory.create(clsName, elem, ...params);
     }
 }
-
-
-export { Ui as default };

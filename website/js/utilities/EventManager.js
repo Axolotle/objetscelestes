@@ -53,4 +53,4 @@ class EventManager {
 
 let events = new EventManager();
 
-export { events as default };
+export { events };
