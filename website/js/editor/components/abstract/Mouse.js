@@ -2,7 +2,7 @@ import { Subscriber } from '../../../utilities/Subscriber.js';
 import { Vector2 } from '../../../libs/three.module.js';
 
 
-let _onclick, _ondrag, _onmousedown, _onmouseup, _captureClick;
+let _onclick, _ondrag, _onmousedown, _onmouseup, _onwheel, _captureClick;
 
 export class Mouse extends Subscriber {
     constructor(canvas) {
@@ -14,9 +14,11 @@ export class Mouse extends Subscriber {
         _ondrag = this.ondrag.bind(this);
         _onmousedown = this.onmousedown.bind(this);
         _onmouseup = this.onmouseup.bind(this);
+        _onwheel = this.onwheel.bind(this);
         _captureClick = this.captureClick.bind(this);
         this.elem.addEventListener('click', _onclick, false);
         this.elem.addEventListener('mousedown', _onmousedown, false);
+        this.elem.addEventListener('wheel', _onwheel, false);
     }
 
     getMouseFromCenter(pageX, pageY) {
@@ -47,6 +49,10 @@ export class Mouse extends Subscriber {
     onmouseup() {
         document.removeEventListener('mousemove', _ondrag, false);
         document.removeEventListener('mouseup', _onmouseup, false);
+    }
+
+    onwheel(e) {
+        this.publish('mouse-wheel', Math.sign(e.deltaY))
     }
 
     captureClick(e) {
