@@ -1,5 +1,5 @@
 import { Observatoire } from './observatoire/Observatoire.js';
-import Ui from './editor/Ui.js';
+import { Ui } from './editor/Ui.js';
 
 
 let sw = false;
@@ -13,12 +13,12 @@ if (sw && 'serviceWorker' in navigator) {
 
 window.onload = async () => {
     let obs = new Observatoire();
-    let ui = new Ui(document.getElementById('canvas'));
-
-    initUiComponents(ui);
-
     let data = await getJSON('data/UMa.json');
-    obs.init({stars: data, grid: true, cameraDistance: 10});
+    obs.init({stars: data, grid: true, cameraDistance: 0});
+
+    let ui = new Ui(document.getElementById('canvas'));
+    initUiComponents(ui);
+    let editor;
 };
 
 function initUiComponents(ui) {

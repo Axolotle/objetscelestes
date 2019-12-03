@@ -30,15 +30,15 @@ const _move = {
 
 
 export class CameraController extends Subscriber {
-    constructor(camera, target) {
+    constructor(camera, modes, target) {
         super();
 
         this.camera = camera;
         this.target = new Vector3();
         if (target) this.target.copy(target);
 
-        this.moveMode = 'orbit';
-        this.zoomMode = 'dolly';
+        this.moveMode = modes.move || 'rotate';
+        this.zoomMode = modes.zoom || 'zoom';
 
         this.speed = {
             roll: 0.01,

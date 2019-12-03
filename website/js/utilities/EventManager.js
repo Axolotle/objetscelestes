@@ -14,7 +14,6 @@ class EventManager {
      * @param {...*} args - indefinite series of arguments of any type.
      */
     publish (eventName, ...args) {
-        console.log(eventName, ...args);
         if (!this.events[eventName]) return false;
         for (let subscriber of this.events[eventName]) {
             subscriber.fn(...args);

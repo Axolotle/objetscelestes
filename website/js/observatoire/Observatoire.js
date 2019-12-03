@@ -4,6 +4,7 @@ import {
     SphereGeometry, Mesh
 } from '../libs/three.module.js';
 
+import { CameraController } from './CameraController.js';
 import { Grid } from '../objects3d/Grid.js';
 import { Stars } from '../objects3d/Stars.js';
 
@@ -13,11 +14,12 @@ export class Observatoire {
         this.scene = new Scene();
         this.renderer = new WebGLRenderer({antialias: false, alpha: true, premultipliedAlpha: true, canvas: document.getElementById('canvas')});
         this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.000000001, 10000);
-        
+        this.controls = new CameraController(this.camera, {move: 'rotate', zoom: 'zoom'});
+
         this.grid = new Grid();
         this.grid.visible = false;
         this.scene.add(this.grid);
-        
+
         this.stars = null;
     }
 
@@ -31,10 +33,10 @@ export class Observatoire {
         if (stars) {
             this.stars = new Stars(stars);
             this.scene.add(this.stars);
-            this.camera.lookAt(new Vector3(...stars[0].pos));
+            this.controls.lookAt(new Vector3(...stars[0].pos));
         }
 
-        const centerGeo = new SphereGeometry(0.1, 10, 10);
+        const centerGeo = new SphereGeometry(1, 10, 10);
         this.scene.add(new Mesh(centerGeo));
 
         this.animate();
