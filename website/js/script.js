@@ -1,5 +1,5 @@
 import { Observatoire } from './observatoire/Observatoire.js';
-import { Ui } from './editor/Ui.js';
+import { Ui } from './ui/Ui.js';
 
 
 let sw = false;
