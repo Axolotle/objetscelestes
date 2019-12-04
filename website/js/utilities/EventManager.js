@@ -1,11 +1,9 @@
 import { getGuid } from './utils.js';
 
 /** Implementation of a PubSub class. */
-class EventManager {
+export const events = {
     /** Setup events object. */
-    constructor () {
-        this.events = {};
-    }
+    events: {},
 
     /**
      * Publish an event by executing every functions attached to this event with
@@ -15,10 +13,10 @@ class EventManager {
      */
     publish (eventName, ...args) {
         if (!this.events[eventName]) return false;
-        for (let subscriber of this.events[eventName]) {
+        for (const subscriber of this.events[eventName]) {
             subscriber.fn(...args);
         }
-    }
+    },
 
     /**
      * Subscribe to a event and define the function to execute.
@@ -29,10 +27,10 @@ class EventManager {
      */
     subscribe (eventName, fn) {
         if (!this.events[eventName]) this.events[eventName] = [];
-        let id = getGuid();
+        const id = getGuid();
         this.events[eventName].push({fn, id});
         return id;
-    }
+    },
 
     /**
      * Delete the event and its callback.
@@ -40,7 +38,7 @@ class EventManager {
      * @param {string} id - the GUID attached to the callback function.
      */
     unsubscribe (eventName, id) {
-        let e = this.events[event];
+        const e = this.events[event];
         if (!e) return false;
         for (let i = 0, l = e.length; i < l; i++) {
             if (e[i].id === id) e.splice(i, 1);
@@ -49,7 +47,3 @@ class EventManager {
         return false;
     }
 }
-
-let events = new EventManager();
-
-export { events };

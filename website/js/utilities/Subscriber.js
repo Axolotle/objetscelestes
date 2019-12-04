@@ -1,14 +1,13 @@
 import { events } from './EventManager.js';
 
+
 /** Helper class to handle events. */
 export class Subscriber {
     /**
      * Setup events handling.
-     * @param {EventManager} events - an EventManager instance.
      */
     constructor() {
-        this.events = events;
-        this.eIds = {};
+        this._eIds = {};
     }
 
     /**
@@ -17,7 +16,7 @@ export class Subscriber {
      * @param {func} func - a callback function to execute when event is triggered.
      */
     subscribe(eventName, func) {
-        this.eIds[eventName] = this.events.subscribe(eventName, func.bind(this));
+        this._eIds[eventName] = events.subscribe(eventName, func.bind(this));
     }
 
     /**
@@ -25,7 +24,7 @@ export class Subscriber {
      * @param {string} eventName - a string stating the event.
      */
     unsubscribe(eventName) {
-        this.events.unsubscribe(eventName, this.eIds[eventName]);
+        events.unsubscribe(eventName, this._eIds[eventName]);
     }
 
     /**
@@ -34,7 +33,11 @@ export class Subscriber {
      * @param {...*} args - an indifinite number of arguments to pass to the callback functions.
      */
     publish(eventName, ...args) {
-        this.events.publish(eventName, ...args);
+        events.publish(eventName, ...args);
+    }
+
+    hasEvent(eventName) {
+        return this._eIds.hasOwnProperty(eventName);
     }
 }
 
