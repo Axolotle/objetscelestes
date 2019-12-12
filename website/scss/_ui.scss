@@ -229,5 +229,13 @@
     }
 
 
+    button {
+        &[role="switch"][aria-checked="true"] {
+          background: $inter;
+          color: $dark;
+        }
+    }
+
+
 
 }

@@ -19,7 +19,7 @@
         </div>
         <form id="options" onSubmit="return false;">
             <h3>MODES</h3>
-            <fieldset class="checkboxes">
+            <!-- <fieldset class="checkboxes">
                 <legend>Click</legend>
                 <label>
                     <span class="text">DESSIN</span>
@@ -31,6 +31,10 @@
                     <input id="targetMode" name="target" type="checkbox">
                     <span class="checker"></span>
                 </label>
+            </fieldset> -->
+            <fieldset>
+                <legend>Modes</legend>
+                <button role="switch" aria-checked="true" id="drawMode" class="switch">DRAW</button>
             </fieldset>
             <fieldset>
                 <legend>Camera</legend>
@@ -56,11 +60,11 @@
                 </div>
             </fieldset>
         </form>
-        <article id="card">
+        <article id="card" class="hide">
             <div id="subCard" class="hide">
                 <h2></h2>
             </div>
-            <div id="mainCard" class="hide">
+            <div id="mainCard" class="">
                 <div class="bar">
                     <h2></h2>
                     <p>Constellation : <span id="constellation"></span></p>
