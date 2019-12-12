@@ -7,7 +7,7 @@ export class Card extends Subscriber {
         super();
         this.elem = elem;
 
-        this.subscribe('star-selected', this.onselection);
+        this.subscribe('star-selected', this.updateInformations);
         this.subscribe('mouse-rightclick', () => this.visible = false);
         this.subscribe('switch-drawMode', this.switchDisplayStyle);
     }
@@ -24,7 +24,7 @@ export class Card extends Subscriber {
         }
     }
 
-    onselection(star) {
+    updateInformations(star) {
         let [name, extraname] = Card.parseName(star.name, star.ids);
         this.elem.querySelector('#subCard h2').textContent = name + extraname;
         this.elem.querySelector('#mainCard h2').textContent = name + extraname;
