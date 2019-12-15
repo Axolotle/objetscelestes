@@ -41,13 +41,14 @@ export class Stars extends Points {
         // const shaderMaterial = new PointsMaterial({vertexColors: VertexColors, size: 10, sizeAttenuation: false, depthTest: false})
 
         super(geometry, shaderMaterial);
+
         this.matrixAutoUpdate = false;
         this.name = 'Stars';
         this.renderOrder = 2;
         this.geometry.scale(10,10,10);
 
         // Custom properties
-        this.selected = null;
+        this.selected = [];
         this.infos = stars;
         this.labels = [];
         this.setupLabels();
@@ -61,81 +62,18 @@ export class Stars extends Points {
         ]
     }
 
-    getTarget(index) {
-        if (index === undefined) {
-            if (this.selected === null) return null;
-            index = this.selected;
-        }
+    getCoordinates(index) {
         return _target.fromBufferAttribute(this.geometry.attributes.position, index);
     }
 
-    select (index) {
-        let colors = this.geometry.attributes.color;
-        colors.set(_selectColor, index * 3);
-        this.selected = index;
-        colors.needsUpdate = true;
-    }
-
-    unselect () {
-        if (this.selected === null) return;
-        let colors = this.geometry.attributes.color;
-        colors.set(_color, this.selected * 3);
-        this.selected = null;
-        colors.needsUpdate = true;
+    changeColor(color, index) {
+        this.geometry.attributes.color.array.set(color, index * 3)
     }
 
     updateDrawRange (min, max) {
         let minIdx = this.infos.findIndex(star => star.vmag >= min);
         let maxIdx = this.infos.findIndex(star => star.vmag >= max);
         this.geometry.setDrawRange(minIdx < 0 ? this.infos.length : minIdx , maxIdx < 0 ? this.infos.length : maxIdx)
-    }
-
-    displayInfos (sub) {
-        let star = this.infos[this.selected];
-
-        // Maybe modify data instead of parsing stuff
-        let name = '';
-        if (star.ids.includes('NAME')) {
-            let i = star.ids.indexOf('NAME') + 5;
-            name = star.ids.slice(i, star.ids.indexOf('|', i)) + ' — ';
-        }
-        let extraname = star.name.replace('*', '').trim();
-        let greek = extraname.substring(0, 3);
-        if (greek in greekAbbr) {
-            extraname = extraname.replace(greek, greekAbbr[greek]);
-        }
-        name += extraname;
-        if (sub) {
-            document.querySelector('#subCard h2').textContent = name;
-            document.getElementById('subCard').classList.remove('hide');
-            document.getElementById('mainCard').classList.add('hide');
-            return;
-        } else {
-            document.getElementById('subCard').classList.add('hide');
-            document.getElementById('mainCard').classList.remove('hide');
-        }
-
-        document.querySelector('#mainCard h2').textContent = name;
-        // Constellation name
-        document.getElementById('constellation').textContent = constName[extraname.slice(-3)];
-        // Position
-        let ra = star.ra.split(' ');
-        document.getElementById('asc').innerHTML = ra[0] + '<sup>h</sup> ' + ra[1] + '<sup>m</sup> ' + ra[2] + '<sup>s</sup>';
-        let dec = star.dec.split(' ');
-        document.getElementById('dec').textContent = dec[0] + '° ' + dec[1] + '\' ' + dec[2] + '"';
-        // Distance
-        document.getElementById('dist').textContent = star.dist.value.toFixed(2) + ' pc';
-        // Vmag
-        document.getElementById('mag').textContent = star.vmag.toFixed(2);
-        // Type
-        document.getElementById('type').textContent = starType[star.type];
-        // URL to symbad query
-        document.getElementById('simbad').href = 'http://simbad.u-strasbg.fr/simbad/sim-id?Ident=' + star.name;
-    }
-
-    hideInfos () {
-        document.getElementById('subCard').classList.add('hide');
-        document.getElementById('mainCard').classList.add('hide');
     }
 
     setupLabels () {
