@@ -49,10 +49,7 @@ export class Stars extends Points {
 
         // Custom properties
         this.selected = [];
-        this.infos = stars;
-        this.labels = [];
-        this.setupLabels();
-
+        this.data = stars;
     }
 
     get minMaxMag () {
@@ -62,12 +59,18 @@ export class Stars extends Points {
         ]
     }
 
-    getCoordinates(index) {
+    getCoordinatesVector(index) {
         return _target.fromBufferAttribute(this.geometry.attributes.position, index);
     }
 
-    changeColor(color, index) {
-        this.geometry.attributes.color.array.set(color, index * 3)
+    getCoordinatesArray(index) {
+        return this.geometry.attributes.position.array.slice(index * 3, index * 3 + 3);
+    }
+
+    setColor(color, index) {
+        let colors = this.geometry.attributes.color;
+        colors.array.set(color, index * 3);
+        colors.needsUpdate = true;
     }
 
     updateDrawRange (min, max) {
