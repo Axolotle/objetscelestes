@@ -30,12 +30,11 @@ const _move = {
 
 
 export class CameraController extends Subscriber {
-    constructor(camera, modes, target) {
+    constructor(camera, target, modes) {
         super();
 
-        this.camera = camera;
-        this.target = new Vector3();
-        if (target) this.target.copy(target);
+        this.object = camera;
+        this.target = new Vector3(...target);
 
         this.moveMode = modes.move || 'rotate';
         this.zoomMode = modes.zoom || 'zoom';
@@ -69,26 +68,26 @@ export class CameraController extends Subscriber {
     }
 
     lookAt(target, rollAngle) {
-        _mx.lookAt(this.camera.position, target || this.target, this.camera.up);
-        this.camera.quaternion.setFromRotationMatrix(_mx);
+        _mx.lookAt(this.object.position, target || this.target, this.object.up);
+        this.object.quaternion.setFromRotationMatrix(_mx);
         if (rollAngle !== undefined) {
             // expose the rotation vector
-            this.camera.rotation.setFromQuaternion(this.camera.quaternion, this.camera.rotation.order);
+            this.object.rotation.setFromQuaternion(this.object.quaternion, this.object.rotation.order);
             // reset the rolling quaternion from previous rolling angle difference
-            _rollQt.setFromEuler(_euler.set(0, 0, rollAngle - this.camera.rotation.z, this.camera.rotation.order));
+            _rollQt.setFromEuler(_euler.set(0, 0, rollAngle - this.object.rotation.z, this.object.rotation.order));
         }
         // Reapply the rolling quaternion since the camera's quaternion has been reseted by the lookAt
-        this.camera.quaternion.multiply(_rollQt);
+        this.object.quaternion.multiply(_rollQt);
         // expose again the rotation vector for convenience (taken from js 'flyControls.js')
-        this.camera.rotation.setFromQuaternion(this.camera.quaternion, this.camera.rotation.order);
+        this.object.rotation.setFromQuaternion(this.object.quaternion, this.object.rotation.order);
     }
 
     rotate(move) {
         // define movement quaternion (rotation)
         _moveQt.set(move.y, -move.x, 0, 1).normalize();
 
-        this.camera.quaternion.multiply(_moveQt);
-        this.camera.rotation.setFromQuaternion(this.camera.quaternion, this.camera.rotation.order);
+        this.object.quaternion.multiply(_moveQt);
+        this.object.rotation.setFromQuaternion(this.object.quaternion, this.object.rotation.order);
     }
 
     orbit(move) {
@@ -102,9 +101,9 @@ export class CameraController extends Subscriber {
         let angle = _moveDir.length();
 
         if (angle) {
-            _eye.subVectors(this.camera.position, this.target);
+            _eye.subVectors(this.object.position, this.target);
             _eyeDir.copy(_eye).normalize();
-            _cameraUpDir.copy(this.camera.up).normalize();
+            _cameraUpDir.copy(this.object.up).normalize();
             _cameraSideDir.crossVectors(_cameraUpDir, _eyeDir).normalize();
 
             _cameraUpDir.setLength(_moveDir.y);
@@ -118,9 +117,9 @@ export class CameraController extends Subscriber {
             _qt.setFromAxisAngle(_axis, angle);
 
             _eye.applyQuaternion(_qt);
-            this.camera.up.applyQuaternion(_qt);
+            this.object.up.applyQuaternion(_qt);
 
-            this.camera.position.addVectors(this.target, _eye);
+            this.object.position.addVectors(this.target, _eye);
             this.lookAt(this.target);
         }
     }
@@ -128,29 +127,29 @@ export class CameraController extends Subscriber {
     roll(value) {
         _moveQt.set(0, 0, value * this.speed.roll, 1).normalize();
         _rollQt.multiply(_moveQt);
-        this.camera.quaternion.multiply(_moveQt);
-        this.camera.rotation.setFromQuaternion(this.camera.quaternion, this.camera.rotation.order);
+        this.object.quaternion.multiply(_moveQt);
+        this.object.rotation.setFromQuaternion(this.object.quaternion, this.object.rotation.order);
     }
 
     dolly(delta) {
-        _nextPos.copy(this.camera.position).addScaledVector(_eye, delta * this.speed.dolly);
+        _nextPos.copy(this.object.position).addScaledVector(_eye, delta * this.speed.dolly);
         if (_nextPos.length() > 0) {
-            this.camera.position.copy(_nextPos);
-            _eye.subVectors(this.camera.position, this.target);
+            this.object.position.copy(_nextPos);
+            _eye.subVectors(this.object.position, this.target);
         } else {
             // Switch to zoom mode ?
         }
     }
 
     zoom(delta) {
-        let nextValue = this.camera.zoom - delta * this.speed.zoom;
+        let nextValue = this.object.zoom - delta * this.speed.zoom;
         if (nextValue >= 1) {
-            this.camera.zoom = nextValue;
-            this.camera.updateProjectionMatrix();
+            this.object.zoom = nextValue;
+            this.object.updateProjectionMatrix();
         } else {
             if (nextValue !== 1) {
-                this.camera.zoom = 1;
-                this.camera.updateProjectionMatrix();
+                this.object.zoom = 1;
+                this.object.updateProjectionMatrix();
             } else {
                 // Switch to dolly mode ?
             }
