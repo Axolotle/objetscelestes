@@ -43,6 +43,5 @@ export class StarsController {
             }
             this.selected.length = 0;
         }
-        this.object.geometry.attributes.color.needsUpdate = true;
     }
 }
