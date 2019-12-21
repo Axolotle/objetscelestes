@@ -16,7 +16,11 @@ export class Subscriber {
      * @param {func} func - a callback function to execute when event is triggered.
      */
     subscribe(eventName, func) {
-        this._eIds[eventName] = events.subscribe(eventName, func.bind(this));
+        try {
+            this._eIds[eventName] = events.subscribe(eventName, func.bind(this));
+        } catch (e) {
+            console.error(`${e.message} for event '${eventName}' in ${this.__proto__.constructor.name}.`);
+        }
     }
 
     /**
