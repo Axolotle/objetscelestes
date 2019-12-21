@@ -1,12 +1,8 @@
-import { Color } from '../../libs/three.module.js';
-
 import { SkyMap } from '../../objects3d/SkyMap.js';
 import { Asterism } from '../../objects3d/Asterism.js';
 import { AsterismController } from './AsterismController.js';
 
-
-const _renderColor = new Color(0x000000).toArray();
-const _selectColor = new Color(0xff00ff).toArray();
+import { asterismColors as colors } from '../../misc/colors.js';
 
 
 export class SkyMapController {
@@ -37,7 +33,7 @@ export class SkyMapController {
 
     addPoint(point, starIndex, connect) {
         if (this.selected.length !== 1) {
-            let asterism = Asterism.fromFirstPoint(point, starIndex, _selectColor);
+            let asterism = Asterism.fromFirstPoint(point, starIndex, colors.select);
             this.asterismCtrl.set(asterism);
             this.unselect();
             this.object.add(asterism);
@@ -82,7 +78,7 @@ export class SkyMapController {
                 this.asterismCtrl.clear();
             }
             // Add the targeted asterism to selection
-            asterism.fillAttribute('color', _selectColor, 0, asterism.path.length);
+            asterism.fillAttribute('color', colors.select, 0, asterism.path.length);
             this.selected.push(targets.asterism);
         }
 
@@ -91,7 +87,7 @@ export class SkyMapController {
     unselect(index) {
         if (index !== undefined) {
             let asterism = this.object.children[index];
-            asterism.fillAttribute('color', _renderColor, 0, asterism.path.length);
+            asterism.fillAttribute('color', colors.render, 0, asterism.path.length);
             this.selected.splice(this.selected.indexOf(index), 1);
         } else {
             // Controlled asterism has segments selected: unselect those.
@@ -100,7 +96,7 @@ export class SkyMapController {
             // Clear controller and unselect previous selection.
             } else {
                 for (const i of this.selected) {
-                    this.object.children[i].fillAttribute('color', _renderColor, 0, this.object.children[i].path.length);
+                    this.object.children[i].fillAttribute('color', colors.render, 0, this.object.children[i].path.length);
                 }
                 this.selected.length = 0;
             }

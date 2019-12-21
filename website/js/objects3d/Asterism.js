@@ -1,13 +1,14 @@
 import {
-    Color, Vector3, VertexColors, BufferAttribute, // Helpers
+    Vector3, VertexColors, BufferAttribute, // Helpers
     BufferGeometry, // Geometries
     LineBasicMaterial , // Materials
     LineSegments, // 3D objects
 } from '../libs/three.module.js';
 
+import { asterismColors as colors } from '../misc/colors.js';
+
 
 const _MAX = 50;
-const _renderColor = new Color(0x000000).toArray();
 
 
 export class Asterism extends LineSegments {
@@ -118,7 +119,7 @@ export class Asterism extends LineSegments {
         }
 
         asterism.geometry.attributes.position.set(positions);
-        asterism.fillAttribute('color', _renderColor);
+        asterism.fillAttribute('color', colors.render);
 
         asterism.setDrawRange(0, asterismData.path.length);
         asterism.askForUpdate();

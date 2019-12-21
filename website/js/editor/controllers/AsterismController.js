@@ -1,8 +1,4 @@
-import { Color } from '../../libs/three.module.js';
-
-
-const _renderColor = new Color(0xff00ff).toArray();
-const _selectColor = new Color(0xff0000).toArray();
+import { segmentColors as colors } from '../../misc/colors.js';
 
 
 export class AsterismController {
@@ -22,7 +18,7 @@ export class AsterismController {
         } else if (this.object.count > 1) {
             this.object.duplicateLastPoint();
         }
-        this.object.addPoint(point, _renderColor, starIndex);
+        this.object.addPoint(point, colors.render, starIndex);
         this.object.setDrawRange(0, this.object.count);
         this.object.askForUpdate();
     }
@@ -35,18 +31,18 @@ export class AsterismController {
             this.unselect(index);
         // Select the segment
         } else {
-            this.object.setColor(_selectColor, index);
+            this.object.setColor(colors.select, index);
             this.selected.push(index);
         }
     }
 
     unselect(index) {
         if (index !== undefined) {
-            this.object.setColor(_renderColor, index);
+            this.object.setColor(colors.render, index);
             this.selected.splice(this.selected.indexOf(index), 1);
         } else {
             for (const i of this.selected) {
-                this.object.fillAttribute('color', _renderColor, 0, this.object.path.length);
+                this.object.fillAttribute('color', colors.render, 0, this.object.path.length);
             }
             this.selected.length = 0;
         }
