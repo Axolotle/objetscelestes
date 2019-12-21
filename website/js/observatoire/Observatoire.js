@@ -1,49 +1,41 @@
 import {
     WebGLRenderer, Scene, PerspectiveCamera,
-    Vector3,
-    SphereGeometry, Mesh
+    SphereGeometry, Mesh, Group
 } from '../libs/three.module.js';
 
 import { CameraController } from './CameraController.js';
 import { Grid } from '../objects3d/Grid.js';
-import { Stars } from '../objects3d/Stars.js';
+import { StarsController } from '../editor/controllers/StarsController.js';
 
 
 export class Observatoire {
-    constructor() {
-        this.scene = new Scene();
+    constructor(data, {position=[0, 0, -1], target=[0, 0, 0], distance=0} = {}) {
         this.renderer = new WebGLRenderer({antialias: false, alpha: true, premultipliedAlpha: true, canvas: document.getElementById('canvas')});
-        this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.000000001, 10000);
-        this.controls = new CameraController(this.camera, {move: 'rotate', zoom: 'zoom'});
-
-        this.grid = new Grid();
-        this.grid.visible = false;
-        this.scene.add(this.grid);
-
-        this.stars = null;
-    }
-
-    init ({stars=null, grid=true, cameraDistance=10} = {}) {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-        this.camera.position.set(0, 0, -1);
-        this.camera.position.setLength(cameraDistance);
+        this.cameraCtrl = new CameraController(
+            new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.00001, 10000),
+            target,
+            {move: distance > 0 ? 'orbit' : 'rotate', zoom: distance > 0 ? 'dolly' : 'zoom'}
+        );
+        this.cameraCtrl.object.position.set(...position);
+        this.cameraCtrl.object.position.setLength(distance);
+        this.cameraCtrl.lookAt();
 
-        if (grid) this.grid.visible = true;
-        if (stars) {
-            this.stars = new Stars(stars);
-            this.scene.add(this.stars);
-            this.controls.lookAt(new Vector3(...stars[0].pos));
-        }
+        this.scene = new Scene();
+
+        this.starsCtrl = new StarsController(data);
+        this.scene.add(this.starsCtrl.object);
+
+        this.grid = new Grid();
+        this.scene.add(this.grid);
 
         const centerGeo = new SphereGeometry(1, 10, 10);
         this.scene.add(new Mesh(centerGeo));
-
-        this.animate();
     }
 
     animate () {
         requestAnimationFrame(this.animate.bind(this));
-        this.renderer.render(this.scene, this.camera);
+        this.renderer.render(this.scene, this.cameraCtrl.object);
     }
 }
