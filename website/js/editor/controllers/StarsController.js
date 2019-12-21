@@ -19,7 +19,7 @@ export class StarsController {
         if (intersect !== undefined) {
             return {
                 index: intersect.index,
-                point: this.object.getCoordinatesVector(intersect.index),
+                point: this.object.getCoordinatesArray(intersect.index),
                 data: this.data[intersect.index]
             }
         } else {

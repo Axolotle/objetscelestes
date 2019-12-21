@@ -8,7 +8,6 @@ import {
 
 const _MAX = 50;
 const _renderColor = new Color(0x000000).toArray();
-const _selectColor = new Color(0xff00ff).toArray();
 
 
 export class Asterism extends LineSegments {
@@ -28,6 +27,10 @@ export class Asterism extends LineSegments {
 
         this.name = name || 'Sans Titre';
         this.path = [];
+    }
+
+    get count() {
+        return this.path.length;
     }
 
     setDrawRange(start, count) {
@@ -56,22 +59,33 @@ export class Asterism extends LineSegments {
         }
     }
 
-    setPoint(point, index) {
-        point.toArray(this.geometry.attributes.position, index * 3);
-        this.path.push(index);
+    setPoint(point, index, starIndex) {
+        this.geometry.attributes.position.set(point, index * 3);
+        this.path.push(starIndex);
+    }
+
+    addPoint(point, color, starIndex) {
+        this.setPoint(point, this.count, starIndex);
+        this.setColor(color, this.count);
     }
 
     copyPoint(targetIndex, toCopyIndex) {
         this.geometry.attributes.position.array.copyWithin(
             targetIndex * 3,
             toCopyIndex * 3,
-            targetIndex * 3
+            targetIndex * 3 + 1
         );
+        this.path.push(this.path[toCopyIndex]);
+    }
+
+    duplicateLastPoint() {
+        this.copyPoint(this.count, this.count - 1);
     }
 
     setColor(color, index) {
         let colors = this.geometry.attributes.color;
         colors.array.set(color, index * 3);
+        colors.array.set(color, (index + 1) * 3);
         colors.needsUpdate = true;
     }
 
@@ -82,11 +96,12 @@ export class Asterism extends LineSegments {
         }
     }
 
-    static fromFirstPoint(point, index, color) {
+    static fromFirstPoint(point, starIndex, color) {
         const asterism = new Asterism();
-        asterism.fillAttribute('position', point.toArray());
+        asterism.fillAttribute('position', point);
         asterism.fillAttribute('color', color);
         asterism.setDrawRange(0, 1);
+        asterism.path.push(starIndex);
 
         return asterism;
     }

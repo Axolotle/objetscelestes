@@ -35,6 +35,18 @@ export class SkyMapController {
         }
     }
 
+    addPoint(point, starIndex, connect) {
+        if (this.selected.length !== 1) {
+            let asterism = Asterism.fromFirstPoint(point, starIndex, _selectColor);
+            this.asterismCtrl.set(asterism);
+            this.unselect();
+            this.object.add(asterism);
+            this.selected = [this.object.children.length - 1];
+        } else {
+            this.asterismCtrl.addPoint(point, starIndex, connect);
+        }
+    }
+
     select(targets, shift) {
         let asterism = this.object.children[targets.asterism];
         // Asterism is already selected

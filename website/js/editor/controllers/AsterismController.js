@@ -16,6 +16,17 @@ export class AsterismController {
         this.object = object;
     }
 
+    addPoint(point, starIndex, connect) {
+        if (!connect) {
+            this.object.addPoint(point, starIndex);
+        } else if (this.object.count > 1) {
+            this.object.duplicateLastPoint();
+        }
+        this.object.addPoint(point, _renderColor, starIndex);
+        this.object.setDrawRange(0, this.object.count);
+        this.object.askForUpdate();
+    }
+
     select(index, shift) {
         // Is non-combinatory: unselect previous selection.
         if (!shift) this.unselect();
@@ -25,7 +36,6 @@ export class AsterismController {
         // Select the segment
         } else {
             this.object.setColor(_selectColor, index);
-            this.object.setColor(_selectColor, index+1);
             this.selected.push(index);
         }
     }
@@ -33,7 +43,6 @@ export class AsterismController {
     unselect(index) {
         if (index !== undefined) {
             this.object.setColor(_renderColor, index);
-            this.object.setColor(_renderColor, index+1);
             this.selected.splice(this.selected.indexOf(index), 1);
         } else {
             for (const i of this.selected) {

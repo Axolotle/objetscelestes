@@ -41,7 +41,7 @@ class Editor extends Subscriber {
                 this.skyMapCtrl.addPoint(star.point, star.index, this.preDraw);
                 this.preDraw = true;
             }
-        } else {
+        } else if (this.drawMode && !this.preDraw){
             let indexes = this.skyMapCtrl.raycast(this.raycaster);
             if (indexes !== null) {
                 this.starsCtrl.unselect();
