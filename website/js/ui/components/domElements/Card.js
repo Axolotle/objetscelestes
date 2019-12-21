@@ -8,7 +8,7 @@ export class Card extends Subscriber {
         this.elem = elem;
 
         this.subscribe('star-selected', this.updateInformations);
-        this.subscribe('mouse-rightclick', () => this.visible = false);
+        this.subscribe('star-unselected', () => this.visible = false);
         this.subscribe('switch-drawMode', this.switchDisplayStyle);
     }
 
