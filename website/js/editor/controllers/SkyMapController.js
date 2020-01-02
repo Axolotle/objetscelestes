@@ -49,7 +49,6 @@ export class SkyMapController {
         if (this.selected.includes(targets.asterism)) {
             // Asterism is currently controlled: ask for segment selection.
             if (this.asterismCtrl.object === asterism && this.selected.length === 1) {
-                console.log('same');
                 this.asterismCtrl.select(targets.segment, shift);
             // Multiple asterism are selected
             } else if (this.selected.length > 1) {

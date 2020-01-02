@@ -1,8 +1,7 @@
-import { Subscriber } from '../utilities/Subscriber.js';
-
 import { Raycaster } from '../libs/three.module.js';
-import { SkyMapController } from './controllers/SkyMapController.js';
-import { AsterismController } from './controllers/AsterismController.js';
+
+import { Subscriber } from '../utilities/Subscriber.js';
+import { SkyMapController, PreDrawer } from './controllers/index.js';
 
 
 class Editor extends Subscriber {
@@ -13,7 +12,7 @@ class Editor extends Subscriber {
 
         this.starsCtrl = starsControls;
         this.skyMapCtrl = new SkyMapController();
-        this.asterismCtrl = new AsterismController();
+        this.preDrawer = new PreDrawer(scene, camera.object);
 
         this.drawMode = false;
 
@@ -39,9 +38,10 @@ class Editor extends Subscriber {
             this.starsCtrl.select(star.index);
             if (this.drawMode) {
                 this.skyMapCtrl.addPoint(star.point, star.index, this.preDraw);
-                this.preDraw = true;
+                this.preDrawer.setOrigin(star.point);
+                if (!this.preDrawer.active) this.preDrawer.activate();
             }
-        } else if (this.drawMode && !this.preDraw){
+        } else if (this.drawMode && !this.preDrawer.active){
             let indexes = this.skyMapCtrl.raycast(this.raycaster);
             if (indexes !== null) {
                 this.starsCtrl.unselect();
@@ -55,11 +55,15 @@ class Editor extends Subscriber {
     onrightclick() {
         this.starsCtrl.unselect();
         this.publish('star-unselected');
-        if (this.preDraw) {
-            this.preDraw = false;
+        if (this.preDrawer.active) {
+            this.preDrawer.deactivate();
         } else {
             this.skyMapCtrl.unselect();
         }
+    }
+
+    onmousemove() {
+
     }
 }
 
