@@ -38,7 +38,7 @@ export const events = {
      * @param {string} id - the GUID attached to the callback function.
      */
     unsubscribe (eventName, id) {
-        const e = this.events[event];
+        const e = this.events[eventName];
         if (!e) return false;
         for (let i = 0, l = e.length; i < l; i++) {
             if (e[i].id === id) e.splice(i, 1);

@@ -35,12 +35,13 @@ export class PreDrawer extends Subscriber {
     }
 
     update(mouse) {
+        // FIXME doesn't work if camera's position is (0,0,0), if a new segment
+        // is added it shows up, but if we modify the actual segment, it doesn't.
         _mouse.set(mouse.x, mouse.y, 0.5);
         _mouse.unproject(this.camera);
         _mouse.sub(this.camera.position).normalize();
-        let dist = -this.camera.position.z / _mouse.z;
-        // let dist = ( 100 - this.camera.position.z ) / _mouse.z;
-        _pt.copy(this.camera.position).add(_mouse.multiplyScalar(dist));
+        _pt.copy(this.camera.position).add(_mouse.multiplyScalar(10));
+
         this.object.setPoint(_pt.toArray(), 1);
     }
 }
