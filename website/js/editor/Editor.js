@@ -5,14 +5,14 @@ import { SkyMapController, PreDrawer } from './controllers/index.js';
 
 
 class Editor extends Subscriber {
-    constructor(scene, camera, starsControls) {
+    constructor(scene, cameraCtrl, starsControls) {
         super();
-        this.camera = camera;
         this.scene = scene;
+        this.cameraCtrl = cameraCtrl;
 
         this.starsCtrl = starsControls;
         this.skyMapCtrl = new SkyMapController();
-        this.preDrawer = new PreDrawer(scene, camera.object);
+        this.preDrawer = new PreDrawer(scene, cameraCtrl.object);
 
         this.drawMode = false;
 
@@ -21,6 +21,7 @@ class Editor extends Subscriber {
         this.raycaster.linePrecision = 1.5;
 
         this.subscribe('switch-drawMode', (value) => this.drawMode = value);
+        this.subscribe('switch-dollyMode', (dolly) =>  this.cameraCtrl.switchMode(dolly));
         this.subscribe('mouse-click', this.onclick);
         this.subscribe('mouse-rightclick', this.onrightclick);
     }
@@ -31,13 +32,13 @@ class Editor extends Subscriber {
     }
 
     onclick(mouse, shift) {
-        this.raycaster.setFromCamera(mouse, this.camera.object);
+        this.raycaster.setFromCamera(mouse, this.cameraCtrl.object);
         let star = this.starsCtrl.raycast(this.raycaster);
         if (star !== null) {
             this.publish('star-selected', star.data);
             this.starsCtrl.select(star.index);
             if (this.drawMode) {
-                this.skyMapCtrl.addPoint(star.point, star.index, this.preDraw);
+                this.skyMapCtrl.addPoint(star.point, star.index, this.preDrawer.active);
                 this.preDrawer.setOrigin(star.point);
                 if (!this.preDrawer.active) this.preDrawer.activate();
             }

@@ -23,6 +23,7 @@ const _nextPos = new Vector3();
 // keep track of the rolling value since lookAt methods reset the camera's quaternion
 const _rollQt =  new Quaternion();
 const _eye = new Vector3();
+const _prevPos = new Vector3();
 const _move = {
     prev: new Vector2(),
     curr: new Vector2(),
@@ -46,6 +47,8 @@ export class CameraController extends Subscriber {
             dolly: 0.1,
             zoom: 0.05
         };
+
+        this.prevDist = _prevPos.copy(this.object.position).sub(this.target).length();
 
         this.subscribe('mouse-drag', (mouse, first) => {
             _move.prev.copy(!first ? _move.curr : mouse);
@@ -156,7 +159,17 @@ export class CameraController extends Subscriber {
         }
     }
 
-    switchMode() {
-
+    switchMode(dolly) {
+        this.object.zoom = 1;
+        if (dolly) {
+            let direction = this.object.getWorldDirection(_VECZERO).multiplyScalar(this.prevDist || 10).negate();
+            this.object.position.add(direction);
+        } else {
+            this.prevDist = _prevPos.copy(this.object.position).sub(this.target).length();
+            this.object.position.copy(this.target);
+        }
+        this.moveMode = dolly ? 'orbit' : 'rotate';
+        this.zoomMode = dolly ? 'dolly' : 'zoom';
+        this.object.updateProjectionMatrix();
     }
 }

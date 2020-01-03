@@ -16,7 +16,7 @@ if (sw && 'serviceWorker' in navigator) {
 
 window.onload = async () => {
     let data = await getJSON('data/UMa.json');
-    let obs = new Observatoire(data, {target: [-13,-3, 20]});
+    let obs = new Observatoire(data, {target: [0, 0, 0]});
 
     let ui = new Ui(document.getElementById('canvas'));
     initUiComponents(ui);
@@ -50,6 +50,7 @@ function initUiComponents(ui) {
     let magn = ui.add('IntervalRangeNumber', document.getElementById('magnitude'), [1.75, 3.32]);
     magn.onChange = () => { ui.publish('magnitude-change', magn.interval); };
     let drawMode = ui.add('Switch', document.getElementById('drawMode'), false);
+    let dollyMode = ui.add('Switch', document.getElementById('dollyMode'), false);
     let card = ui.add('Card', document.getElementById('card'));
 }
 
