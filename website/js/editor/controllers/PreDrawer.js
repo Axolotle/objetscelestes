@@ -15,6 +15,7 @@ export class PreDrawer extends Subscriber {
         this.camera = camera;
         this.object = new Segment();
         parent.add(this.object);
+        this._update = this.update.bind(this);
     }
 
     setOrigin(point) {
@@ -22,19 +23,20 @@ export class PreDrawer extends Subscriber {
         this.object.setPoint(point, 1);
     }
 
-    activate() {
+    activate(canvas) {
         this.active = true;
         this.object.visible = true;
-        this.subscribe('mouse-move', this.update);
+        canvas.addEventListener('move', this._update, false);
     }
 
-    deactivate() {
+    deactivate(canvas) {
         this.active = false;
         this.object.visible = false;
-        this.unsubscribe('mouse-move');
+        canvas.removeEventListener('move', this._update, false);
     }
 
-    update(mouse) {
+    update(e) {
+        const mouse = e.detail.mouse;
         // FIXME doesn't work if camera's position is (0,0,0), if a new segment
         // is added it shows up, but if we modify the actual segment, it doesn't.
         _mouse.set(mouse.x, mouse.y, 0.5);

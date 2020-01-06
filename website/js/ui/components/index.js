@@ -1,3 +1,5 @@
+export { Canvas3D } from './domElements/Canvas3D.js';
 export { IntervalRange, IntervalRangeNumber } from './Ranges.js';
-export { Switch } from './domElements/Switch.js';
+export { ButtonSwitch } from './domElements/Switch.js';
 export { Card } from './domElements/Card.js';
+export { Select } from './domElements/Select.js';

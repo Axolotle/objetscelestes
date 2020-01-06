@@ -9,14 +9,15 @@ import { StarsController } from '../editor/controllers/StarsController.js';
 
 
 export class Observatoire {
-    constructor(data, {position=[0, 0, -1], target=[0, 0, 0], distance=0} = {}) {
-        this.renderer = new WebGLRenderer({antialias: false, alpha: true, premultipliedAlpha: true, canvas: document.getElementById('canvas')});
+    constructor(data, {position=[0, 0, -1], target=[0, 0, 0], distance=0} = {}, canvas) {
+        this.renderer = new WebGLRenderer({antialias: false, alpha: true, premultipliedAlpha: true, canvas: canvas});
         this.renderer.setSize(window.innerWidth, window.innerHeight);
 
         this.cameraCtrl = new CameraController(
             new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.00001, 10000),
             target,
-            {move: distance > 0 ? 'orbit' : 'rotate', zoom: distance > 0 ? 'dolly' : 'zoom'}
+            {move: distance > 0 ? 'orbit' : 'rotate', zoom: distance > 0 ? 'dolly' : 'zoom'},
+            canvas
         );
         this.cameraCtrl.object.position.set(...position);
         this.cameraCtrl.object.position.setLength(distance);

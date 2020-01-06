@@ -5,9 +5,10 @@ import { SkyMapController, PreDrawer } from './controllers/index.js';
 
 
 class Editor extends Subscriber {
-    constructor(scene, cameraCtrl, starsControls) {
+    constructor(scene, cameraCtrl, starsControls, canvas) {
         super();
         this.scene = scene;
+        this.canvas = canvas;
         this.cameraCtrl = cameraCtrl;
 
         this.starsCtrl = starsControls;
@@ -20,10 +21,6 @@ class Editor extends Subscriber {
         this.raycaster.params.Points.threshold = 1.5;
         this.raycaster.linePrecision = 1.5;
 
-        this.subscribe('switch-drawMode', (value) => this.drawMode = value);
-        this.subscribe('switch-dollyMode', (dolly) =>  this.cameraCtrl.switchMode(dolly));
-        this.subscribe('mouse-click', this.onclick);
-        this.subscribe('mouse-rightclick', this.onrightclick);
     }
 
     setMap(skyMap) {
@@ -31,7 +28,7 @@ class Editor extends Subscriber {
         this.skyMapCtrl.set(skyMap);
     }
 
-    onclick(mouse, shift) {
+    onclick({mouse, shift}) {
         this.raycaster.setFromCamera(mouse, this.cameraCtrl.object);
         let star = this.starsCtrl.raycast(this.raycaster);
         if (star !== null) {
@@ -40,7 +37,7 @@ class Editor extends Subscriber {
             if (this.drawMode) {
                 this.skyMapCtrl.addPoint(star.point, star.index, this.preDrawer.active);
                 this.preDrawer.setOrigin(star.point);
-                if (!this.preDrawer.active) this.preDrawer.activate();
+                if (!this.preDrawer.active) this.preDrawer.activate(this.canvas);
             }
         } else if (this.drawMode && !this.preDrawer.active){
             let indexes = this.skyMapCtrl.raycast(this.raycaster);
@@ -57,7 +54,7 @@ class Editor extends Subscriber {
         this.starsCtrl.unselect();
         this.publish('star-unselected');
         if (this.preDrawer.active) {
-            this.preDrawer.deactivate();
+            this.preDrawer.deactivate(this.canvas);
         } else {
             this.skyMapCtrl.unselect();
         }

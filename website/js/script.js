@@ -1,8 +1,10 @@
+// import { initComponents } from './ui/index.js';
 import { Observatoire } from './observatoire/Observatoire.js';
-import { Ui } from './ui/Ui.js';
+// import { Ui } from './ui/Ui.js';
 import { Editor } from './editor/Editor.js';
-
+import { UiFactory } from './ui/UiFactory.js';
 import { SkyMap } from './objects3d/SkyMap.js';
+
 
 
 let sw = false;
@@ -15,13 +17,16 @@ if (sw && 'serviceWorker' in navigator) {
 }
 
 window.onload = async () => {
+    let canvas = document.getElementById('canvas');
     let data = await getJSON('data/UMa.json');
-    let obs = new Observatoire(data, {target: [0, 0, 0]});
+    let obs = new Observatoire(data, {target: [0, 0, 0]}, canvas);
 
-    let ui = new Ui(document.getElementById('canvas'));
-    initUiComponents(ui);
+    let editor = new Editor(obs.scene, obs.cameraCtrl, obs.starsCtrl, canvas);
 
-    let editor = new Editor(obs.scene, obs.cameraCtrl, obs.starsCtrl);
+    document.getElementById('dollyMode').addEventListener('switch', (e) => obs.cameraCtrl.switchMode(e.detail));
+    document.getElementById('drawMode').addEventListener('switch', (e) => editor.drawMode = e.detail);
+    canvas.addEventListener('leftclick', (e) => { editor.onclick(e.detail) });
+    canvas.addEventListener('rightclick', () => { editor.onrightclick() });
 
     let testMap = SkyMap.hydrate({
         name: 'to',

@@ -1,32 +1,27 @@
-import { Subscriber } from '../../../utilities/Subscriber.js';
+export class ButtonSwitch extends HTMLButtonElement {
+    static get observedAttributes() {
+        return ['aria-checked'];
+    }
 
+    connectedCallback() {
+        this.setAttribute('role', 'switch');
+        this.setAttribute('aria-checked', 'false');
+        this.addEventListener('click', this.onclick);
+    }
 
-let _onclick;
-
-export class Switch extends Subscriber {
-    constructor(elem, baseState) {
-        super();
-        this.elem = elem;
-        this.elem.setAttribute('aria-checked', baseState ? 'true' : 'false');
-
-        _onclick = this.onclick.bind(this);
-        this.elem.addEventListener('click', _onclick, false);
+    attributeChangedCallback(name, oldValue, newValue) {
+        const e = new CustomEvent('switch', { detail: newValue === 'true' });
+        this.dispatchEvent(e);
     }
 
     onclick() {
-        let checked = this.elem.getAttribute('aria-checked') === 'true';
+        const checked = this.getAttribute('aria-checked') === 'true';
         if (checked) {
-            this.elem.setAttribute('aria-checked', 'false');
+            this.setAttribute('aria-checked', 'false');
         } else {
-            this.elem.setAttribute('aria-checked', 'true');
+            this.setAttribute('aria-checked', 'true');
         }
-        this.onChange(!checked);
-    }
-
-    /**
-     * onChange function set by the Ui editor and used to publish changes.
-     */
-    onChange(checked) {
-        this.publish('switch-' + this.elem.id, checked);
     }
 }
+
+customElements.define('button-switch', ButtonSwitch, {extends: 'button'});

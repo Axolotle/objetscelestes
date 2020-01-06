@@ -31,7 +31,7 @@ const _move = {
 
 
 export class CameraController extends Subscriber {
-    constructor(camera, target, modes) {
+    constructor(camera, target, modes, canvas) {
         super();
 
         this.object = camera;
@@ -50,14 +50,19 @@ export class CameraController extends Subscriber {
 
         this.prevDist = _prevPos.copy(this.object.position).sub(this.target).length();
 
-        this.subscribe('mouse-drag', (mouse, first) => {
+        canvas.addEventListener('drag', (e) => {
+            let {mouse, first} = e.detail;
             _move.prev.copy(!first ? _move.curr : mouse);
             _move.curr.copy(mouse);
             this[this.moveMode]({
                 x: _move.curr.x - _move.prev.x,
                 y: _move.curr.y - _move.prev.y
             });
-        });
+        }, false);
+        canvas.addEventListener('zoom', (e) => {
+            this[this.zoomMode](e.detail.delta);
+        }, false);
+
         this.subscribe('keyboard-drag', (move) => {
             this[this.moveMode]({
                 x: move.x * this.speed.move,
@@ -65,9 +70,7 @@ export class CameraController extends Subscriber {
             });
         });
         this.subscribe('keyboard-roll', this.roll.bind(this));
-        this.subscribe('mouse-wheel', (delta) => {
-            this[this.zoomMode](delta);
-        });
+
     }
 
     lookAt(target, rollAngle) {
