@@ -1,5 +1,5 @@
 import { Subscriber } from '../../../utilities/Subscriber.js';
-import { Vector3 } from '../../../libs/three.module.js';
+import { Vector3 } from '../../../../../web_modules/three.js';
 
 
 const _VECZERO = new Vector3();
@@ -13,7 +13,7 @@ export class Keyboard extends Subscriber {
     constructor() {
         super();
         this.vector = new Vector3();
-        this.keepSending = false;
+        this.animating = false;
         _onkeydown = this.onkeydown.bind(this);
         _onkeyup = this.onkeyup.bind(this);
         // FIXME add event listerner to canvas

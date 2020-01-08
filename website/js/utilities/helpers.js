@@ -1,4 +1,4 @@
-import { BufferGeometry, BufferAttribute, LineBasicMaterial, Line } from '../libs/three.module.js';
+import { BufferGeometry, BufferAttribute, LineBasicMaterial, Line } from '../../../web_modules/three.js';
 
 
 export function drawVector(origin, vector) {

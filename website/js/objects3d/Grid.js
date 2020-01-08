@@ -3,7 +3,7 @@ import {
     LineBasicMaterial, // Materials
     BufferGeometry, // Geometries
     Group, Line // 3D objects
-} from '../libs/three.module.js';
+} from '../../../web_modules/three.js';
 
 
 export class Grid extends Group {

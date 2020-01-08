@@ -3,7 +3,7 @@ import {
     BufferGeometry, // Geometries
     LineBasicMaterial , // Materials
     LineSegments, // 3D objects
-} from '../libs/three.module.js';
+} from '../../../web_modules/three.js';
 
 import { asterismColors as colors } from '../misc/colors.js';
 

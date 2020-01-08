@@ -1,4 +1,4 @@
-import { Vector3, BufferGeometry, BufferAttribute, LineBasicMaterial, Line } from '../libs/three.module.js';
+import { Vector3, BufferGeometry, BufferAttribute, LineBasicMaterial, Line } from '../../../web_modules/three.js';
 
 
 export class Segment extends Line {

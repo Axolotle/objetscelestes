@@ -1,7 +1,7 @@
 import {
     WebGLRenderer, Scene, PerspectiveCamera,
     SphereGeometry, Mesh, Group
-} from '../libs/three.module.js';
+} from '../../../web_modules/three.js';
 
 import { CameraController } from './CameraController.js';
 import { Grid } from '../objects3d/Grid.js';

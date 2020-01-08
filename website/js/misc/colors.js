@@ -1,4 +1,4 @@
-import { Color } from '../libs/three.module.js';
+import { Color } from '../../../web_modules/three.js';
 
 export const colors = {
     black: new Color(0x000000).toArray(),

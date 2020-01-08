@@ -1,4 +1,4 @@
-import { Raycaster } from '../libs/three.module.js';
+import { Raycaster } from '../../../web_modules/three.js';
 
 import { Subscriber } from '../utilities/Subscriber.js';
 import { SkyMapController, PreDrawer } from './controllers/index.js';

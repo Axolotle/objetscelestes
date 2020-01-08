@@ -1,5 +1,5 @@
 import { Subscriber } from '../../../utilities/Subscriber.js';
-import { Vector2 } from '../../../libs/three.module.js';
+import { Vector2 } from '../../../../../web_modules/three.js';
 
 
 let _onclick, _onrightclick, _ondrag, _onmousemove, _onmousedown, _onmouseup, _onwheel, _captureClick;

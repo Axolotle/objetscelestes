@@ -1,4 +1,4 @@
-import { Vector3 } from '../../libs/three.module.js';
+import { Vector3 } from '../../../../web_modules/three.js';
 
 import { Subscriber } from '../../utilities/Subscriber.js';
 import { Segment } from '../../objects3d/Segment.js';

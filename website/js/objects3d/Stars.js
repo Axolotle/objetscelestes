@@ -3,7 +3,7 @@ import {
     BufferGeometry, // Geometries
     ShaderMaterial, PointsMaterial, // Materials
     Points // 3D objects
-} from '../libs/three.module.js';
+} from '../../../web_modules/three.js';
 
 import { pointShaders } from '../misc/shaders.js';
 import { greekAbbr, constName, starType } from '../misc/starDictionnary.js';

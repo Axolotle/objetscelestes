@@ -1,5 +1,5 @@
 import { Subscriber } from '../utilities/Subscriber.js';
-import { Vector2, Vector3, Quaternion, Matrix4, Euler } from '../libs/three.module.js';
+import { Vector2, Vector3, Quaternion, Matrix4, Euler } from '../../../web_modules/three.js';
 
 
 // private variables

@@ -1,4 +1,4 @@
-import { Group } from '../libs/three.module.js';
+import { Group } from '../../../web_modules/three.js';
 import { Asterism } from './Asterism.js';
 
 

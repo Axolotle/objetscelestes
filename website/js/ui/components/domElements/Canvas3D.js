@@ -1,4 +1,4 @@
-import { Vector2 } from '../../../libs/three.module.js';
+import { Vector2 } from '../../../../../web_modules/three.js';
 
 
 export class Canvas3D extends HTMLCanvasElement {
