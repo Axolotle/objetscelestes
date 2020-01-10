@@ -12,7 +12,9 @@ export class Range extends LitElement {
     static get styles() {
         return css`
             :host {
+                display: block;
                 width: 100%;
+                height: 1.5rem;
             }
             input[type=range] {
                 box-sizing: border-box;
@@ -70,13 +72,6 @@ export class Range extends LitElement {
             }
         `;
     }
-
-    constructor() {
-        super();
-        this.min = this.getAttribute('min');
-        this.max = this.getAttribute('max');
-        this.step = this.getAttribute('step');
-    }
 }
 
 
@@ -84,19 +79,41 @@ export class SingleRange extends Range {
     static get properties() {
         return {
             ...Range.properties,
-            value: { type: Number },
+            default: { type: Number },
         };
+    }
+
+    static get styles() {
+        return [
+            super.styles,
+            css`
+                input[type=range] {
+                    background: white;
+                }
+            `
+        ];
     }
 
     constructor() {
         super();
-        this.value = this.getAttribute('value') || this.max;
+        this.updateComplete.then(() => {
+            this.range = this.shadowRoot.querySelector('input');
+            this.value = this.default !== undefined ? this.default : this.max / 2;
+        });
     }
 
-    onInput(e) {
-        this.value = e.target.value;
-        const ev = new CustomEvent('change', { detail: {value: this.value}});
-        console.log(this.value);
+    get value() { return this.range.value }
+    set value(value) {
+        this.range.value = value;
+        this.onInput();
+    }
+
+    onInput() {
+        const ev = new CustomEvent('range-change', {
+            bubbles: true,
+            composed: true,
+            detail: {value: this.value}
+        });
         this.dispatchEvent(ev);
     }
 
@@ -108,14 +125,10 @@ export class SingleRange extends Range {
 
 export class DoubleRange extends Range {
     static get properties() {
-        const prop ={
+        return {
             ...Range.properties,
-            valueLow: { type: Number },
-            valueHigh: { type: Number },
-            value: { type: Array },
-        }
-        console.log(prop);
-        return prop ;
+            default: { type: Array }
+        };
     }
 
     static get styles() {
@@ -164,6 +177,8 @@ export class DoubleRange extends Range {
     set value(values) {
         this.original.value = values[0];
         this.ghost.value = values[1];
+        this.values = [this.value]
+        this.onInput();
     }
 
     constructor() {
@@ -171,16 +186,17 @@ export class DoubleRange extends Range {
         this.updateComplete.then(() => {
             this.original = this.shadowRoot.querySelector('.original');
             this.ghost = this.shadowRoot.querySelector('.ghost');
-            this.valueLow = this.min;
-            this.valueHigh = this.max;
-            this.updateStyle();
+            this.value = this.default !== undefined ? this.default : [this.min, this.max];
         });
     }
 
     onInput() {
         this.updateStyle();
-        const ev = new CustomEvent('change', { detail: {value: this.value}});
-        console.log(this.value);
+        const ev = new CustomEvent('range-change', {
+            bubbles: true,
+            composed: true,
+            detail: {value: this.value}
+        });
         this.dispatchEvent(ev);
     }
 
@@ -221,6 +237,134 @@ export class DoubleRange extends Range {
     }
 }
 
+export class RangeBox extends LitElement {
+    static get properties() {
+        return {
+            ...Range.properties,
+            default: {type: String}
+        };
+    }
+
+    static get styles() {
+        return [
+            css`
+                :host * {
+                    font-family: 'Fira Code';
+                    box-sizing: border-box;
+                }
+
+                single-range, double-range {
+                    margin-top: .5rem;
+                }
+
+                input[type=number] {
+                    -moz-appearance: textfield;
+                    border: 0;
+                    width: 4rem;
+                    height: 1.5rem;
+                    margin: 0;
+                    padding: 0;
+                    background-color: white;
+                    text-align: center;
+                }
+                input[type=number]:focus, input[type=number]:hover {
+                    background-color: #ff00ff;
+                    color: white;
+                }
+                input[type=number]:invalid {
+                    background-color: red;
+                    color: white;
+                }
+                input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button {
+                    -webkit-appearance: none;
+                    margin: 0;
+                }
+
+                div {
+                    display: flex;
+                }
+
+                label {
+                    display: inline-block;
+                    box-sizing: border-box;
+                    width: 100%;
+                    height: 1.5rem;
+                    line-height: 1.5rem;
+                    background-color: black;
+                    text-align: center;
+                }
+            `
+        ];
+    }
+
+    constructor() {
+        super();
+        this.abbr = this.dataset.abbr;
+        this.addEventListener('range-change', this.onRangeChange, false);
+        this.updateComplete.then(this.afterUpdate.bind(this));
+    }
+}
+
+export class SingleRangeBox extends RangeBox {
+    afterUpdate() {
+        this.range = this.shadowRoot.querySelector('single-range');
+        this.box = this.shadowRoot.querySelector('input[name="range"]');
+    }
+
+    onRangeChange(e) {
+        this.box.value = e.detail.value;
+    }
+
+    onInputChange(e) {
+        if (e.target.validity.badInput) return;
+        this.range.value = this.box.value;
+    }
+
+    render() {
+        return html`
+            <div>
+                <label for="range">${this.abbr}</label>
+                <input @change="${this.onInputChange}" name="range" type="number" min="${this.min}" max="${this.max}" step="${this.step}"/>
+            </div>
+            <single-range default="${this.default}" min="${this.min}" max="${this.max}" step="${this.step}"></single-range>
+        `;
+    }
+}
+
+
+export class DoubleRangeBox extends RangeBox {
+    afterUpdate() {
+        this.range = this.shadowRoot.querySelector('double-range');
+        this.minBox = this.shadowRoot.querySelector('input[name="minRange"]');
+        this.maxBox = this.shadowRoot.querySelector('input[name="maxRange"]');
+    }
+
+    onRangeChange(e) {
+        [this.minBox.value, this.maxBox.value] = e.detail.value;
+    }
+
+    onInputChange(e) {
+        if (e.target.validity.badInput) return;
+        this.range.value = [this.minBox.value, this.maxBox.value];
+    }
+
+    render() {
+        return html`
+            <div>
+                <label for="minRange">min ${this.abbr}</label>
+                <input @change="${this.onInputChange}" name="minRange" type="number" min="${this.min}" max="${this.max}" step="${this.step}"/>
+            </div>
+            <div>
+                <label for="maxRange">max ${this.abbr}</label>
+                <input @change="${this.onInputChange}" name="maxRange" type="number" min="${this.min}" max="${this.max}" step="${this.step}"/>
+            </div>
+            <double-range default="${this.default}" min="${this.min}" max="${this.max}" step="${this.step}"></double-range>
+        `;
+    }
+}
+
 
 customElements.define('single-range', SingleRange);
 customElements.define('double-range', DoubleRange);
+customElements.define('single-rangebox', SingleRangeBox);
+customElements.define('double-rangebox', DoubleRangeBox);
