@@ -34,29 +34,36 @@
             </fieldset> -->
             <fieldset>
                 <legend>Modes</legend>
-                <button role="switch" aria-checked="false" id="drawMode" class="switch">DRAW</button>
+                <button is="button-switch" id="drawMode">DRAW</button>
             </fieldset>
             <fieldset>
                 <legend>Camera</legend>
-                <button role="switch" aria-checked="false" id="dollyMode" class="switch">DOLLY</button>
+                <button is="button-switch" id="dollyMode">DOLLY</button>
             </fieldset>
-            <h3>SELECTEURS</h3>
-            <fieldset id="magnitude">
-                <legend>Étoiles</legend>
-                <div class="container">
-                    <input class="multirange" type="range" multiple value="" min="0" max="6.5" step="0.01"/>
-                </div>
 
-                <div class="row">
-                    <label class="bg" for="minRange">min mag.</label>
-                    <input class="minRange" name="minRange" type="number" min="0" max="6.5" step="0.01" value="0.765"/>
-                </div>
-                <div class="row">
-                    <label class="bg" for="minRange">max mag.</label>
-                    <input class="maxRange" name="maxRange" type="number" min="0" max="6.5" step="0.01"/>
-                </div>
+            <h3>SELECTORS</h3>
+            <fieldset>
+                <legend>Stars</legend>
+                <!-- <single-range id="lol" default="2" min="0" max="6.5" step="0.01"></single-range> -->
+                <!-- <double-range id="lol" default="[1,6]" min="0" max="6.5" step="0.01"></double-range> -->
+                <!-- <single-rangebox id="lol" min="0" default="0.5" max="6.5" step="0.01" data-label="magnitude" data-abbr="mag."></single-rangebox> -->
+                <double-rangebox id="lol" default="[1, 6]" min="0" max="6.5" step="0.01" data-label="magnitude" data-abbr="mag."></double-rangebox>
+            </fieldset>
+
+            <fieldset>
+                <legend>Elements</legend>
+                <list-select id="test" data-label="Choose a layer:">
+                    <list-box>
+                        <li id="layer-custom1" role="option">Custom 1</li>
+                        <li id="layer-celestialobject" role="option" aria-selected>Celestial Object</li>
+                        <li id="layer-european" role="option">European</li>
+                        <li id="layer-chinese" role="option">Chinese</li>
+                        <li id="layer-arabic" role="option">Arabic</li>
+                    </list-box>
+                </list-select>
             </fieldset>
         </form>
+
         <article id="card" class="hide">
             <div id="subCard" class="hide">
                 <h2></h2>

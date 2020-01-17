@@ -25,8 +25,15 @@ window.onload = async () => {
 
     document.getElementById('dollyMode').addEventListener('switch', (e) => obs.cameraCtrl.switchMode(e.detail));
     document.getElementById('drawMode').addEventListener('switch', (e) => editor.drawMode = e.detail);
-    canvas.addEventListener('leftclick', (e) => { editor.onclick(e.detail) });
-    canvas.addEventListener('rightclick', () => { editor.onrightclick() });
+    canvas.addEventListener('leftclick', (e) => editor.onclick(e.detail));
+    canvas.addEventListener('rightclick', () => editor.onrightclick());
+
+    let testList = document.querySelector('#test');
+    testList.addEventListener('select-change', (e) => {
+        console.log('select-change', e.detail);
+    });
+
+    testList.addItem({content: 'coucou', id: 'coucouc'})
 
     let testMap = SkyMap.hydrate({
         name: 'to',
