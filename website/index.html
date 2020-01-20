@@ -52,15 +52,56 @@
 
             <fieldset>
                 <legend>Elements</legend>
-                <list-select id="test" data-label="Choose a layer:">
-                    <list-box>
-                        <li id="layer-custom1" role="option">Custom 1</li>
-                        <li id="layer-celestialobject" role="option" aria-selected>Celestial Object</li>
-                        <li id="layer-european" role="option">European</li>
-                        <li id="layer-chinese" role="option">Chinese</li>
-                        <li id="layer-arabic" role="option">Arabic</li>
-                    </list-box>
+                <list-select id="layer-select" label="Choose a layer:">
+                    <li id="layer-new" role="option">New</li>
+                    <li id="layer-custom1" role="option">Custom 1</li>
+                    <li id="layer-celestialobject" role="option">Celestial Object</li>
+                    <li id="layer-european" role="option">European</li>
+                    <li id="layer-chinese" role="option" aria-selected="true">Chinese</li>
+                    <li id="layer-arabic" role="option">Arabic</li>
                 </list-select>
+
+                <list-select id="visibility-checkbox" label="Set visibility:" multiple>
+                    <li id="vis-grid" role="option">Grid</li>
+                    <li id="vis-regions" role="option" aria-selected="true">Regions</li>
+
+                    <li id="vis-stars" role="option">Star</li>
+                    <li id="vis-asterisms" role="option" aria-selected="true">Asterism</li>
+                </list-select>
+
+                <list-select id="layer-select" label="Choose a layer:">
+                    <li id="layer-new" role="option">New</li>
+                    <li>
+                        <ul role="group" aria-label="Customs">
+                            <li id="layer-custom1" role="option">Custom 1</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <ul role="group" aria-label="Defaults">
+                            <li id="layer-celestialobject" role="option">Celestial Object</li>
+                            <li id="layer-european" role="option">European</li>
+                            <li id="layer-chinese" role="option" aria-selected="true">Chinese</li>
+                            <li id="layer-arabic" role="option">Arabic</li>
+                        </ul>
+                    </li>
+                </list-select>
+
+                <list-select id="visibility-checkbox" label="Set visibility:" multiple>
+                    <li>
+                        <ul role="group" aria-label="Elements">
+                            <li id="vis-grid" role="option">Grid</li>
+                            <li id="vis-regions" role="option" aria-selected="true">Regions</li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <ul role="group" aria-label="Labels">
+                            <li id="vis-stars" role="option">Star</li>
+                            <li id="vis-asterisms" role="option" aria-selected="true">Asterism</li>
+                        </ul>
+                    </li>
+                </list-select>
+
             </fieldset>
         </form>
 

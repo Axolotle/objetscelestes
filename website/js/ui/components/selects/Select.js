@@ -4,19 +4,23 @@ import { keys } from '../../../utilities/keys.js';
 import { ListBox } from '../lists/Lists.js';
 
 
-export class ListSelect extends LitElement {
-    static get styles() {
-        return css`
-            :host {
-                display: block;
-                width: 100%;
-            }
+export class ListSelect extends ListBox {
+    static get properties() {
+        return {
+            ...super.properties,
+            label: { type: String },
+        };
+    }
 
+    static get styles() {
+        return [
+            super.styles,
+            css`
             button {
                 box-sizing: border-box;
                 position: relative;
                 width: 100%;
-                min-height: 2rem;
+                min-height: 30px;
                 padding: 0 calc(1rem - 2px);
                 border: 2px black solid;
                 background-color: black;
@@ -34,78 +38,132 @@ export class ListSelect extends LitElement {
                 outline: none;
             }
             button::after {
+                position: absolute;
+                content: " ";
                 width: 0;
                 height: 0;
-                border-left: 1rem solid transparent;
-                border-right: 1rem solid transparent;
-                content: " ";
-                position: absolute;
-                z-index: 10;
-                right: -2px;
+                right: 5px;
+                border-left: 10px solid transparent;
+                border-right: 10px solid transparent;
             }
             button:not([aria-expanded])::after {
-                border-top: 1rem solid white;
-                top: -2px;
+                top: 5px;
+                border-top: 15px solid white;
             }
             button[aria-expanded="true"]::after {
-                border-bottom: 1rem solid white;
-                bottom: -2px;
+                bottom: 5px;
+                border-bottom: 15px solid white;
             }
             button::-moz-focus-inner {
                 border: 0;
             }
 
+            /* inverted colors */
+            :host(.inverted) button {
+                border-color: white;
+                background-color: white;
+                color: black;
+            }
+            :host(.inverted) button:not([aria-expanded])::after {
+                border-top: 15px solid black;
+            }
+            :host(.inverted) button[aria-expanded="true"]::after {
+                border-bottom: 15px solid black;
+            }
+
             .hidden {
                 display: none;
             }
-        `;
+            `
+        ];
+    }
+
+    render() {
+        if (this.multiple) {
+            return html`
+            <button name="button" id="exp_elem"
+                aria-haspopup="listbox" aria-labelledby="exp_elem"
+                @click="${this.onButtonClick}" @keyup="${this.onButtonKeyup}"
+                @wheel="${this.onButtonWheel}"
+            >${this.label}
+            </button>
+            ${super.render()}
+            `;
+
+        } else {
+            return html`
+            <span id="exp_elem">${this.label}</span>
+            <button name="button" id="exp_button"
+                aria-haspopup="listbox" aria-labelledby="exp_elem exp_button"
+                @click="${this.onButtonClick}" @keyup="${this.onButtonKeyup}"
+                @wheel="${this.onButtonWheel}"
+            >
+            </button>
+            ${super.render()}
+            `;
+        }
     }
 
     constructor() {
         super();
-    }
-
-    render() {
-        return html`
-            <span id="exp_elem">${this.dataset.label}</span>
-            <button name="button" id="exp_button"
-                aria-haspopup="listbox" aria-labelledby="exp_elem exp_button"
-                @click="${this.dropdown}" @keyup="${this.checkShow}"
-                @mousedown="${this.onMousedown}"
-            >
-            </button>
-            <slot></slot>
-        `;
+        this.button = null;
     }
 
     firstUpdated() {
-        const list = this.querySelector('list-box');
-        list.onFocusChange = this.onFocusChange.bind(this);
-        list.classList.add('hidden');
-        list.addEventListener('keydown', this.checkHide.bind(this));
-        list.addEventListener('blur', this.dropup.bind(this));
+        this.button = this.shadowRoot.querySelector('button');
+        super.firstUpdated();
 
-        const defaultValue = list.activeDescendant;
-        if (defaultValue) this.onFocusChange(defaultValue);
+        this.list.classList.add('hidden');
+        this.addEventListener('blur', this.dropup.bind(this));
     }
 
     onFocusChange(node) {
-        const button = this.shadowRoot.querySelector('button');
-        button.textContent = node.textContent;
+        if (this.multiple) return;
+
+        this.button.textContent = node.textContent;
     }
 
-    checkShow(e) {
+    onButtonClick() {
+        if (this.button.hasAttribute('aria-expanded')) {
+            this.dropup();
+        } else {
+            this.dropdown();
+        }
+    }
+
+    onButtonWheel(e) {
+        if (Math.sign(e.deltaY) === -1) {
+            this.focusPreviousItem(this.activeDescendant);
+        } else {
+            this.focusNextItem(this.activeDescendant);
+        }
+    }
+
+    onButtonKeyup(e) {
         switch (e.code) {
             case keys.UP:
             case keys.DOWN:
                 e.preventDefault();
                 this.dropdown();
-                this.querySelector('list-box').onKeydown(e);
+                this.onKeydown(e);
                 break;
         }
     }
 
-    checkHide(e) {
+    dropdown() {
+        this.list.classList.remove('hidden');
+        this.button.setAttribute('aria-expanded', 'true');
+        this.redirectFocus();
+    }
+
+    dropup() {
+        this.list.classList.add('hidden');
+        this.button.removeAttribute('aria-expanded');
+        this.button.focus();
+    }
+
+    onKeydown(e) {
+        super.onKeydown(e);
         switch (e.code) {
             case keys.RETURN:
             case keys.ESCAPE:
@@ -114,29 +172,6 @@ export class ListSelect extends LitElement {
                 break;
         }
     }
-
-    dropdown() {
-        const list = this.querySelector('list-box');
-        const button = this.shadowRoot.querySelector('button');
-
-        list.classList.remove('hidden');
-        button.setAttribute('aria-expanded', 'true');
-        list.redirectFocus();
-    }
-
-    dropup() {
-        const list = this.querySelector('list-box');
-        const button = this.shadowRoot.querySelector('button');
-
-        list.classList.add('hidden');
-        button.removeAttribute('aria-expanded');
-        button.focus();
-    }
-
-    addItem(item) {
-        this.querySelector('list-box').addItem(item);
-    }
 }
-
 
 customElements.define('list-select', ListSelect);

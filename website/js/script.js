@@ -28,11 +28,11 @@ window.onload = async () => {
     canvas.addEventListener('leftclick', (e) => editor.onclick(e.detail));
     canvas.addEventListener('rightclick', () => editor.onrightclick());
 
-    let testList = document.querySelector('#test');
-    testList.addEventListener('select-change', (e) => {
+    let testList = document.querySelector('#visibility-checkbox');
+    testList.addEventListener('change', (e) => {
         console.log('select-change', e.detail);
     });
-
+    
     testList.addItem({content: 'coucou', id: 'coucouc'})
 
     let testMap = SkyMap.hydrate({

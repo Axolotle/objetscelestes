@@ -6,7 +6,7 @@ import { keys } from '../../../utilities/keys.js';
 export class ListBox extends LitElement {
     static get properties() {
         return {
-            multiple: { type: Boolean },
+            multiple: { type: Boolean},
         };
     }
 
@@ -14,39 +14,47 @@ export class ListBox extends LitElement {
         return css`
             :host {
                 display: block;
+                contain: content;
                 width: 100%;
                 box-sizing: border-box;
-                position: relative;
-                max-height: 8rem;
-                overflow-y: auto;
+            }
+            :focus {
+                outline: none;
             }
 
-            ul {
+            ul[role=listbox] {
+                position: relative;
+                overflow-y: auto;
                 width: 100%;
-                background-color: black;
+                max-height: var(--max-height, 50rem);
                 padding: 0;
                 margin: 0;
+                background-color: black;
             }
 
-            ::slotted(li) {
+            li {
+                padding: 0;
+                min-height: 23px;
+            }
+
+            li[role=option] {
                 position: relative;
-                min-height: 1.5rem;
-                padding: 0 1rem !important;
-                line-height: 1.5rem !important;
+                padding-left: 1rem;
+                line-height: 23px;
             }
-            ::slotted(.focused) {
+            .focused {
                 background-color: #ff00ff;
+                color: black;
             }
-            :not([aria-multiselectable="true"]) ::slotted(li[aria-selected='true']) {
+            ul[role=listbox]:not([aria-multiselectable]) li[aria-selected=true] {
                 background-color: #ff00ff;
             }
 
-            [aria-multiselectable="true"] ::slotted(li) {
-                padding: 0 1.75rem !important;
+            ul[aria-multiselectable] li[role=option] {
+                padding-left: 2rem;
             }
-            [aria-multiselectable="true"] ::slotted(li)::before {
-                content: ' ';
-                margin-right: 1.5rem;
+            ul[aria-multiselectable] li[role=option]::before {
+                content: '';
                 box-sizing: border-box;
                 display: inline-block;
                 width: 1rem;
@@ -58,53 +66,100 @@ export class ListBox extends LitElement {
                 background-color: black;
             }
 
-            [aria-multiselectable="true"] ::slotted(.focused)::before {
+            ul[aria-multiselectable] li.focused::before {
                 background-color:#ff00ff;
             }
 
-            [aria-multiselectable="true"] ::slotted(li[aria-selected='true'])::before {
+            ul[aria-multiselectable] li[aria-selected=true]::before {
                 background-color: #ff00ff;
             }
-            [aria-multiselectable="true"] ::slotted(li[aria-selected='true'].focused)::before {
+            ul[aria-multiselectable] li[aria-selected=true].focused::before {
                 background-color: white;
+            }
+
+            ul[role=group] {
+                padding: 0;
+                margin: 0;
+            }
+            ul[role=group]::before {
+                content: attr(aria-label);
+                display: block;
+                width: calc(100% - 3.5rem);
+                background-color: white;
+                color: grey;
+                min-height: 23px;
+                line-height: 23px;
+                padding: 0 1rem;
+            }
+            ul[role=group] li:first-child::after {
+                content: ' ';
+                position: absolute;
+                top: -23px;
+                right: 0;
+                width: 0;
+                border-left: 23px solid white;
+                border-top: 23px solid transparent;
+                height: 0;
+            }
+
+            /* add a dashed line to separate group from ungrouped li */
+            li:not([role=option]) + li[role=option] {
+                margin-top: 2px;
+            }
+            li:not([role=option]) + li[role=option]::after {
+                content: '';
+                display: block;
+                position: relative;
+                top: calc(-1.5rem - 2px);
+                left: -2rem;
+                border-top: 2px dashed white;
+                width: calc(100% + 2rem);
             }
         `;
     }
 
     get activeDescendant() {
-        if (this._activeDescendentId) {
-            return this.querySelector('#' + this._activeDescendentId);
+        if (this._activeDescendantId) {
+            return this.shadowRoot.querySelector('#' + this._activeDescendantId);
         } else {
             return null;
         }
     }
     set activeDescendant(id) {
-        this._activeDescendentId = id;
-        this.shadowRoot.querySelector('ul').setAttribute('aria-activedescendant', id);
+        this._activeDescendantId = id;
+        this.list.setAttribute('aria-activedescendant', id);
     }
 
     constructor() {
         super();
         this._activeDescendantId = null;
+        this.list = null;
+
         const multiple = this.getAttribute('multiple');
         this.multiple = multiple !== null && multiple !== 'false';
+
         this.addEventListener('focus', this.redirectFocus.bind(this));
     }
 
     render() {
         return html`
-            <ul role="listbox" tabindex="0"
-                aria-labelledby="exp_elem" aria-multiselectable="${this.multiple}"
-                @click="${this.onClick}" @mousedown="${this.onMousedown}"
-                @keydown="${this.onKeydown}" @focus="${this.onUlFocus}"
-            >
-                <slot></slot>
-            </ul>
+        <ul role="listbox" tabindex="0"
+            aria-labelledby="exp_elem" ?aria-multiselectable="${this.multiple}"
+            @click="${this.onClick}" @mousedown="${this.onMousedown}"
+            @keydown="${this.onKeydown}" @focus="${this.onUlFocus}"
+        >
+        </ul>
         `;
     }
 
     firstUpdated() {
-        const defaultValue = this.querySelector('li[aria-selected]');
+        this.list = this.shadowRoot.querySelector('[role=listbox]');
+        const l = this.children.length;
+        for (let i = 0; i < l; i++) {
+            this.list.appendChild(this.children[0]);
+        }
+
+        const defaultValue = this.shadowRoot.querySelector('[role=option][aria-selected]');
         if (defaultValue) {
             this.focusItem(defaultValue);
         }
@@ -114,7 +169,7 @@ export class ListBox extends LitElement {
     * Redirect the custom element's focus to the [role=listbox] element.
     */
     redirectFocus() {
-        this.shadowRoot.querySelector('ul').focus();
+        this.list.focus();
         this.onFocus();
     }
 
@@ -153,7 +208,7 @@ export class ListBox extends LitElement {
     onMousedown(e) {
         e.stopImmediatePropagation();
         if (document.activeElement != this) {
-            this.shadowRoot.querySelector('ul').focus();
+            this.list.focus();
         } else {
             e.preventDefault();  //stops default browser action (focus)
         }
@@ -166,19 +221,17 @@ export class ListBox extends LitElement {
     */
     onKeydown(e) {
         const key = e.code;
-        let nextElem = this.activeDescendant;
-        if (!nextElem) return;
+        const elem = this.activeDescendant;
+        if (!elem) return;
 
         switch (key) {
             case keys.UP:
+                e.preventDefault();
+                this.focusPreviousItem(elem);
+                break;
             case keys.DOWN:
                 e.preventDefault();
-                if (key === keys.UP) {
-                    nextElem = nextElem.previousElementSibling;
-                } else {
-                    nextElem = nextElem.nextElementSibling;
-                }
-                if (nextElem) this.focusItem(nextElem);
+                this.focusNextItem(elem);
                 break;
             case keys.HOME:
                 e.preventDefault();
@@ -190,7 +243,7 @@ export class ListBox extends LitElement {
                 break;
             case keys.SPACE:
                 e.preventDefault();
-                this.toggleSelectItem(nextElem);
+                this.toggleSelectItem(elem);
                 break;
         }
     }
@@ -204,10 +257,8 @@ export class ListBox extends LitElement {
     * @param {Array} nodes - an array of selected nodes
     */
     selectChange(nodes) {
-        const ev = new CustomEvent('select-change', {
-            bubbles: true,
-            detail: {elems: nodes}
-        });
+        const detail = Array.isArray(nodes) ? {elems: nodes} : {elem: nodes};
+        const ev = new CustomEvent('change', {detail});
         this.dispatchEvent(ev);
     }
 
@@ -215,7 +266,7 @@ export class ListBox extends LitElement {
     * Focus on the first option
     */
     focusFirstItem() {
-        const firstElem = this.querySelector('[role="option"]');
+        const firstElem = this.shadowRoot.querySelector('[role=option]');
         if (firstElem) this.focusItem(firstElem);
     }
 
@@ -223,8 +274,37 @@ export class ListBox extends LitElement {
     * Focus on the last option
     */
     focusLastItem() {
-        const lastElem = this.querySelector('[role="option"]:last-of-type');
+        const lastElem = this.shadowRoot.querySelector('ul[role=listbox]:last-child li[role=option]:last-child');
+        console.log(lastElem);
         if (lastElem) this.focusItem(lastElem);
+    }
+
+    focusNextItem(elem) {
+        let nextElem = elem.nextElementSibling;
+        if (nextElem && nextElem.getAttribute('role') !== 'option') {
+            nextElem = nextElem.querySelector('[role=option]');
+        } else if (!nextElem && elem.parentElement.getAttribute('role') === 'group') {
+            nextElem = elem.parentElement.parentElement.nextElementSibling;
+        }
+        if (nextElem && nextElem.getAttribute('role') !== 'option') {
+            nextElem = nextElem.querySelector('[role=option]');
+        }
+        if (nextElem) this.focusItem(nextElem);
+    }
+
+    focusPreviousItem(elem) {
+        let prevElem = elem.previousElementSibling;
+        if (prevElem && prevElem.getAttribute('role') !== 'option') {
+            prevElem = prevElem.querySelector('[role=option]:last-of-type');
+        } else if (!prevElem && elem.parentElement.getAttribute('role') === 'group') {
+            prevElem = elem.parentElement.parentElement.previousElementSibling;
+        }
+        if (prevElem && prevElem.getAttribute('role') !== 'option') {
+            prevElem = prevElem.querySelector('[role=option]:last-of-type');
+        }
+        if (prevElem) {
+            this.focusItem(prevElem);
+        }
     }
 
     /**
@@ -237,19 +317,20 @@ export class ListBox extends LitElement {
         }
         if (!this.multiple) {
             elem.setAttribute('aria-selected', 'true');
-            this.selectChange([elem]);
+            this.selectChange(elem);
         }
         elem.classList.add('focused');
         this.activeDescendant = elem.id;
 
-        if (this.scrollHeight > this.clientHeight) {
-            const scrollBottom = this.clientHeight + this.scrollTop;
+        const list = this.list;
+        if (list.scrollHeight > list.clientHeight) {
+            const scrollBottom = list.clientHeight + list.scrollTop;
             const elemBottom = elem.offsetTop + elem.offsetHeight;
             if (elemBottom > scrollBottom) {
-                this.scrollTop = elemBottom - this.clientHeight;
+                list.scrollTop = elemBottom - list.clientHeight;
             }
-            else if (elem.offsetTop < this.scrollTop) {
-                this.scrollTop = elem.offsetTop;
+            else if (elem.offsetTop < list.scrollTop) {
+                list.scrollTop = elem.offsetTop;
             }
         }
 
@@ -278,7 +359,7 @@ export class ListBox extends LitElement {
                 'aria-selected',
                 elem.getAttribute('aria-selected') === 'true' ? 'false' : 'true'
             );
-            this.selectChange(this.querySelectorAll('[aria-selected=true]'));
+            this.selectChange(this.shadowRoot.querySelectorAll('[aria-selected=true]'));
         }
     }
 
@@ -287,8 +368,9 @@ export class ListBox extends LitElement {
         elem.setAttribute('role', 'option');
         elem.setAttribute('id', id);
         elem.textContent = content;
-        this.appendChild(elem);
+        this.list.appendChild(elem);
     }
 }
+
 
 customElements.define('list-box', ListBox);
