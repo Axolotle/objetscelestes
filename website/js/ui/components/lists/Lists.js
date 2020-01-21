@@ -26,7 +26,7 @@ export class ListBox extends LitElement {
                 position: relative;
                 overflow-y: auto;
                 width: 100%;
-                max-height: var(--max-height, 50rem);
+                max-height: var(--max-height, 100%);
                 padding: 0;
                 margin: 0;
                 background-color: black;
@@ -363,12 +363,13 @@ export class ListBox extends LitElement {
         }
     }
 
-    addItem({content, id}) {
+    addItem({value, id, group}) {
         const elem = document.createElement('li');
         elem.setAttribute('role', 'option');
         elem.setAttribute('id', id);
-        elem.textContent = content;
-        this.list.appendChild(elem);
+        elem.textContent = value;
+        const container = group ? this.list.querySelector('#' + group) : this.list;
+        container.appendChild(elem);
     }
 }
 

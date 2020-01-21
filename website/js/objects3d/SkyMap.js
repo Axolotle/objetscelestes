@@ -6,6 +6,7 @@ export class SkyMap extends Group {
     constructor(name) {
         super();
         this.name = name || 'Sans titre';
+        this.visible = false;
     }
 
     deshydrate() {

@@ -1,4 +1,4 @@
-import { Raycaster } from '../../../web_modules/three.js';
+import { Raycaster, Group } from '../../../web_modules/three.js';
 
 import { Subscriber } from '../utilities/Subscriber.js';
 import { SkyMapController, PreDrawer } from './controllers/index.js';
@@ -15,6 +15,9 @@ class Editor extends Subscriber {
         this.skyMapCtrl = new SkyMapController();
         this.preDrawer = new PreDrawer(scene, cameraCtrl.object);
 
+        this.skyMaps = new Group();
+        this.scene.add(this.skyMaps);
+
         this.drawMode = false;
 
         this.raycaster = new Raycaster();
@@ -23,8 +26,12 @@ class Editor extends Subscriber {
 
     }
 
-    setMap(skyMap) {
-        this.scene.add(skyMap);
+    addMap(skyMap) {
+        this.skyMaps.add(skyMap);
+    }
+
+    setMap(name) {
+        const skyMap = this.skyMaps.getObjectByName(name);
         this.skyMapCtrl.set(skyMap);
     }
 
