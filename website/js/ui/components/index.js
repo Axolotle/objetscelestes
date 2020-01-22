@@ -5,3 +5,4 @@ export { ListBox } from './generic/Lists.js';
 
 export { Canvas3D } from './relative/Canvas3D.js';
 export { Card } from './relative/Card.js';
+export { ObjectInfo } from './relative/ObjectInfo.js';

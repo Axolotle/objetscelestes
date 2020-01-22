@@ -39,8 +39,9 @@ class Editor extends Subscriber {
         this.raycaster.setFromCamera(mouse, this.cameraCtrl.object);
         let star = this.starsCtrl.raycast(this.raycaster);
         if (star !== null) {
-            this.publish('star-selected', star.data);
-            this.starsCtrl.select(star.index);
+            this.starsCtrl.onSelect(star);
+            // this.publish('star-selected', star.data);
+            // this.starsCtrl.select(star.index);
             if (this.drawMode) {
                 this.skyMapCtrl.addPoint(star.point, star.index, this.preDrawer.active);
                 this.preDrawer.setOrigin(star.point);
@@ -58,8 +59,7 @@ class Editor extends Subscriber {
     }
 
     onrightclick() {
-        this.starsCtrl.unselect();
-        this.publish('star-unselected');
+        this.starsCtrl.onUnselect();
         if (this.preDrawer.active) {
             this.preDrawer.deactivate(this.canvas);
         } else {

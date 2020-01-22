@@ -45,13 +45,19 @@ const skyMapData = [
 
 window.onload = async () => {
     const canvas = document.getElementById('canvas');
+    const starCard = document.querySelector('object-info');
     const data = await getJSON('data/UMa.json');
-    const obs = new Observatoire(data, {target: [0, 0, 0]}, canvas);
+    const obs = new Observatoire(data, {target: [0, 0, 0]}, canvas, starCard);
 
     const editor = new Editor(obs.scene, obs.cameraCtrl, obs.starsCtrl, canvas);
 
-    document.getElementById('dollyMode').addEventListener('switch', (e) => obs.cameraCtrl.switchMode(e.detail));
-    document.getElementById('drawMode').addEventListener('switch', (e) => editor.drawMode = e.detail);
+    document.getElementById('dollyMode').addEventListener('switch', (e) =>{
+        obs.cameraCtrl.switchMode(e.detail);
+    });
+    document.getElementById('drawMode').addEventListener('switch', (e) => {
+        editor.drawMode = e.detail;
+        starCard.switchDisplayStyle();
+    });
     canvas.addEventListener('leftclick', (e) => editor.onclick(e.detail));
     canvas.addEventListener('rightclick', () => editor.onrightclick());
 

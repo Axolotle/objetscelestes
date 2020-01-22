@@ -9,7 +9,7 @@ import { StarsController } from '../editor/controllers/StarsController.js';
 
 
 export class Observatoire {
-    constructor(data, {position=[0, 0, -1], target=[0, 0, 0], distance=0} = {}, canvas) {
+    constructor(data, {position=[0, 0, -1], target=[0, 0, 0], distance=0} = {}, canvas, starCard) {
         this.renderer = new WebGLRenderer({antialias: false, alpha: true, premultipliedAlpha: true, canvas: canvas});
         this.renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -25,7 +25,7 @@ export class Observatoire {
 
         this.scene = new Scene();
 
-        this.starsCtrl = new StarsController(data);
+        this.starsCtrl = new StarsController(data, starCard);
         this.scene.add(this.starsCtrl.object);
 
         this.grid = new Grid();

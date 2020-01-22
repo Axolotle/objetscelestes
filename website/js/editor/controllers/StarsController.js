@@ -4,9 +4,10 @@ import { starsColors as colors } from '../../misc/colors.js';
 
 
 export class StarsController {
-    constructor(data) {
+    constructor(data, card) {
         this.object = new Stars(data);
         this.data = data;
+        this.card = card;
 
         this.selected = [];
     }
@@ -39,6 +40,21 @@ export class StarsController {
                 this.object.setColor(colors.render, this.selected[i]);
             }
             this.selected.length = 0;
+        }
+    }
+
+    onSelect({index, data}) {
+        this.select(index);
+        if (this.card) {
+            this.card.updateContent(data);
+            this.card.visible = true;
+        }
+    }
+
+    onUnselect() {
+        this.unselect();
+        if (this.card) {
+            this.card.visible = false;
         }
     }
 }

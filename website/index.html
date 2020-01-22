@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -52,7 +52,7 @@
 
             <fieldset>
                 <legend>Elements</legend>
-                <list-select id="layer-select" label="Choose a layer:">
+                <!-- <list-select id="layer-select" label="Choose a layer:">
                     <li id="layer-new" role="option">New</li>
                     <li id="layer-custom1" role="option">Custom 1</li>
                     <li id="layer-celestialobject" role="option">Celestial Object</li>
@@ -67,21 +67,15 @@
 
                     <li id="vis-stars" role="option">Star</li>
                     <li id="vis-asterisms" role="option" aria-selected="true">Asterism</li>
-                </list-select>
+                </list-select> -->
 
                 <list-select id="layer-select" label="Choose a layer:">
-                    <li id="layer-new" role="option">New</li>
                     <li>
-                        <ul role="group" aria-label="Customs">
-                            <li id="layer-custom1" role="option">Custom 1</li>
+                        <ul id="layer-custom" role="group" aria-label="Customs">
                         </ul>
                     </li>
                     <li>
-                        <ul role="group" aria-label="Defaults">
-                            <li id="layer-celestialobject" role="option">Celestial Object</li>
-                            <li id="layer-european" role="option">European</li>
-                            <li id="layer-chinese" role="option" aria-selected="true">Chinese</li>
-                            <li id="layer-arabic" role="option">Arabic</li>
+                        <ul id="layer-default" role="group" aria-label="Defaults">
                         </ul>
                     </li>
                 </list-select>
@@ -105,52 +99,7 @@
             </fieldset>
         </form>
 
-        <article id="card" class="hide">
-            <div id="subCard" class="hide">
-                <h2></h2>
-            </div>
-            <div id="mainCard" class="">
-                <div class="bar">
-                    <h2></h2>
-                    <p>Constellation : <span id="constellation"></span></p>
-                </div>
-                <dl>
-                    <div class="container">
-                        <dt>Coordonnées ICRS (époque J2000)</dt>
-                        <dd>
-                            <dl>
-                                <div>
-                                    <dt>Ascension droite</dt>
-                                    <dd id="asc" class="highlight"></dd>
-                                </div>
-                                <div>
-                                    <dt>Déclinaison</dt>
-                                    <dd id="dec" class="highlight"></dd>
-                                </div>
-                            </dl>
-                        </dd>
-                    </div>
-
-                    <div class="container">
-                        <dt>Distance du Système Solaire</dt>
-                        <dd id="dist" class="highlight"></dd>
-                    </div>
-
-                    <div class="container">
-                        <dt>Magnitude apparente</dt>
-                        <dd id="mag" class="highlight"></dd>
-                    </div>
-
-                    <div class="container">
-                        <dt>Type</dt>
-                        <dd id="type" class="highlight"></dd>
-                    </div>
-                    <span id="helpStar">?</span>
-                </dl>
-
-                <a id="simbad" href="" target="_blank">Plus d'infos</a>
-            </div>
-        </article>
+        <object-info></object-info>
     </main>
 
 <script type="module" src="js/script.js"></script>
