@@ -13,9 +13,12 @@ export class Range extends LitElement {
         return css`
             :host {
                 display: block;
+                contain: content;
                 width: 100%;
+                box-sizing: content-box;
                 height: 1.5rem;
             }
+
             input[type=range] {
                 box-sizing: border-box;
                 display: inline-block;
@@ -78,7 +81,7 @@ export class Range extends LitElement {
 export class SingleRange extends Range {
     static get properties() {
         return {
-            ...Range.properties,
+            ...super.properties,
             default: { type: Number },
         };
     }
@@ -96,10 +99,11 @@ export class SingleRange extends Range {
 
     constructor() {
         super();
-        this.updateComplete.then(() => {
-            this.range = this.shadowRoot.querySelector('input');
-            this.value = this.default !== undefined ? this.default : this.max / 2;
-        });
+    }
+
+    firstUpdated() {
+        this.range = this.shadowRoot.querySelector('input');
+        this.value = this.default !== undefined ? this.default : this.max / 2;
     }
 
     get value() { return this.range.value }
@@ -118,7 +122,12 @@ export class SingleRange extends Range {
     }
 
     render() {
-        return html`<input @input="${this.onInput}" type="range" min="${this.min}" max="${this.max}" step="${this.step}" />`;
+        return html`
+        <input type="range"
+            min="${this.min}" max="${this.max}" step="${this.step}"
+            @input="${this.onInput}"
+        />
+        `;
     }
 }
 
@@ -126,7 +135,7 @@ export class SingleRange extends Range {
 export class DoubleRange extends Range {
     static get properties() {
         return {
-            ...Range.properties,
+            ...super.properties,
             default: { type: Array }
         };
     }
@@ -183,11 +192,12 @@ export class DoubleRange extends Range {
 
     constructor() {
         super();
-        this.updateComplete.then(() => {
-            this.original = this.shadowRoot.querySelector('.original');
-            this.ghost = this.shadowRoot.querySelector('.ghost');
-            this.value = this.default !== undefined ? this.default : [this.min, this.max];
-        });
+    }
+
+    firstUpdated() {
+        this.original = this.shadowRoot.querySelector('.original');
+        this.ghost = this.shadowRoot.querySelector('.ghost');
+        this.value = this.default !== undefined ? this.default : [this.min, this.max];
     }
 
     onInput() {
@@ -223,16 +233,16 @@ export class DoubleRange extends Range {
 
     render() {
         return html`
-            <input
-                @input="${this.onInput}"
-                class="original" type="range"
-                min="${this.min}" max="${this.max}" step="${this.step}"
-            />
-            <input
-                @input="${this.onInput}" @mousedown="${this.onMousedown}"
-                class="ghost" type="range"
-                min="${this.min}" max="${this.max}" step="${this.step}"
-            />
+        <input
+            @input="${this.onInput}"
+            class="original" type="range"
+            min="${this.min}" max="${this.max}" step="${this.step}"
+        />
+        <input
+            @input="${this.onInput}" @mousedown="${this.onMousedown}"
+            class="ghost" type="range"
+            min="${this.min}" max="${this.max}" step="${this.step}"
+        />
         `;
     }
 }
@@ -246,67 +256,71 @@ export class RangeBox extends LitElement {
     }
 
     static get styles() {
-        return [
-            css`
-                :host * {
-                    font-family: 'Fira Code';
-                    box-sizing: border-box;
-                }
+        return css`
+            :host {
+                display: block;
+                contain: content;
+                width: 100%;
+                box-sizing: border-box;
+            }
 
-                single-range, double-range {
-                    margin-top: .5rem;
-                }
+            * {
+                box-sizing: border-box;
+            }
 
-                input[type=number] {
-                    -moz-appearance: textfield;
-                    border: 0;
-                    width: 4rem;
-                    height: 1.5rem;
-                    margin: 0;
-                    padding: 0;
-                    background-color: white;
-                    text-align: center;
-                }
-                input[type=number]:focus, input[type=number]:hover {
-                    background-color: #ff00ff;
-                    color: white;
-                }
-                input[type=number]:invalid {
-                    background-color: red;
-                    color: white;
-                }
-                input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button {
-                    -webkit-appearance: none;
-                    margin: 0;
-                }
+            single-range, double-range {
+                margin-top: .5rem;
+            }
 
-                div {
-                    display: flex;
-                }
+            input[type=number] {
+                -moz-appearance: textfield;
+                border: 0;
+                width: 4rem;
+                height: 1.5rem;
+                margin: 0;
+                padding: 0;
+                background-color: white;
+                font-family: inherit;
+                text-align: center;
+            }
+            input[type=number]:focus, input[type=number]:hover {
+                background-color: #ff00ff;
+                color: white;
+            }
+            input[type=number]:invalid {
+                background-color: red;
+                color: white;
+            }
+            input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
 
-                label {
-                    display: inline-block;
-                    box-sizing: border-box;
-                    width: 100%;
-                    height: 1.5rem;
-                    line-height: 1.5rem;
-                    background-color: black;
-                    text-align: center;
-                }
-            `
-        ];
+            div {
+                display: flex;
+            }
+
+            label {
+                display: inline-block;
+                box-sizing: border-box;
+                width: 100%;
+                height: 1.5rem;
+                line-height: 1.5rem;
+                background-color: black;
+                padding: 0 1rem;
+            }
+        `;
     }
 
     constructor() {
         super();
         this.abbr = this.dataset.abbr;
         this.addEventListener('range-change', this.onRangeChange, false);
-        this.updateComplete.then(this.afterUpdate.bind(this));
     }
 }
 
 export class SingleRangeBox extends RangeBox {
-    afterUpdate() {
+    firstUpdated() {
         this.range = this.shadowRoot.querySelector('single-range');
         this.box = this.shadowRoot.querySelector('input[name="range"]');
     }
@@ -322,18 +336,18 @@ export class SingleRangeBox extends RangeBox {
 
     render() {
         return html`
-            <div>
-                <label for="range">${this.abbr}</label>
-                <input @change="${this.onInputChange}" name="range" type="number" min="${this.min}" max="${this.max}" step="${this.step}"/>
-            </div>
-            <single-range default="${this.default}" min="${this.min}" max="${this.max}" step="${this.step}"></single-range>
+        <div>
+            <label for="range">${this.abbr}</label>
+            <input @change="${this.onInputChange}" name="range" type="number" min="${this.min}" max="${this.max}" step="${this.step}"/>
+        </div>
+        <single-range default="${this.default}" min="${this.min}" max="${this.max}" step="${this.step}"></single-range>
         `;
     }
 }
 
 
 export class DoubleRangeBox extends RangeBox {
-    afterUpdate() {
+    firstUpdated() {
         this.range = this.shadowRoot.querySelector('double-range');
         this.minBox = this.shadowRoot.querySelector('input[name="minRange"]');
         this.maxBox = this.shadowRoot.querySelector('input[name="maxRange"]');
@@ -350,15 +364,15 @@ export class DoubleRangeBox extends RangeBox {
 
     render() {
         return html`
-            <div>
-                <label for="minRange">min ${this.abbr}</label>
-                <input @change="${this.onInputChange}" name="minRange" type="number" min="${this.min}" max="${this.max}" step="${this.step}"/>
-            </div>
-            <div>
-                <label for="maxRange">max ${this.abbr}</label>
-                <input @change="${this.onInputChange}" name="maxRange" type="number" min="${this.min}" max="${this.max}" step="${this.step}"/>
-            </div>
-            <double-range default="${this.default}" min="${this.min}" max="${this.max}" step="${this.step}"></double-range>
+        <div>
+            <label for="minRange">min ${this.abbr}</label>
+            <input @change="${this.onInputChange}" name="minRange" type="number" min="${this.min}" max="${this.max}" step="${this.step}"/>
+        </div>
+        <div>
+            <label for="maxRange">max ${this.abbr}</label>
+            <input @change="${this.onInputChange}" name="maxRange" type="number" min="${this.min}" max="${this.max}" step="${this.step}"/>
+        </div>
+        <double-range default="${this.default}" min="${this.min}" max="${this.max}" step="${this.step}"></double-range>
         `;
     }
 }
