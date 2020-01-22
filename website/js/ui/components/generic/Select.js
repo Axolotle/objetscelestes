@@ -1,7 +1,7 @@
 import { LitElement, html, css } from '../../../../../web_modules/lit-element.js';
 
 import { keys } from '../../../utilities/keys.js';
-import { ListBox } from '../lists/Lists.js';
+import { ListBox } from './Lists.js';
 
 
 export class ListSelect extends ListBox {
