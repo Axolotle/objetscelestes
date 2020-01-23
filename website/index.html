@@ -13,10 +13,13 @@
 <body>
     <main>
         <canvas is="canvas-3d" id="canvas"></canvas>
-        <div id="coordinates">
-        </div>
         <div id="starsLabels">
         </div>
+
+        <floating-labels id="coordinates"></floating-labels>
+
+        <object-info></object-info>
+
         <form id="options" onSubmit="return false;">
             <h3>MODES</h3>
             <!-- <fieldset class="checkboxes">
@@ -98,8 +101,6 @@
 
             </fieldset>
         </form>
-
-        <object-info></object-info>
     </main>
 
 <script type="module" src="js/script.js"></script>

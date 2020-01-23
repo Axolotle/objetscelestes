@@ -61,7 +61,9 @@ export class Canvas3D extends HTMLCanvasElement {
     }
 
     ondrag(e) {
-        window.addEventListener('click', this._captureClick, true);
+        if (this._firstDrag) {
+            window.addEventListener('click', this._captureClick, true);
+        }
 
         this._mouse.center.set(...this._getMouseFromCenter(e.pageX, e.pageY));
 

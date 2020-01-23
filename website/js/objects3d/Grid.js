@@ -6,36 +6,40 @@ import {
 } from '../../../web_modules/three.js';
 
 
+const _pos = new Vector3();
+
 export class Grid extends Group {
     constructor () {
         super();
 
-        this.parallel = {object: null, vertices: [], elems: []};
-        this.meridian = {object: null, vertices: [], elems: []};
+        this.parallel = null;
+        this.meridian = null;
 
         this.draw();
-        this.setupLabels();
     }
 
-    update (camera, renderElem) {
-        // this.latLine.object.updateMatrixWorld();
+    getLabelsPosition(camera, canvas) {
+        const w = canvas.clientWidth;
+        const h = canvas.clientHeight;
+        const elems = [];
         for (const line of ['meridian', 'parallel']) {
-            for (let i = 0, l = this[line].vertices.length; i < l; i++) {
-                let v = this[line].vertices[i].clone();
+            for (let i = 0, l = this[line].length; i < l; i += 3) {
+                const elem = {};
+                _pos.set(this[line][i], this[line][i+1], this[line][i+2]);
                 // this is needed if the sphere is moved
-                // v.applyMatrix4(this[line].object.matrixWorld)
-                v.project(camera)
-                if (Math.abs(v.z) > 1) {
-                    this[line].elems[i].classList.add('hide');
-                } else {
-                    const x = (v.x *  .5 + .5) * renderElem.clientWidth;
-                    const y = (v.y * -.5 + .5) * renderElem.clientHeight;
-                    this[line].elems[i].style.transform = `translate(-50%, -50%) translate(${x}px,${y}px)`;
-                    this[line].elems[i].classList.remove('hide');
+                // _pos.applyMatrix4(line.object.matrixWorld)
+                _pos.project(camera);
+                if (Math.abs(_pos.z) <= 1) {
+                    elem.x = ((_pos.x *  .5 + .5) * w).toFixed(1);
+                    elem.y = ((_pos.y * -.5 + .5) * h).toFixed(1);
+                    elem.text = line === 'meridian'
+                        ? (90 - (i / 3) * 10) + '°'
+                        : (i / 3) + 'h';
+                    elems.push(elem);
                 }
             }
         }
-
+        return elems;
     }
 
     draw () {
@@ -65,7 +69,7 @@ export class Grid extends Group {
                 // draw semicircles for each main axis (0h, 6h, 12h and 18h)
                 let meridian = semiCircle.clone().rotateZ((i / 4) * pi2);
                 // define the line that will receive the meridian labels
-                if (i === 0) this.meridian.object = meridian;
+                if (i === 0) this.meridian = meridian.geometry.attributes.position.array;
                 this.add(meridian);
             }
             if (i % 6 !== 0) {
@@ -98,35 +102,12 @@ export class Grid extends Group {
             this.add(circle);
             if (n === 0) {
                 // define the line that will receive the parallel labels
-                this.parallel.object = circle
+                this.parallel = circle.geometry.attributes.position.array;
             } else {
                 circle = Grid.getCircle(revertices, material);
                 this.add(circle);
             }
         }
-    }
-
-    setupLabels () {
-        const container = document.getElementById('coordinates');
-        const points = {
-            meridian: this.meridian.object.geometry.attributes.position.array,
-            parallel: this.parallel.object.geometry.attributes.position.array
-        }
-
-        for (const [name, pos] of Object.entries(points)) {
-            for (let i = 0, l = pos.length / 3; i < l; i++) {
-                this[name].vertices.push(new Vector3(pos[i*3], pos[i*3+1], pos[i*3+2]));
-                const elem = document.createElement('div');
-                if (name === 'meridian') {
-                    elem.textContent = (90 - i * 10) + '°';
-                } else {
-                    elem.textContent = i + 'h'
-                }
-                container.appendChild(elem);
-                this[name].elems.push(elem);
-            }
-        }
-
     }
 
     static getCircle (vertices, material) {

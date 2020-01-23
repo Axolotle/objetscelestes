@@ -46,8 +46,10 @@ const skyMapData = [
 window.onload = async () => {
     const canvas = document.getElementById('canvas');
     const starCard = document.querySelector('object-info');
+    const gridLabels = document.querySelector('#coordinates');
+
     const data = await getJSON('data/UMa.json');
-    const obs = new Observatoire(data, {target: [0, 0, 0]}, canvas, starCard);
+    const obs = new Observatoire(data, {target: [0, 0, 0]}, canvas, starCard, gridLabels);
 
     const editor = new Editor(obs.scene, obs.cameraCtrl, obs.starsCtrl, canvas);
 
