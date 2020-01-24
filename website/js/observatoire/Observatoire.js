@@ -9,7 +9,7 @@ import { StarsController } from '../editor/controllers/StarsController.js';
 
 
 export class Observatoire {
-    constructor(data, {position=[0, 0, -1], target=[0, 0, 0], distance=0} = {}, canvas, starCard, gridLabels) {
+    constructor(data, {position=[0, 0, -1], target=[0, 0, 0], distance=0} = {}, canvas, starCard) {
         this.renderer = new WebGLRenderer({antialias: false, alpha: true, premultipliedAlpha: true, canvas: canvas});
         this.renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -30,7 +30,6 @@ export class Observatoire {
 
         this.grid = new Grid();
         this.scene.add(this.grid);
-        this.gridLabels = gridLabels;
 
         const centerGeo = new SphereGeometry(1, 10, 10);
         this.scene.add(new Mesh(centerGeo));
@@ -38,10 +37,4 @@ export class Observatoire {
 
     get camera() { return this.cameraCtrl.object; }
     get stars() { return this.starsCtrl.object; }
-
-    animate () {
-        requestAnimationFrame(this.animate.bind(this));
-        this.renderer.render(this.scene, this.camera);
-        this.gridLabels.updateContent(this.grid.getLabelsPosition(this.camera, this.renderer.domElement));
-    }
 }

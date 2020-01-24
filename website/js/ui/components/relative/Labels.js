@@ -19,10 +19,7 @@ export class FloatingLabels extends LitElement {
             :host(.hidden) {
                 display: none;
             }
-            span {
-                position: absolute;
-                left: 0;
-                top: 0;
+            :host(.shadow) span {
                 text-shadow:
                     -1px -1px 0 #0000ff,
                      0   -1px 0 #0000ff,
@@ -33,6 +30,12 @@ export class FloatingLabels extends LitElement {
                     -1px  1px 0 #0000ff,
                     -1px  0   0 #0000ff;
             }
+            span {
+                position: absolute;
+                left: 0;
+                top: 0;
+
+            }
 
             .hidden {
                 display: none;
@@ -41,7 +44,7 @@ export class FloatingLabels extends LitElement {
     }
 
     render() {
-        return html`${this.elems.map((elem) => html`<span style="transform: translate(-50%, -50%) translate(${elem.x}px, ${elem.y}px)">${elem.text}</span>`)}`;
+        return html`${this.elems.map((elem) => html`<span style="transform: ${elem.transform}">${elem.text}</span>`)}`;
     }
 
     constructor() {

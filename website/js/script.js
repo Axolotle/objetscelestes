@@ -47,9 +47,10 @@ window.onload = async () => {
     const canvas = document.getElementById('canvas');
     const starCard = document.querySelector('object-info');
     const gridLabels = document.querySelector('#coordinates');
+    const starLabels = document.querySelector('#starsNames');
 
     const data = await getJSON('data/UMa.json');
-    const obs = new Observatoire(data, {target: [0, 0, 0]}, canvas, starCard, gridLabels);
+    const obs = new Observatoire(data, {target: [0, 0, 0]}, canvas, starCard);
 
     const editor = new Editor(obs.scene, obs.cameraCtrl, obs.starsCtrl, canvas);
 
@@ -78,7 +79,14 @@ window.onload = async () => {
         });
     });
 
-    obs.animate();
+    animate();
+
+    function animate() {
+        requestAnimationFrame(animate);
+        obs.renderer.render(obs.scene, obs.camera);
+        gridLabels.updateContent(obs.grid.getLabelsPosition(obs.camera, canvas));
+        starLabels.updateContent(obs.stars.getLabelsPosition(obs.camera, canvas));
+    }
 };
 
 function getJSON(uri) {

@@ -30,8 +30,12 @@ export class Grid extends Group {
                 // _pos.applyMatrix4(line.object.matrixWorld)
                 _pos.project(camera);
                 if (Math.abs(_pos.z) <= 1) {
-                    elem.x = ((_pos.x *  .5 + .5) * w).toFixed(1);
-                    elem.y = ((_pos.y * -.5 + .5) * h).toFixed(1);
+                    const x = (_pos.x *  .5 + .5) * w;
+                    const y = (_pos.y * -.5 + .5) * h;
+                    if (x < -20 || x > w + 20 || y < -20 || y > h + 20) {
+                        continue;
+                    }
+                    elem.transform = `translate(-50%, -50%) translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`
                     elem.text = line === 'meridian'
                         ? (90 - (i / 3) * 10) + '°'
                         : (i / 3) + 'h';

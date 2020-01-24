@@ -6,12 +6,13 @@ import {
 } from '../../../web_modules/three.js';
 
 import { pointShaders } from '../misc/shaders.js';
-import { greekAbbr, constName, starType } from '../misc/starDictionnary.js';
+import { greekAbbr } from '../misc/starDictionnary.js';
 
 
 const _color = new Color(0x00ff00).toArray();
 const _selectColor = new Color(0xff0000).toArray();
 const _target = new Vector3();
+const _pos = new Vector3();
 
 
 // https://github.com/mrdoob/js/blob/master/src/objects/Points.js
@@ -50,13 +51,51 @@ export class Stars extends Points {
         // Custom properties
         this.selected = [];
         this.data = stars;
+        console.log(this.data[0]);
+
+        this.geometry.setDrawRange(0, this.data.length);
+        this.geometry.attributes.position.needsUpdate = true;
     }
 
     get minMaxMag () {
         return [
-            this.infos[0].vmag,
-            this.infos[this.infos.length-1].vmag
+            this.data[0].vmag,
+            this.data[this.data.length-1].vmag
         ]
+    }
+
+    getLabelsPosition(camera, canvas) {
+        const w = canvas.clientWidth;
+        const h = canvas.clientHeight;
+        const drawRange = this.geometry.drawRange;
+        const vertices = this.geometry.attributes.position;
+
+        const elems = [];
+        for (let i = drawRange.start, l = drawRange.start + drawRange.count; i < l; i++) {
+            const elem = {};
+            _pos.fromBufferAttribute(vertices, i);
+            // this is needed if the sphere is moved
+            // _pos.applyMatrix4(this.matrixWorld)
+            _pos.project(camera);
+            if (Math.abs(_pos.z) <= 1) {
+                const x = ((_pos.x *  .5 + .5) * w) + 7;
+                const y = ((_pos.y * -.5 + .5) * h) - 15;
+                if (x < -20 || x > w + 20 || y < -20 || y > h + 20) {
+                    continue;
+                }
+                elem.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`
+                // FIXME Rework naming
+                let name = this.data[i].name.replace('*', '').replace('UMa', '').trim();
+                const greek = name.substring(0, 3);
+                if (greek in greekAbbr) {
+                    name = name.replace(greek, greekAbbr[greek]);
+                }
+                elem.text = name;
+                elems.push(elem);
+            }
+        }
+
+        return elems;
     }
 
     getCoordinatesVector(index) {
@@ -77,39 +116,5 @@ export class Stars extends Points {
         let minIdx = this.infos.findIndex(star => star.vmag >= min);
         let maxIdx = this.infos.findIndex(star => star.vmag >= max);
         this.geometry.setDrawRange(minIdx < 0 ? this.infos.length : minIdx , maxIdx < 0 ? this.infos.length : maxIdx)
-    }
-
-    setupLabels () {
-        const container = document.getElementById('starsLabels');
-        for (let i = 0, l = this.infos.length; i < l; i++) {
-            const elem = document.createElement('div');
-            // FIXME Rework naming
-            let name = this.infos[i].name.replace('*', '').replace('UMa', '').trim();
-            let greek = name.substring(0, 3);
-            if (greek in greekAbbr) {
-                name = name.replace(greek, greekAbbr[greek]);
-            }
-            elem.textContent = name;
-            container.appendChild(elem);
-            this.labels.push(elem);
-        }
-    }
-
-    update (camera, renderElem) {
-        let v = new Vector3();
-        const drawRange = this.geometry.drawRange;
-        const vertices = this.geometry.attributes.position.array;
-        for (let i = 0, l = this.infos.length; i < l; i++) {
-            v.set(vertices[i * 3], vertices[i * 3 + 1], vertices[i * 3 + 2]);
-            v.project(camera);
-            if (Math.abs(v.z) > 1 || i < drawRange.start || i >= drawRange.start + drawRange.count) {
-                this.labels[i].classList.add('hide');
-            } else {
-                const x = (v.x *  .5 + .5) * renderElem.clientWidth;
-                const y = (v.y * -.5 + .5) * renderElem.clientHeight;
-                this.labels[i].style.transform = `translate(${x+7}px,${y-15}px)`;
-                this.labels[i].classList.remove('hide');
-            }
-        }
     }
 }
