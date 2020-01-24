@@ -113,7 +113,7 @@ export class SingleRange extends Range {
     }
 
     onInput() {
-        const ev = new CustomEvent('range-change', {
+        const ev = new CustomEvent('change', {
             bubbles: true,
             composed: true,
             detail: {value: this.value}
@@ -146,7 +146,6 @@ export class DoubleRange extends Range {
             css`
                 input.original {
                     position: absolute;
-                    width: calc(100% - 2rem - 2px);
                 }
                 input.original::-moz-range-thumb {
                     transform: scale(1); /* FF doesn't apply position it seems */
@@ -202,7 +201,7 @@ export class DoubleRange extends Range {
 
     onInput() {
         this.updateStyle();
-        const ev = new CustomEvent('range-change', {
+        const ev = new CustomEvent('change', {
             bubbles: true,
             composed: true,
             detail: {value: this.value}
@@ -315,7 +314,7 @@ export class RangeBox extends LitElement {
     constructor() {
         super();
         this.abbr = this.dataset.abbr;
-        this.addEventListener('range-change', this.onRangeChange, false);
+        this.addEventListener('change', this.onRangeChange, false);
     }
 }
 

@@ -49,6 +49,7 @@ window.onload = async () => {
     const gridLabels = document.querySelector('#coordinates');
     const starLabels = document.querySelector('#starsNames');
 
+
     const data = await getJSON('data/UMa.json');
     const obs = new Observatoire(data, {target: [0, 0, 0]}, canvas, starCard);
 
@@ -64,11 +65,15 @@ window.onload = async () => {
     canvas.addEventListener('leftclick', (e) => editor.onclick(e.detail));
     canvas.addEventListener('rightclick', () => editor.onrightclick());
 
+    document.getElementById('magRange').addEventListener('change', (e) => {
+        obs.stars.updateDrawRange(e.detail.value);
+    });
+
     // layer handling
     const domLayerSelect = document.getElementById('layer-select');
     domLayerSelect.addEventListener('change', e => {
         editor.setMap(e.detail.elem.textContent);
-    })
+    });
     const skymaps = skyMapData.forEach(data => {
         const map = SkyMap.hydrate(data, obs.starsCtrl.object);
         editor.addMap(map);

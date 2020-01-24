@@ -51,7 +51,6 @@ export class Stars extends Points {
         // Custom properties
         this.selected = [];
         this.data = stars;
-        console.log(this.data[0]);
 
         this.geometry.setDrawRange(0, this.data.length);
         this.geometry.attributes.position.needsUpdate = true;
@@ -112,9 +111,10 @@ export class Stars extends Points {
         colors.needsUpdate = true;
     }
 
-    updateDrawRange (min, max) {
-        let minIdx = this.infos.findIndex(star => star.vmag >= min);
-        let maxIdx = this.infos.findIndex(star => star.vmag >= max);
-        this.geometry.setDrawRange(minIdx < 0 ? this.infos.length : minIdx , maxIdx < 0 ? this.infos.length : maxIdx)
+    updateDrawRange ([min, max]) {
+        let minIdx = this.data.findIndex(star => star.vmag >= min);
+        let count = this.data.findIndex(star => star.vmag > max);
+        count = count < 0 ? this.data.length - minIdx : count - minIdx;
+        this.geometry.setDrawRange(minIdx < 0 ? this.data.length : minIdx , count);
     }
 }
