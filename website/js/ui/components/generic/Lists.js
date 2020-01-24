@@ -274,8 +274,10 @@ export class ListBox extends LitElement {
     * Focus on the last option
     */
     focusLastItem() {
-        const lastElem = this.shadowRoot.querySelector('ul[role=listbox]:last-child li[role=option]:last-child');
-        console.log(lastElem);
+        let lastElem = this.list.lastElementChild;
+        if (lastElem && lastElem.getAttribute('role') !== 'option') {
+            lastElem = lastElem.querySelector('[role=option]:last-of-type');
+        }
         if (lastElem) this.focusItem(lastElem);
     }
 
