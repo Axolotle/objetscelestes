@@ -1,8 +1,8 @@
 import {
-    Color, Vector3, BufferAttribute, VertexColors, // Helpers
+    Color, Vector3, BufferAttribute, VertexColors, Matrix4, Ray, // Helpers
     BufferGeometry, // Geometries
     ShaderMaterial, PointsMaterial, // Materials
-    Points // 3D objects
+    Points, Sphere, // 3D objects
 } from '../../../web_modules/three.js';
 
 import { pointShaders } from '../misc/shaders.js';
@@ -13,6 +13,11 @@ const _color = new Color(0x00ff00).toArray();
 const _selectColor = new Color(0xff0000).toArray();
 const _target = new Vector3();
 const _pos = new Vector3();
+// raycast
+const _inverseMatrix = new Matrix4();
+const _ray = new Ray();
+const _sphere = new Sphere();
+const _position = new Vector3();
 
 
 // https://github.com/mrdoob/js/blob/master/src/objects/Points.js
@@ -117,4 +122,59 @@ export class Stars extends Points {
         count = count < 0 ? this.data.length - minIdx : count - minIdx;
         this.geometry.setDrawRange(minIdx < 0 ? this.data.length : minIdx , count);
     }
+
+    // Overriding raycast method to test only points inside geometry.drawRange's range.
+    raycast(raycaster, intersects) {
+		const geometry = this.geometry;
+		const matrixWorld = this.matrixWorld;
+		const threshold = raycaster.params.Points.threshold;
+
+		// Checking boundingSphere distance to ray
+		if (geometry.boundingSphere === null) geometry.computeBoundingSphere();
+
+		_sphere.copy(geometry.boundingSphere);
+		_sphere.applyMatrix4(matrixWorld);
+		_sphere.radius += threshold;
+
+		if (raycaster.ray.intersectsSphere(_sphere) === false) return;
+
+		_inverseMatrix.getInverse(matrixWorld);
+		_ray.copy(raycaster.ray).applyMatrix4(_inverseMatrix);
+
+		const localThreshold = threshold / ((this.scale.x + this.scale.y + this.scale.z) / 3);
+		const localThresholdSq = localThreshold * localThreshold;
+
+		const positions = geometry.attributes.position.array;
+        const start = geometry.drawRange.start;
+        const end = geometry.drawRange.start + geometry.drawRange.count;
+
+		for (let i = start; i < end; i ++ ) {
+			_position.fromArray( positions, i * 3 );
+
+            const rayPointDistanceSq = _ray.distanceSqToPoint(_position);
+
+        	if (rayPointDistanceSq < localThresholdSq) {
+
+        		const intersectPoint = new Vector3();
+
+        		_ray.closestPointToPoint(_position, intersectPoint);
+        		intersectPoint.applyMatrix4(matrixWorld);
+
+        		var distance = raycaster.ray.origin.distanceTo(intersectPoint);
+
+        		if (distance < raycaster.near || distance > raycaster.far) return;
+
+        		intersects.push({
+        			distance: distance,
+        			distanceToRay: Math.sqrt(rayPointDistanceSq),
+        			point: intersectPoint,
+        			index: i,
+        			face: null,
+        			object: this
+        		});
+
+        	}
+		}
+
+	}
 }
