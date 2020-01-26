@@ -31,7 +31,7 @@ const _move = {
 
 
 export class CameraController extends Subscriber {
-    constructor(camera, target, modes, canvas) {
+    constructor(camera, target, modes) {
         super();
 
         this.object = camera;
@@ -49,28 +49,6 @@ export class CameraController extends Subscriber {
         };
 
         this.prevDist = _prevPos.copy(this.object.position).sub(this.target).length();
-
-        canvas.addEventListener('drag', (e) => {
-            let {mouse, first} = e.detail;
-            _move.prev.copy(!first ? _move.curr : mouse);
-            _move.curr.copy(mouse);
-            this[this.moveMode]({
-                x: _move.curr.x - _move.prev.x,
-                y: _move.curr.y - _move.prev.y
-            });
-        }, false);
-        canvas.addEventListener('zoom', (e) => {
-            this[this.zoomMode](e.detail.delta);
-        }, false);
-
-        this.subscribe('keyboard-drag', (move) => {
-            this[this.moveMode]({
-                x: move.x * this.speed.move,
-                y: move.y * this.speed.move
-            });
-        });
-        this.subscribe('keyboard-roll', this.roll.bind(this));
-
     }
 
     lookAt(target, rollAngle) {
@@ -174,5 +152,19 @@ export class CameraController extends Subscriber {
         this.moveMode = dolly ? 'orbit' : 'rotate';
         this.zoomMode = dolly ? 'dolly' : 'zoom';
         this.object.updateProjectionMatrix();
+    }
+
+    onDrag(e) {
+        let {mouse, first} = e.detail;
+        _move.prev.copy(!first ? _move.curr : mouse);
+        _move.curr.copy(mouse);
+        this[this.moveMode]({
+            x: _move.curr.x - _move.prev.x,
+            y: _move.curr.y - _move.prev.y
+        });
+    }
+
+    onWheel(e) {
+        this[this.zoomMode](e.detail.delta);
     }
 }

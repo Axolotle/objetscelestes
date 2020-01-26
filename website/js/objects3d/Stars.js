@@ -68,9 +68,9 @@ export class Stars extends Points {
         ]
     }
 
-    getLabelsPosition(camera, canvas) {
-        const w = canvas.clientWidth;
-        const h = canvas.clientHeight;
+    getLabelsPosition(space) {
+        const w = space.offsetWidth;
+        const h = space.offsetHeight;
         const drawRange = this.geometry.drawRange;
         const vertices = this.geometry.attributes.position;
 
@@ -80,7 +80,7 @@ export class Stars extends Points {
             _pos.fromBufferAttribute(vertices, i);
             // this is needed if the sphere is moved
             // _pos.applyMatrix4(this.matrixWorld)
-            _pos.project(camera);
+            _pos.project(space.camera);
             if (Math.abs(_pos.z) <= 1) {
                 const x = ((_pos.x *  .5 + .5) * w) + 7;
                 const y = ((_pos.y * -.5 + .5) * h) - 15;

@@ -1,41 +1,85 @@
-import { Vector2 } from '../../../../../web_modules/three.js';
+import { Vector2, WebGLRenderer, PerspectiveCamera } from '../../../../../web_modules/three.js';
+
+import { LitElement, html, css } from '../../../../../web_modules/lit-element.js';
 
 
-export class Canvas3D extends HTMLCanvasElement {
-    connectedCallback() {
+export class SpaceCanvas extends LitElement {
+    static get styles() {
+        return css`
+            :host {
+                display: block;
+                contain: content;
+                box-sizing: border-box;
+                width: 100%;
+                height: 100%;
+            }
+            canvas {
+                width: 100%;
+                height: 100%;
+            }
+        `;
+    }
+
+    render() {
+        return html`
+        <canvas
+            @click="${this.onClick}" @contextmenu="${this.onContextmenu}"
+            @mousedown="${this.onMousedown}"
+            @wheel="${this.onWheel}"
+        ></canvas>
+        `;
+    }
+
+    constructor() {
+        super();
+
+        this.camera = null;
+        this.renderer = null;
         this._mouse = {
             corner: new Vector2(),
             center: new Vector2()
-        }
+        };
         this._firstDrag = false;
+    }
 
-        this._onmousemove = this.onmousemove.bind(this);
-        this._ondrag = this.ondrag.bind(this);
-        this._onmouseup = this.onmouseup.bind(this);
+    firstUpdated() {
+        this.canvas = this.shadowRoot.querySelector('canvas');
+
+        this.camera = new PerspectiveCamera(75, this.offsetWidth / this.offsetHeight, 0.00001, 10000);
+
+        this.renderer = new WebGLRenderer({
+            antialias: false,
+            alpha: true,
+            premultipliedAlpha: true,
+            canvas: this.canvas
+        });
+        this.renderer.setSize(this.offsetWidth, this.offsetHeight);
+
+        this._onMousemove = this.onMousemove.bind(this);
+        this._onDrag = this.onDrag.bind(this);
+        this._onMouseup = this.onMouseup.bind(this);
         this._captureClick = this.captureClick.bind(this);
 
-        this.addEventListener('click', this.onclick, false);
-        this.addEventListener('contextmenu', this.oncontextmenu, false);
-        this.addEventListener('mousedown', this.onmousedown, false);
-        document.addEventListener('mousemove', this._onmousemove, false);
-        this.addEventListener('wheel', this.onwheel, false);
+        document.addEventListener('mousemove', this.onMousemove.bind(this), false);
     }
 
     _getMouseFromCorner(clientX, clientY) {
         return [
-            (clientX / this.width) * 2 - 1,
-            -(clientY / this.height) * 2 + 1
+            (clientX / this.offsetWidth) * 2 - 1,
+            -(clientY / this.offsetHeight) * 2 + 1
         ];
     }
 
     _getMouseFromCenter(pageX, pageY) {
+        const w = this.offsetWidth;
+        const h = this.offsetHeight;
         return [
-            (pageX - this.width * 0.5) / (this.width * 0.5),
-            (this.height + 2 * -pageY) / this.width
+            (pageX - w * 0.5) / (w * 0.5),
+            (h + 2 * -pageY) / w
         ];
     }
 
-    onclick(e) {
+    onClick(e) {
         this._mouse.corner.set(...this._getMouseFromCorner(e.clientX, e.clientY));
         this.dispatchEvent(new CustomEvent('leftclick', { detail: {
             mouse: this._mouse.corner,
@@ -43,30 +87,27 @@ export class Canvas3D extends HTMLCanvasElement {
         }}));
     }
 
-    oncontextmenu(e) {
+    onContextmenu(e) {
         e.preventDefault();
-
         this._mouse.corner.set(...this._getMouseFromCorner(e.clientX, e.clientY));
-
         this.dispatchEvent(new CustomEvent('rightclick', { detail: {
             mouse: this._mouse.corner,
             shift: e.shiftKey
         }}));
     }
 
-    onmousedown(e) {
+    onMousedown(e) {
         this._firstDrag = true;
-        document.addEventListener('mousemove', this._ondrag, false);
-        document.addEventListener('mouseup', this._onmouseup, false);
+        document.addEventListener('mousemove', this._onDrag, false);
+        document.addEventListener('mouseup', this._onMouseup, false);
     }
 
-    ondrag(e) {
+    onDrag(e) {
         if (this._firstDrag) {
             window.addEventListener('click', this._captureClick, true);
         }
 
         this._mouse.center.set(...this._getMouseFromCenter(e.pageX, e.pageY));
-
         this.dispatchEvent(new CustomEvent('drag', { detail: {
             mouse: this._mouse.center,
             first: this._firstDrag
@@ -74,19 +115,19 @@ export class Canvas3D extends HTMLCanvasElement {
         if (this._firstDrag) this._firstDrag = false;
     }
 
-    onmouseup() {
-        document.removeEventListener('mousemove', this._ondrag, false);
-        document.removeEventListener('mouseup', this._onmouseup, false);
+    onMouseup() {
+        document.removeEventListener('mousemove', this._onDrag, false);
+        document.removeEventListener('mouseup', this._onMouseup, false);
     }
 
-    onmousemove(e) {
+    onMousemove(e) {
         this._mouse.corner.set(...this._getMouseFromCorner(e.clientX, e.clientY));
         this.dispatchEvent(new CustomEvent('move', { detail: {
             mouse: this._mouse.corner
         }}));
     }
 
-    onwheel(e) {
+    onWheel(e) {
         this.dispatchEvent(new CustomEvent('zoom', { detail: {
             delta: Math.sign(e.deltaY)
         }}));
@@ -99,5 +140,4 @@ export class Canvas3D extends HTMLCanvasElement {
     }
 }
 
-
-customElements.define('canvas-3d', Canvas3D, {extends: 'canvas'});
+customElements.define('space-canvas', SpaceCanvas);

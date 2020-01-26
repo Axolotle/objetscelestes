@@ -44,16 +44,16 @@ const skyMapData = [
 ];
 
 window.onload = async () => {
-    const canvas = document.getElementById('canvas');
+    const space = document.querySelector('space-canvas');
+
     const starCard = document.querySelector('object-info');
     const gridLabels = document.querySelector('#coordinates');
     const starLabels = document.querySelector('#starsNames');
 
-
     const data = await getJSON('data/UMa.json');
-    const obs = new Observatoire(data, {target: [0, 0, 0]}, canvas, starCard);
 
-    const editor = new Editor(obs.scene, obs.cameraCtrl, obs.starsCtrl, canvas);
+    const obs = new Observatoire(data, {target: [0, 0, 0]}, space.camera, starCard);
+    const editor = new Editor(obs.scene, obs.cameraCtrl, obs.starsCtrl, space.canvas);
 
     document.getElementById('dollyMode').addEventListener('switch', (e) =>{
         obs.cameraCtrl.switchMode(e.detail);
@@ -62,8 +62,13 @@ window.onload = async () => {
         editor.drawMode = e.detail;
         starCard.switchDisplayStyle();
     });
-    canvas.addEventListener('leftclick', (e) => editor.onclick(e.detail));
-    canvas.addEventListener('rightclick', () => editor.onrightclick());
+
+
+    space.addEventListener('leftclick', (e) => editor.onclick(e.detail));
+    space.addEventListener('rightclick', () => editor.onrightclick());
+    // camera events
+    space.addEventListener('drag', (e) => obs.cameraCtrl.onDrag(e), false);
+    space.addEventListener('zoom', (e) => obs.cameraCtrl.onWheel(e), false);
 
     document.getElementById('magRange').addEventListener('change', (e) => {
         obs.stars.updateDrawRange(e.detail.value);
@@ -83,14 +88,15 @@ window.onload = async () => {
             group: 'layer-' + data.type
         });
     });
+    domLayerSelect.focusLastItem();
 
     animate();
 
     function animate() {
         requestAnimationFrame(animate);
-        obs.renderer.render(obs.scene, obs.camera);
-        gridLabels.updateContent(obs.grid.getLabelsPosition(obs.camera, canvas));
-        starLabels.updateContent(obs.stars.getLabelsPosition(obs.camera, canvas));
+        space.renderer.render(obs.scene, space.camera);
+        gridLabels.updateContent(obs.grid.getLabelsPosition(space));
+        starLabels.updateContent(obs.stars.getLabelsPosition(space));
     }
 };
 

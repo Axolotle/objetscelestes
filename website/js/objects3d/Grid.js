@@ -18,9 +18,9 @@ export class Grid extends Group {
         this.draw();
     }
 
-    getLabelsPosition(camera, canvas) {
-        const w = canvas.clientWidth;
-        const h = canvas.clientHeight;
+    getLabelsPosition(space) {
+        const w = space.offsetWidth;
+        const h = space.offsetHeight;
         const elems = [];
         for (const line of ['meridian', 'parallel']) {
             for (let i = 0, l = this[line].length; i < l; i += 3) {
@@ -28,7 +28,7 @@ export class Grid extends Group {
                 _pos.set(this[line][i], this[line][i+1], this[line][i+2]);
                 // this is needed if the sphere is moved
                 // _pos.applyMatrix4(line.object.matrixWorld)
-                _pos.project(camera);
+                _pos.project(space.camera);
                 if (Math.abs(_pos.z) <= 1) {
                     const x = (_pos.x *  .5 + .5) * w;
                     const y = (_pos.y * -.5 + .5) * h;
