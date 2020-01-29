@@ -142,6 +142,7 @@ export class CameraController {
         if (dolly) {
             let direction = this.object.getWorldDirection(_VECZERO).multiplyScalar(this.prevDist || 10).negate();
             this.object.position.add(direction);
+            this.lookAt(this.target, this.object.rotation.z);
         } else {
             this.prevDist = _prevPos.copy(this.object.position).sub(this.target).length();
             this.object.position.copy(this.target);
