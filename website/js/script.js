@@ -50,6 +50,8 @@ window.onload = async () => {
     const gridLabels = document.querySelector('#coordinates');
     const starLabels = document.querySelector('#starsNames');
 
+    const domLayerSelect = document.getElementById('layer-select');
+
     const data = await getJSON('data/UMa.json');
 
     const obs = new Observatoire(data, {target: [0, 0, 0]}, space.camera, starCard);
@@ -63,19 +65,19 @@ window.onload = async () => {
         starCard.switchDisplayStyle();
     });
 
-
+    space.canvas.focus();
     space.addEventListener('leftclick', (e) => editor.onclick(e.detail));
     space.addEventListener('rightclick', () => editor.onrightclick());
     // camera events
-    space.addEventListener('drag', (e) => obs.cameraCtrl.onDrag(e), false);
-    space.addEventListener('zoom', (e) => obs.cameraCtrl.onWheel(e), false);
+    space.addEventListener('drag', (e) => obs.cameraCtrl.onDrag(e.detail), false);
+    space.addEventListener('zoom', (e) => obs.cameraCtrl.onWheel(e.detail), false);
+    space.addEventListener('roll', (e) => obs.cameraCtrl.roll(e.detail.value), false);
 
     document.getElementById('magRange').addEventListener('change', (e) => {
         obs.stars.updateDrawRange(e.detail.value);
     });
 
     // layer handling
-    const domLayerSelect = document.getElementById('layer-select');
     domLayerSelect.addEventListener('change', e => {
         editor.setMap(e.detail.elem.textContent);
     });
@@ -94,6 +96,7 @@ window.onload = async () => {
 
     function animate() {
         requestAnimationFrame(animate);
+        if (space.animating) space.animateKeys();
         space.renderer.render(obs.scene, space.camera);
         gridLabels.updateContent(obs.grid.getLabelsPosition(space));
         starLabels.updateContent(obs.stars.getLabelsPosition(space));

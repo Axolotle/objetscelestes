@@ -1,7 +1,10 @@
-import { Vector2, WebGLRenderer, PerspectiveCamera } from '../../../../../web_modules/three.js';
-
+import { Vector2, Vector3, WebGLRenderer, PerspectiveCamera } from '../../../../../web_modules/three.js';
 import { LitElement, html, css } from '../../../../../web_modules/lit-element.js';
 
+import { keys } from '../../../utilities/keys.js';
+
+
+const _VECZERO = new Vector3();
 
 export class SpaceCanvas extends LitElement {
     static get styles() {
@@ -22,23 +25,26 @@ export class SpaceCanvas extends LitElement {
 
     render() {
         return html`
-        <canvas
+        <canvas tabindex="0"
             @click="${this.onClick}" @contextmenu="${this.onContextmenu}"
             @mousedown="${this.onMousedown}"
             @wheel="${this.onWheel}"
+            @keydown="${this.onKeydown}" @keyup="${this.onKeyup}"
         ></canvas>
         `;
     }
 
     constructor() {
         super();
-
+        this.canvas = null;
         this.camera = null;
         this.renderer = null;
         this._mouse = {
             corner: new Vector2(),
             center: new Vector2()
         };
+        this._keyboard = new Vector3();
+        this._animating = false;
         this._firstDrag = false;
     }
 
@@ -109,7 +115,8 @@ export class SpaceCanvas extends LitElement {
 
         this._mouse.center.set(...this._getMouseFromCenter(e.pageX, e.pageY));
         this.dispatchEvent(new CustomEvent('drag', { detail: {
-            mouse: this._mouse.center,
+            type: 'mouse',
+            vector: this._mouse.center,
             first: this._firstDrag
         }}));
         if (this._firstDrag) this._firstDrag = false;
@@ -131,6 +138,48 @@ export class SpaceCanvas extends LitElement {
         this.dispatchEvent(new CustomEvent('zoom', { detail: {
             delta: Math.sign(e.deltaY)
         }}));
+    }
+
+    onKeydown(e) {
+        switch (e.code) {
+            case keys.PITCH_LEFT:  this._keyboard.x = -1; break;
+            case keys.PITCH_RIGHT: this._keyboard.x =  1; break;
+            case keys.YAW_UP:      this._keyboard.y =  1; break;
+            case keys.YAW_DOWN:    this._keyboard.y = -1; break;
+            case keys.ROLL_LEFT:   this._keyboard.z =  1; break;
+            case keys.ROLL_RIGHT:  this._keyboard.z = -1; break;
+        }
+    }
+
+    get animating() {
+        return this._keyboard.equals(_VECZERO) ? false : true;
+    }
+
+    onKeyup(e) {
+        switch (e.code) {
+            case keys.PITCH_LEFT:  this._keyboard.x === -1 ? this._keyboard.x = 0 : this._keyboard.x =  1; break;
+            case keys.PITCH_RIGHT: this._keyboard.x ===  1 ? this._keyboard.x = 0 : this._keyboard.x = -1; break;
+            case keys.YAW_UP:      this._keyboard.y ===  1 ? this._keyboard.y = 0 : this._keyboard.y = -1; break;
+            case keys.YAW_DOWN:    this._keyboard.y === -1 ? this._keyboard.y = 0 : this._keyboard.y =  1; break;
+            case keys.ROLL_LEFT:   this._keyboard.z ===  1 ? this._keyboard.z = 0 : this._keyboard.z = -1; break;
+            case keys.ROLL_RIGHT:  this._keyboard.z === -1 ? this._keyboard.z = 0 : this._keyboard.z =  1; break;
+        }
+    }
+
+    animateKeys() {
+        if (this._keyboard.z !== 0) {
+            this.dispatchEvent(new CustomEvent('roll', { detail: {
+                type: 'keyboard',
+                value: this._keyboard.z
+            }}));
+        }
+        if (this._keyboard.x !== 0 || this._keyboard.y !== 0) {
+            this.dispatchEvent(new CustomEvent('drag', { detail: {
+                type: 'keyboard',
+                vector: this._keyboard,
+                first: false
+            }}));
+        }
     }
 
     captureClick(e) {

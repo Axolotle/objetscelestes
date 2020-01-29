@@ -1,4 +1,3 @@
-import { Subscriber } from '../utilities/Subscriber.js';
 import { Vector2, Vector3, Quaternion, Matrix4, Euler } from '../../../web_modules/three.js';
 
 
@@ -30,10 +29,8 @@ const _move = {
 }
 
 
-export class CameraController extends Subscriber {
+export class CameraController {
     constructor(camera, target, modes) {
-        super();
-
         this.object = camera;
         this.target = new Vector3(...target);
 
@@ -154,17 +151,21 @@ export class CameraController extends Subscriber {
         this.object.updateProjectionMatrix();
     }
 
-    onDrag(e) {
-        let {mouse, first} = e.detail;
-        _move.prev.copy(!first ? _move.curr : mouse);
-        _move.curr.copy(mouse);
-        this[this.moveMode]({
-            x: _move.curr.x - _move.prev.x,
-            y: _move.curr.y - _move.prev.y
-        });
+    onDrag({vector, type, first}) {
+        const move = {};
+        if (type === 'mouse') {
+            _move.prev.copy(!first ? _move.curr : vector);
+            _move.curr.copy(vector);
+            move.x = _move.curr.x - _move.prev.x;
+            move.y = _move.curr.y - _move.prev.y;
+        } else {
+            move.x = vector.x * this.speed.move;
+            move.y = vector.y * this.speed.move;
+        }
+        this[this.moveMode](move);
     }
 
-    onWheel(e) {
-        this[this.zoomMode](e.detail.delta);
+    onWheel({delta}) {
+        this[this.zoomMode](delta);
     }
 }
