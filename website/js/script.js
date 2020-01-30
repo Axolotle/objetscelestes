@@ -72,6 +72,11 @@ window.onload = async () => {
     space.addEventListener('drag', (e) => obs.cameraCtrl.onDrag(e.detail), false);
     space.addEventListener('zoom', (e) => obs.cameraCtrl.onWheel(e.detail), false);
     space.addEventListener('roll', (e) => obs.cameraCtrl.roll(e.detail.value), false);
+    space.addEventListener('move', (e) => {
+        if (editor.preDrawer.active) {
+            editor.preDrawer.update(e.detail.mouse, space.camera);
+        }
+    })
 
     document.getElementById('magRange').addEventListener('change', (e) => {
         obs.stars.updateDrawRange(e.detail.value);
