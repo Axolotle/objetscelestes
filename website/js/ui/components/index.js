@@ -1,5 +1,5 @@
 export { SingleRange, DoubleRange } from './generic/Ranges.js';
-export { ButtonSwitch } from './generic/Switch.js';
+export { ButtonSwitch } from './generic/Buttons.js';
 export { ListSelect } from './generic/Select.js';
 export { ListBox } from './generic/Lists.js';
 
