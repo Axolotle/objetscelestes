@@ -44,6 +44,9 @@ const skyMapData = [
 window.onload = async () => {
     const space = document.querySelector('space-canvas');
 
+    const drawButton = document.getElementById('drawMode');
+    const dollyButton = document.getElementById('dollyMode');
+    const magRange = document.getElementById('magRange');
     const starCard = document.querySelector('object-info');
     const gridLabels = document.querySelector('#coordinates');
     const starLabels = document.querySelector('#starsNames');
@@ -55,18 +58,18 @@ window.onload = async () => {
     const obs = new Observatoire(data, {target: [0, 0, 0]}, space.camera, starCard);
     const editor = new Editor(obs.scene, obs.cameraCtrl, obs.starsCtrl, space.canvas);
 
-    document.getElementById('dollyMode').addEventListener('switch', (e) =>{
-        obs.cameraCtrl.switchMode(e.detail);
-    });
-    document.getElementById('drawMode').addEventListener('switch', (e) => {
+    drawButton.addEventListener('switch', (e) => {
         editor.drawMode = e.detail;
         starCard.switchDisplayStyle();
     });
+    dollyButton.addEventListener('switch', (e) =>{
+        obs.cameraCtrl.switchMode(e.detail);
+    });
 
-    space.canvas.focus();
+    // canvas click
     space.addEventListener('leftclick', (e) => editor.onclick(e.detail));
     space.addEventListener('rightclick', () => editor.onrightclick());
-    // camera events
+    // canvas mouse movement
     space.addEventListener('drag', (e) => obs.cameraCtrl.onDrag(e.detail), false);
     space.addEventListener('zoom', (e) => obs.cameraCtrl.onWheel(e.detail), false);
     space.addEventListener('roll', (e) => obs.cameraCtrl.roll(e.detail.value), false);
@@ -75,6 +78,7 @@ window.onload = async () => {
             editor.preDrawer.update(e.detail.mouse, space.camera);
         }
     }, false);
+    // canvas keyboard
     space.addEventListener('keyup', (e) => {
         switch (e.code) {
             case 'Delete':
@@ -82,17 +86,25 @@ window.onload = async () => {
                     editor.skyMapCtrl.delete();
                 }
                 break;
-
+            case 'KeyR':
+                drawMode.onClick();
+                break;
+            case 'KeyF':
+                dollyMode.onClick();
         }
     }, false);
-    document.getElementById('magRange').addEventListener('change', (e) => {
+
+    // magnitude
+    magRange.addEventListener('change', (e) => {
         obs.stars.updateDrawRange(e.detail.value);
     });
 
-    // layer handling
+    // layer
     domLayerSelect.addEventListener('change', e => {
         editor.setMap(e.detail.elem.textContent);
     });
+
+    // init
     const skymaps = skyMapData.forEach(data => {
         const map = SkyMap.hydrate(data, obs.starsCtrl.object);
         editor.addMap(map);
@@ -102,6 +114,8 @@ window.onload = async () => {
             group: 'layer-' + data.type
         });
     });
+
+    space.canvas.focus();
     domLayerSelect.focusLastItem();
 
     animate();
