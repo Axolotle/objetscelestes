@@ -42,7 +42,7 @@ export class SkyMapController {
             this.object.add(asterism);
             this.selected = [this.object.children.length - 1];
         } else {
-            this.asterismCtrl.addPoint(point, starIndex, connect);
+            this.asterismCtrl.addSegment(point, starIndex, connect);
         }
     }
 
@@ -61,6 +61,7 @@ export class SkyMapController {
                     this.asterismCtrl.set(this.object.children[this.selected[this.selected.length - 1]]);
                 // Unselect everything but the targeted on and select segment
                 } else {
+                    // remove the target from selected array to easily unselect the others
                     this.selected.splice(this.selected.indexOf(targets.asterism), 1);
                     this.unselect();
                     this.asterismCtrl.set(asterism);
@@ -106,13 +107,16 @@ export class SkyMapController {
         }
     }
 
-    dispose() {
-        for (const child of this.object.children) {
-            this.object.remove(child);
-            child.geometry.dispose();
-            child.material.dispose();
+    delete() {
+        if (this.asterismCtrl.selected.length > 0) {
+            this.asterismCtrl.delete();
+        } else if (this.selected.length > 0) {
+            for (const index of this.selected) {
+                this.object.children[index].dispose();
+            }
+            this.selected.length = 0;
+        } else {
+            // this.object.dispose();
         }
-
-        this.object.parent.remove(this.object);
     }
 }

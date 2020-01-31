@@ -76,8 +76,17 @@ window.onload = async () => {
         if (editor.preDrawer.active) {
             editor.preDrawer.update(e.detail.mouse, space.camera);
         }
-    })
+    }, false);
+    space.addEventListener('keyup', (e) => {
+        switch (e.code) {
+            case 'Delete':
+                if (editor.drawMode) {
+                    editor.skyMapCtrl.delete();
+                }
+                break;
 
+        }
+    }, false);
     document.getElementById('magRange').addEventListener('change', (e) => {
         obs.stars.updateDrawRange(e.detail.value);
     });

@@ -16,6 +16,14 @@ export class SkyMap extends Group {
         }
     }
 
+    dispose() {
+        for (const child of this.object.children) {
+            child.dispose(child);
+        }
+
+        this.parent.remove(this);
+    }
+
     static hydrate(skyMapData, stars) {
         let skyMap = new SkyMap(skyMapData.name);
         for (const asterismData of skyMapData.asterisms) {

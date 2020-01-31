@@ -8,7 +8,7 @@ import {
 import { asterismColors as colors } from '../misc/colors.js';
 
 
-const _MAX = 50;
+const _MAX = 10;
 
 
 export class Asterism extends LineSegments {
@@ -44,13 +44,21 @@ export class Asterism extends LineSegments {
         this.geometry.computeBoundingSphere();
     }
 
+    /**
+     * Fill a buffer attribute with a repeated series of values.
+     *
+     * @param {string} attribute - the attribute name.
+     * @param {array} array - an array of values with length equals to the attribute's itemSize.
+     * @param {number} [index] - index to start filling the array
+     * @param {number} [quantity] - quantity of arrays to fill
+     */
     fillAttribute(attribute, array, index, quantity) {
         const attr = this.geometry.attributes[attribute];
 
         let start = index || 0;
-        const end  = index + quantity || attr.array.length / 3;
+        const end  = start + quantity || attr.count;
         for (; start < end; start++) {
-            attr.array.set(array, start * 3);
+            attr.array.set(array, start * attr.itemSize);
         }
 
         attr.needsUpdate = true;
@@ -60,9 +68,24 @@ export class Asterism extends LineSegments {
         }
     }
 
+    /**
+     * Sets a series of three values for position at a specified index.
+     *
+     * @param {number[]} point - an array of three values representing a 3D coordinates.
+     * @param {number} index - starting index to copy the array's values
+     * @param {number} starIndex - point's star reference to remember which star has been added
+     */
     setPoint(point, index, starIndex) {
-        this.geometry.attributes.position.set(point, index * 3);
+        if (this.count === 0) {
+            this.fillAttribute('position', point);
+        } else {
+            this.geometry.attributes.position.set(point, index * 3);
+        }
         this.path.push(starIndex);
+    }
+
+    getPoint(index) {
+        return this.geometry.attributes.position.array.slice(index * 3, (index * 3) + 3);
     }
 
     addPoint(point, color, starIndex) {
@@ -77,6 +100,14 @@ export class Asterism extends LineSegments {
             targetIndex * 3 + 1
         );
         this.path.push(this.path[toCopyIndex]);
+    }
+
+    shiftWithin(insertIndex) {
+        this.geometry.attributes.position.array.copyWithin(
+            insertIndex * 3,
+            (insertIndex + 2) * 3,
+            (this.count + 2) * 3
+        );
     }
 
     duplicateLastPoint() {
@@ -95,6 +126,13 @@ export class Asterism extends LineSegments {
             name: this.name,
             path: this.path
         }
+    }
+
+    dispose() {
+        this.geometry.dispose();
+        this.material.dispose();
+
+        this.parent.remove(this);
     }
 
     static fromFirstPoint(point, starIndex, color) {
