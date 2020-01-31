@@ -21,19 +21,6 @@
 
         <form id="options" onSubmit="return false;">
             <h3>MODES</h3>
-            <!-- <fieldset class="checkboxes">
-                <legend>Click</legend>
-                <label>
-                    <span class="text">DESSIN</span>
-                    <input id="drawMode" name="draw" type="checkbox">
-                    <span class="checker"></span>
-                </label>
-                <label>
-                    <span class="text">CIBLE</span>
-                    <input id="targetMode" name="target" type="checkbox">
-                    <span class="checker"></span>
-                </label>
-            </fieldset> -->
             <fieldset>
                 <legend>Modes</legend>
                 <button-switch id="drawMode" data-pressed="DRAW" data-unpressed="OBS" checked="false"></button-switch>
@@ -85,15 +72,15 @@
                 <list-select id="visibility-checkbox" label="Set visibility:" multiple>
                     <li>
                         <ul role="group" aria-label="Elements">
-                            <li id="vis-grid" role="option">Grid</li>
-                            <li id="vis-regions" role="option" aria-selected="true">Regions</li>
+                            <li id="vis-grid" role="option" aria-selected="true">Grid</li>
+                            <!-- <li id="vis-regions" role="option" aria-selected="true">Regions</li> -->
                         </ul>
                     </li>
 
                     <li>
                         <ul role="group" aria-label="Labels">
-                            <li id="vis-stars" role="option">Star</li>
-                            <li id="vis-asterisms" role="option" aria-selected="true">Asterism</li>
+                            <li id="vis-stars" role="option" aria-selected="true">Star</li>
+                            <!-- <li id="vis-asterisms" role="option" aria-selected="true">Asterism</li> -->
                         </ul>
                     </li>
                 </list-select>

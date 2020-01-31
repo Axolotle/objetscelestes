@@ -50,8 +50,8 @@ window.onload = async () => {
     const starCard = document.querySelector('object-info');
     const gridLabels = document.querySelector('#coordinates');
     const starLabels = document.querySelector('#starsNames');
-
     const domLayerSelect = document.getElementById('layer-select');
+    const visibilitySelect = document.getElementById('visibility-checkbox');
 
     const data = await getJSON('data/UMa.json');
 
@@ -102,6 +102,20 @@ window.onload = async () => {
     // layer
     domLayerSelect.addEventListener('change', e => {
         editor.setMap(e.detail.elem.textContent);
+    });
+
+    // visibility
+    visibilitySelect.addEventListener('change', e => {
+        const elems = {
+            'vis-grid': [obs.grid, gridLabels],
+            'vis-stars': [starLabels]
+        }
+        for (const elem of e.detail.elem) {
+            let isVisible = elem.getAttribute('aria-selected') === 'true';
+            for (const obj of elems[elem.id]) {
+                obj.visible = isVisible;
+            }
+        }
     });
 
     // init

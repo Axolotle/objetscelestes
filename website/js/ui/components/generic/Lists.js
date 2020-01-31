@@ -361,7 +361,7 @@ export class ListBox extends LitElement {
                 'aria-selected',
                 elem.getAttribute('aria-selected') === 'true' ? 'false' : 'true'
             );
-            this.selectChange(this.shadowRoot.querySelectorAll('[aria-selected=true]'));
+            this.selectChange(this.shadowRoot.querySelectorAll('[role=option]'));
         }
     }
 
