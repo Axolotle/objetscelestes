@@ -67,6 +67,11 @@ export class SpaceCanvas extends LitElement {
         this._captureClick = this.captureClick.bind(this);
 
         document.addEventListener('mousemove', this.onMousemove.bind(this), false);
+        window.addEventListener('resize', this.onResize.bind(this), false);
+    }
+
+    get animating() {
+        return this._keyboard.equals(_VECZERO) ? false : true;
     }
 
     _getMouseFromCorner(clientX, clientY) {
@@ -141,6 +146,7 @@ export class SpaceCanvas extends LitElement {
     }
 
     onKeydown(e) {
+        if (e.repeat) return;
         switch (e.code) {
             case keys.PITCH_LEFT:  this._keyboard.x = -1; break;
             case keys.PITCH_RIGHT: this._keyboard.x =  1; break;
@@ -149,10 +155,6 @@ export class SpaceCanvas extends LitElement {
             case keys.ROLL_LEFT:   this._keyboard.z =  1; break;
             case keys.ROLL_RIGHT:  this._keyboard.z = -1; break;
         }
-    }
-
-    get animating() {
-        return this._keyboard.equals(_VECZERO) ? false : true;
     }
 
     onKeyup(e) {
@@ -164,6 +166,12 @@ export class SpaceCanvas extends LitElement {
             case keys.ROLL_LEFT:   this._keyboard.z ===  1 ? this._keyboard.z = 0 : this._keyboard.z = -1; break;
             case keys.ROLL_RIGHT:  this._keyboard.z === -1 ? this._keyboard.z = 0 : this._keyboard.z =  1; break;
         }
+    }
+
+    onResize() {
+        this.camera.aspect = this.offsetWidth / this.offsetHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(this.offsetWidth, this.offsetHeight);
     }
 
     animateKeys() {
