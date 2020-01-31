@@ -8,7 +8,7 @@ import {
 import { asterismColors as colors } from '../misc/colors.js';
 
 
-const _MAX = 10;
+const _MAX = 50;
 
 
 export class Asterism extends LineSegments {
