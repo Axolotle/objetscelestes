@@ -1,8 +1,6 @@
-// import { initComponents } from './ui/index.js';
+import * as components from './ui/components/index.js';
 import { Observatoire } from './observatoire/Observatoire.js';
-// import { Ui } from './ui/Ui.js';
 import { Editor } from './editor/Editor.js';
-import { UiFactory } from './ui/UiFactory.js';
 import { SkyMap } from './objects3d/SkyMap.js';
 
 
