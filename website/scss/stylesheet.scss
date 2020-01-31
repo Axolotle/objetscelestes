@@ -3,7 +3,7 @@
 
 :root {
     font-family: 'Fira Code';
-    font-size: 0.9rem;
+    font-size: $ui-fs;
     color: $light;
 }
 
@@ -14,16 +14,78 @@ main {
     overflow: hidden;
 }
 
-#canvas {
+#options {
+    position: absolute;
+    top: $ui-margin;
+    right: $ui-margin;
+    font-size: $ui-fs;
+    width: 15rem;
+
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+
+    h3 {
+        margin-bottom: 1rem;
+        font-size: $ui-fs;
+        background-color: $light;
+        color: $color;
+        padding-left: 1rem;
+    }
+
+    fieldset {
+        border: $ui-border-size $light solid;
+        padding: 1rem;
+
+        &:not(:last-of-type) {
+            margin-bottom: 1rem;
+        }
+    }
+
+    legend {
+        display: inline-block;
+        position: relative;
+        bottom: -.3rem;
+        height: 1rem;
+        margin-top: -1rem;
+        background-color: $color;
+
+        &:before, &:after {
+            content: ':';
+        }
+    }
+}
+
+list-select {
+    --max-height: 10rem;
+}
+
+list-box:not(:last-child),
+list-select:not(:last-child),
+list-checkbox:not(:last-child) {
+    margin-bottom: 1rem;
+}
+
+object-info {
+    position: absolute;
+    z-index: 100;
+    top: $ui-margin;
+    left: $ui-margin;
+    font-size: $ui-fs;
+}
+
+space-canvas {
     background-color: $color;
 }
 
-@import 'ui';
-@import 'labels';
-@import 'card';
+floating-labels {
+    font-size: $ui-fs;
+}
 
-.hide {
-    display: none;
+#starsNames {
+    text-shadow: none;
+    color: #000074;
 }
 
 @import 'fonts';
