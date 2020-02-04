@@ -15,6 +15,10 @@ time, mark, audio, video {
     padding: 0;
     border: 0;
     font: inherit;
+    font-family: 'Fira Code';
+    font-size: $ui-fs;
+    color: $light;
+
     vertical-align: baseline;
     box-sizing: border-box;
     -webkit-box-sizing: border-box;
@@ -27,20 +31,4 @@ li {
 article, aside, details, figcaption, figure,
 footer, header, hgroup, main, menu, nav, section {
     display: block;
-}
-button {
-    display: inline-block;
-    background-color: $dark;
-    color: $light;
-    border: none;
-    border-radius: 0;
-    font: inherit;
-}
-input {
-    display: inline-block;
-    margin: 0;
-    padding: 0;
-    border: none;
-    border-radius: 0;
-    font: inherit;
 }

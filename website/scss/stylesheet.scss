@@ -1,11 +1,11 @@
 @import 'vars';
 @import 'reset';
 
-:root {
-    font-family: 'Fira Code';
-    font-size: $ui-fs;
-    color: $light;
-}
+// :root {
+//     font-family: 'Fira Code';
+//     font-size: $ui-fs;
+//     color: $light;
+// }
 
 main {
     height: 100vh;
@@ -14,12 +14,40 @@ main {
     overflow: hidden;
 }
 
+button {
+    display: inline-block;
+    background-color: $dark;
+    color: $light;
+    border: none;
+    border-radius: 0;
+    height: 1.5rem;
+    line-height: 1.5rem;
+    font: inherit;
+    font-size: $ui-fs;
+
+    &::-moz-focus-inner {
+        border: 0;
+    }
+}
+input {
+    display: inline-block;
+    margin: 0;
+    padding: 0 .5rem;
+    border: none;
+    border-radius: 0;
+    font: inherit;
+    font-size: $ui-fs;
+    height: 1.5rem;
+    line-height: 1.5rem;
+}
+
 #options {
     position: absolute;
     top: $ui-margin;
     right: $ui-margin;
     font-size: $ui-fs;
     width: 15rem;
+    z-index: 50;
 
     user-select: none;
     -moz-user-select: none;
@@ -64,7 +92,7 @@ list-select {
 list-box:not(:last-child),
 list-select:not(:last-child),
 list-checkbox:not(:last-child) {
-    margin-bottom: 1rem;
+    margin-bottom: .5rem;
 }
 
 object-info {
@@ -81,6 +109,7 @@ space-canvas {
 
 floating-labels {
     font-size: $ui-fs;
+    // z-index: 0;
 }
 
 #starsNames {
@@ -88,4 +117,22 @@ floating-labels {
     color: #000074;
 }
 
+#layer-buttons {
+    // display: flex;
+    // justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+[type=button] {
+    box-sizing: border-box;
+    &:focus {
+        outline: $ui-focus;
+    }
+    &:hover {
+        background-color: $inter;
+        color: $dark;
+    }
+}
+
+@import 'ui';
 @import 'fonts';

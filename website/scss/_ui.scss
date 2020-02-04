@@ -1,0 +1,38 @@
+dialog-zone {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+dialog-input {
+    color: white;
+    background-color: blue;
+    padding: 2rem;
+    border: 1px solid white;
+
+    &::before {
+        content: ':' attr(data-legend) ':';
+        position: absolute;
+        margin-top: -2.75rem;
+        margin-left: -1rem;
+        background-color: blue;
+        height: 1.5rem;
+        line-height: 1.5rem;
+
+    }
+
+    h2 {
+        margin-bottom: 1rem;
+    }
+
+    [type=text] {
+        height: 2rem;
+        line-height: 2rem;
+    }
+}

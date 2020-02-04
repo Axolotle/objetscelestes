@@ -372,6 +372,8 @@ export class ListBox extends LitElement {
         elem.textContent = value;
         const container = group ? this.list.querySelector('#' + group) : this.list;
         container.appendChild(elem);
+        
+        return elem;
     }
 }
 
