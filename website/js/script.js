@@ -103,6 +103,52 @@ window.onload = async () => {
     domLayerSelect.addEventListener('change', e => {
         editor.setMap(e.detail.elem.textContent);
     });
+    // layer-add
+    document.getElementById('add-layer').addEventListener('click', () => {
+        document.querySelector('dialog-zone').displayDialog('t-add-layer', response => {
+            editor.addMap(new SkyMap(response.name));
+            const elem = domLayerSelect.addItem({
+                value: response.name,
+                id: response.name.replace(' ', ''),
+                group: 'layer-custom'
+            });
+            domLayerSelect.focusItem(elem);
+        })
+    });
+    // layer-remove
+    document.getElementById('remove-layer').addEventListener('click', () => {
+        document.querySelector('dialog-zone').displayDialog('t-delete-layer', response => {
+            editor.deleteMap();
+            const elem = domLayerSelect.activeDescendant;
+            elem.parentElement.removeChild(elem);
+            domLayerSelect.focusFirstItem();
+        })
+    });
+    // layer-duplicate
+    document.getElementById('duplicate-layer').addEventListener('click', () => {
+        document.querySelector('dialog-zone').displayDialog('t-duplicate-layer', response => {
+            const clone = editor.skyMapCtrl.object.deepClone(response.name);
+            editor.addMap(clone);
+            const elem = domLayerSelect.addItem({
+                value: response.name,
+                id: response.name.replace(' ', ''),
+                group: 'layer-custom'
+            });
+            domLayerSelect.focusItem(elem);
+        })
+    });
+    // layer-rename
+    document.getElementById('rename-layer').addEventListener('click', () => {
+        document.querySelector('dialog-zone').displayDialog('t-rename-layer', response => {
+            const skyMap = editor.skyMapCtrl.object;
+            const elem = domLayerSelect.activeDescendant;
+            skyMap.name = response.name;
+            elem.textContent = response.name;
+            elem.id = response.name.replace(' ', '');
+            domLayerSelect.activeDescendant = elem.id;
+            domLayerSelect.onFocusChange(elem);
+        })
+    });
 
     // visibility
     visibilitySelect.addEventListener('change', e => {
@@ -118,7 +164,7 @@ window.onload = async () => {
         }
     });
 
-    // init
+    // init skyMaps
     const skymaps = skyMapData.forEach(data => {
         const map = SkyMap.hydrate(data, obs.starsCtrl.object);
         editor.addMap(map);
@@ -134,6 +180,8 @@ window.onload = async () => {
 
     animate();
 
+
+
     function animate() {
         requestAnimationFrame(animate);
         if (space.animating) space.animateKeys();
@@ -142,6 +190,7 @@ window.onload = async () => {
         starLabels.updateContent(obs.stars.getLabelsPosition(space));
     }
 };
+
 
 function getJSON(uri) {
 	return fetch(uri).then(response => response.json());

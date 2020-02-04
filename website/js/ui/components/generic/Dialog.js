@@ -73,10 +73,7 @@ export class DialogInput extends LitElement {
         return firstFocusable[0];
     }
 
-    get data() {
-        const elems =  this.querySelectorAll(
-            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
+    getData(elems) {
         const data = {
             submitted: this.shadowRoot.querySelector('[type=submit]').value
         };
@@ -84,7 +81,15 @@ export class DialogInput extends LitElement {
         for (const elem of elems) {
             data[elem.name] = elem.value;
         }
+        
         return data;
+    }
+
+    areValid(elems) {
+        for (const elem of elems) {
+            if (!elem.checkValidity()) return false;
+        }
+        return true;
     }
 
     activate() {
@@ -92,18 +97,21 @@ export class DialogInput extends LitElement {
         return new Promise((resolve, reject) => {
             this.shadowRoot.querySelector('form').addEventListener('submit', e => {
                 e.preventDefault();
-                if (e.explicitOriginalTarget.id !== 'cancel') {
-                    resolve(this.data);
+                if (e.explicitOriginalTarget.id === 'cancel') {
+                    resolve(null);
                 } else {
-                    resolve(null)
+                    // since inputs or other dom nodes are in light dom, the form
+                    // has no children, therefore it cannot check its validity on its own.
+                    const elems = this.querySelectorAll(
+                        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                    );
+                    if (!this.areValid(elems)) return;
+                    resolve(this.getData(elems));
                 }
-            }, {once: true});
+            });
         })
     }
-
-    on
 }
-
 
 
 customElements.define('dialog-input', DialogInput);

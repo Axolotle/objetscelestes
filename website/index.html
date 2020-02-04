@@ -41,23 +41,6 @@
 
             <fieldset>
                 <legend>Elements</legend>
-                <!-- <list-select id="layer-select" label="Choose a layer:">
-                    <li id="layer-new" role="option">New</li>
-                    <li id="layer-custom1" role="option">Custom 1</li>
-                    <li id="layer-celestialobject" role="option">Celestial Object</li>
-                    <li id="layer-european" role="option">European</li>
-                    <li id="layer-chinese" role="option" aria-selected="true">Chinese</li>
-                    <li id="layer-arabic" role="option">Arabic</li>
-                </list-select>
-
-                <list-select id="visibility-checkbox" label="Set visibility:" multiple>
-                    <li id="vis-grid" role="option">Grid</li>
-                    <li id="vis-regions" role="option" aria-selected="true">Regions</li>
-
-                    <li id="vis-stars" role="option">Star</li>
-                    <li id="vis-asterisms" role="option" aria-selected="true">Asterism</li>
-                </list-select> -->
-
                 <list-select id="layer-select" label="Choose a layer:">
                     <li>
                         <ul id="layer-custom" role="group" aria-label="Customs">
@@ -68,6 +51,12 @@
                         </ul>
                     </li>
                 </list-select>
+                <div id="layer-buttons">
+                    <button type="button" title="Create a new empty layer" id="add-layer">++</button>
+                    <button type="button" title="Remove the selected layer" id="remove-layer">--</button>
+                    <button type="button" title="Duplicate the selected layer" id="duplicate-layer">+=</button>
+                    <button type="button" title="Rename the selected layer" id="rename-layer">~~</button>
+                </div>
 
                 <list-select id="visibility-checkbox" label="Set visibility:" multiple>
                     <li>
@@ -87,7 +76,37 @@
 
             </fieldset>
         </form>
+
+        <dialog-zone class="hidden"></dialog-zone>
+
     </main>
+
+    <template id="t-delete-layer">
+        <dialog-input data-legend="map-deletion" data-submitmsg="DELETE">
+            <h2 slot="title">Are you sure you want to delete this map?</h2>
+        </dialog-input>
+    </template>
+
+    <template id="t-add-layer">
+        <dialog-input data-legend="map-addition" data-submitmsg="ADD">
+            <h2 slot="title">Give a name to this new map:</h2>
+            <input type="text" slot="choice" name="name" pattern="^(?!\s*$)[A-Za-z0-9 \-_]+$" required placeholder="Map name">
+        </dialog-input>
+    </template>
+
+    <template id="t-duplicate-layer">
+        <dialog-input data-legend="map-duplication" data-submitmsg="DUPLICATE">
+            <h2 slot="title">Give a name to this new map:</h2>
+            <input type="text" slot="choice" name="name" pattern="^(?!\s*$)[A-Za-z0-9 \-_]+$" required placeholder="Map name">
+        </dialog-input>
+    </template>
+
+    <template id="t-rename-layer">
+        <dialog-input data-legend="map-renaming" data-submitmsg="RENAME">
+            <h2 slot="title">Give a new name to this map:</h2>
+            <input type="text" slot="choice" name="name" pattern="^(?!\s*$)[A-Za-z0-9 \-_]+$" required placeholder="Map name">
+        </dialog-input>
+    </template>
 
 <script type="module" src="js/script.js"></script>
 </body>

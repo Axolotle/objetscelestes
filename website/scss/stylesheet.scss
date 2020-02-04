@@ -39,6 +39,10 @@ input {
     font-size: $ui-fs;
     height: 1.5rem;
     line-height: 1.5rem;
+
+    &:invalid {
+        outline: 2px red solid;
+    }
 }
 
 #options {

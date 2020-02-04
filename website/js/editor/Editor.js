@@ -33,6 +33,12 @@ class Editor {
         this.skyMapCtrl.set(skyMap);
     }
 
+    deleteMap() {
+        const map = this.skyMapCtrl.object;
+        map.dispose();
+        return map.name;
+    }
+
     onclick({mouse, shift}) {
         this.raycaster.setFromCamera(mouse, this.cameraCtrl.object);
         let star = this.starsCtrl.raycast(this.raycaster);
@@ -64,6 +70,8 @@ class Editor {
     onmousemove() {
 
     }
+
+
 }
 
 
