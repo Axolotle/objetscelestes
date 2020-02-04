@@ -17,11 +17,23 @@ export class SkyMap extends Group {
     }
 
     dispose() {
-        for (const child of this.object.children) {
-            child.dispose(child);
+        for (const child of this.children) {
+            child.dispose();
         }
 
         this.parent.remove(this);
+    }
+
+    deepClone(name) {
+        return new SkyMap(name).deepCopy(this);
+    }
+
+    deepCopy(source) {
+        for (let i = 0, l = source.children.length; i < l; i++) {
+            this.add(source.children[i].deepClone());
+        }
+        
+        return this;
     }
 
     static hydrate(skyMapData, stars) {

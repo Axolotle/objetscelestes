@@ -135,6 +135,23 @@ export class Asterism extends LineSegments {
         this.parent.remove(this);
     }
 
+    deepClone() {
+        return new Asterism().deepCopy(this);
+    }
+
+    deepCopy(source) {
+        this.name = source.name;
+        this.path = source.path;
+
+        this.position.copy(source.position );
+        this.scale.copy( source.scale );
+
+        if (source.material) this.material = source.material.clone();
+        if (source.geometry) this.geometry = source.geometry.clone();
+
+        return this;
+    }
+
     static fromFirstPoint(point, starIndex, color) {
         const asterism = new Asterism();
         asterism.fillAttribute('position', point);
