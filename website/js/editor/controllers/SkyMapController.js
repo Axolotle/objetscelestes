@@ -15,11 +15,9 @@ export class SkyMapController {
     set(object) {
         // ??TODO: use dispose() to free memory but need to recreate the object
         // if (this.object !== undefined) this.dispose();
-        if (this.object !== undefined) this.object.visible = false;
+        if (this.object !== undefined) this.clear();
         this.object = object;
         this.object.visible = true;
-        this.asterismCtrl.object = undefined;
-        this.selected.length = 0;
     }
 
     raycast(raycaster) {
@@ -105,6 +103,13 @@ export class SkyMapController {
             }
 
         }
+    }
+
+    clear() {
+        this.asterismCtrl.clear();
+        this.unselect();
+        this.object.visible = false;
+        this.object = undefined;
     }
 
     delete() {

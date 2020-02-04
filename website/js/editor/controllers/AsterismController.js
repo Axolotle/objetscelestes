@@ -79,7 +79,7 @@ export class AsterismController {
     }
 
     clear() {
-        this.selected.length = 0;
+        this.unselect();
         this.object = undefined;
     }
 }
