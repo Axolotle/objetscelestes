@@ -28,15 +28,15 @@ class Editor {
         this.skyMaps.add(skyMap);
     }
 
-    setMap(name) {
-        const skyMap = this.skyMaps.getObjectByName(name);
+    setMap(uuid) {
+        const skyMap = this.skyMaps.getObjectByProperty('uuid', uuid);
         this.skyMapCtrl.set(skyMap);
     }
 
     deleteMap() {
         const map = this.skyMapCtrl.object;
         map.dispose();
-        return map.name;
+        return map.uuid;
     }
 
     onclick({mouse, shift}) {

@@ -2,7 +2,7 @@ import * as components from './ui/components/index.js';
 import { Observatoire } from './observatoire/Observatoire.js';
 import { Editor } from './editor/Editor.js';
 import { SkyMap } from './objects3d/SkyMap.js';
-
+import { initDB } from './utilities/storage.js';
 
 let sw = false;
 // Register service worker to control making site work offline
@@ -12,29 +12,10 @@ if (sw && 'serviceWorker' in navigator) {
     .then(function() { console.log('Service Worker Registered'); });
 }
 
-const skyMapData = [
-    {
-        name: 'Custom 1',
-        type: 'custom',
-        id: 'custom1',
-        asterisms: [
-            { name: 'aste', path: [1, 4, 4, 6, 2, 3] },
-            { name: 'aste2', path: [10, 12, 12, 5, 14, 13] },
-            { name: 'aste3', path: [21, 15, 15, 18] }
-        ]
-    },
-    {
-        name: 'Custom 2',
-        type: 'custom',
-        id: 'custom2',
-        asterisms: [
-            { name: 'aste', path: [10, 4, 4, 6, 15, 3] },
-        ]
-    },
+const defaultSkyMapData = [
     {
         name: 'Wiki',
-        type: 'default',
-        id: 'wiki',
+        group: 'default',
         asterisms: [
             { name: 'Grande Ourse', path: [2, 3, 3, 0, 0, 10, 10, 5, 5, 4, 4, 1, 1, 10] },
         ]
@@ -61,14 +42,14 @@ window.onload = async () => {
     drawButton.addEventListener('switch', (e) => {
         editor.drawMode = e.detail;
         starCard.switchDisplayStyle();
-    });
+    }, false);
     dollyButton.addEventListener('switch', (e) =>{
         obs.cameraCtrl.switchMode(e.detail);
-    });
+    }, false);
 
     // canvas click
-    space.addEventListener('leftclick', (e) => editor.onclick(e.detail));
-    space.addEventListener('rightclick', () => editor.onrightclick());
+    space.addEventListener('leftclick', (e) => editor.onclick(e.detail), false);
+    space.addEventListener('rightclick', () => editor.onrightclick(), false);
     // canvas mouse movement
     space.addEventListener('drag', (e) => obs.cameraCtrl.onDrag(e.detail), false);
     space.addEventListener('zoom', (e) => obs.cameraCtrl.onWheel(e.detail), false);
@@ -79,7 +60,7 @@ window.onload = async () => {
         }
     }, false);
     // canvas keyboard
-    space.addEventListener('keyup', (e) => {
+    space.addEventListener('keydown', (e) => {
         switch (e.code) {
             case 'Delete':
                 if (editor.drawMode) {
@@ -91,64 +72,73 @@ window.onload = async () => {
                 break;
             case 'KeyF':
                 dollyMode.onClick();
+            case 'KeyS':
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    const maps = editor.skyMaps.children.forEach(map => {
+                        if (map.userData.group === 'custom') {
+                            storage.save(map.deshydrate());
+                        }
+                    });
+                }
         }
     }, false);
 
     // magnitude
     magRange.addEventListener('change', (e) => {
         obs.stars.updateDrawRange(e.detail.value);
-    });
+    }, false);
 
     // layer
     domLayerSelect.addEventListener('change', e => {
-        editor.setMap(e.detail.elem.textContent);
-    });
+        editor.setMap(e.detail.elem.dataset.id);
+    }, false);
     // layer-add
     document.getElementById('add-layer').addEventListener('click', () => {
         document.querySelector('dialog-zone').displayDialog('t-add-layer', response => {
-            editor.addMap(new SkyMap(response.name));
-            const elem = domLayerSelect.addItem({
-                value: response.name,
-                id: response.name.replace(' ', ''),
-                group: 'layer-custom'
-            });
+            const map = new SkyMap(response.name, 'custom');
+            editor.addMap(map);
+            const data = {
+                name: response.name,
+                id: map.uuid,
+                group: 'custom',
+                asterisms: []
+            }
+            const elem = domLayerSelect.addItem(data);
+            console.log(elem);
             domLayerSelect.focusItem(elem);
         })
-    });
+    }, false);
     // layer-remove
     document.getElementById('remove-layer').addEventListener('click', () => {
-        document.querySelector('dialog-zone').displayDialog('t-delete-layer', response => {
-            editor.deleteMap();
+        document.querySelector('dialog-zone').displayDialog('t-delete-layer', () => {
+            const id = editor.deleteMap();
+            storage.deleteItem(id);
             const elem = domLayerSelect.activeDescendant;
             elem.parentElement.removeChild(elem);
             domLayerSelect.focusFirstItem();
         })
-    });
+    }, false);
     // layer-duplicate
     document.getElementById('duplicate-layer').addEventListener('click', () => {
         document.querySelector('dialog-zone').displayDialog('t-duplicate-layer', response => {
-            const clone = editor.skyMapCtrl.object.deepClone(response.name);
-            editor.addMap(clone);
-            const elem = domLayerSelect.addItem({
-                value: response.name,
-                id: response.name.replace(' ', ''),
-                group: 'layer-custom'
-            });
+            const map = editor.skyMapCtrl.object.deepClone(response.name, 'custom');
+            editor.addMap(map);
+            const data = map.deshydrate();
+            const elem = domLayerSelect.addItem(data);
             domLayerSelect.focusItem(elem);
         })
-    });
+    }, false);
     // layer-rename
     document.getElementById('rename-layer').addEventListener('click', () => {
         document.querySelector('dialog-zone').displayDialog('t-rename-layer', response => {
-            const skyMap = editor.skyMapCtrl.object;
+            const map = editor.skyMapCtrl.object;
             const elem = domLayerSelect.activeDescendant;
-            skyMap.name = response.name;
+            map.name = response.name;
             elem.textContent = response.name;
-            elem.id = response.name.replace(' ', '');
-            domLayerSelect.activeDescendant = elem.id;
             domLayerSelect.onFocusChange(elem);
         })
-    });
+    }, false);
 
     // visibility
     visibilitySelect.addEventListener('change', e => {
@@ -162,24 +152,40 @@ window.onload = async () => {
                 obj.visible = isVisible;
             }
         }
-    });
+    }, false);
 
     // init skyMaps
-    const skymaps = skyMapData.forEach(data => {
+    const storage = await initDB();
+
+    const skymaps = defaultSkyMapData.forEach(data => {
         const map = SkyMap.hydrate(data, obs.starsCtrl.object);
         editor.addMap(map);
-        domLayerSelect.addItem({
-            value: data.name,
-            id: data.id,
-            group: 'layer-' + data.type
+        data.id = map.uuid;
+        domLayerSelect.addItem(data);
+    });
+    storage.get().then(customSkyMapData => {
+        customSkyMapData.forEach(data => {
+            const map = SkyMap.hydrate(data, obs.starsCtrl.object);
+            editor.addMap(map);
+            data.id = map.uuid;
+            domLayerSelect.addItem(data);
         });
     });
-
-    space.canvas.focus();
     domLayerSelect.focusLastItem();
 
-    animate();
+    // save
+    document.getElementById('save').addEventListener('click', e => {
+        e.preventDefault();
+        const maps = editor.skyMaps.children.forEach(map => {
+            if (map.userData.group === 'custom') {
+                storage.save(map.deshydrate());
+            }
+        })
+    }, false);
 
+    space.canvas.focus();
+
+    animate();
 
 
     function animate() {

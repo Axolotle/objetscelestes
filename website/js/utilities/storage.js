@@ -16,12 +16,10 @@ const storage = {
     save(data) {
         const [store, transaction] = this.openTransaction('readwrite');
 
-        for (const elem of data) {
-            const request = store.put(elem);
-            request.onsuccess = function(e) {
-                console.log('sucess: data added to objectStore');
-            };
-        }
+        const request = store.put(data);
+        request.onsuccess = function(e) {
+            console.log('sucess: data added to objectStore');
+        };
 
         // Report on the success of the transaction completing, when everything is done
         transaction.oncomplete = function() {
@@ -70,9 +68,7 @@ export function initDB() {
             switch (upgradeDB.oldVersion) {
                 case 0:
                     // Create an objectStore to store data including a auto-incrementing key
-                    const store = db.createObjectStore('skyMap_os', {
-                        keyPath: 'id', autoIncrement:true
-                    });
+                    const store = db.createObjectStore('skyMap_os', { keyPath: 'id' });
                     // Define what data items the objectStore will contain
                     store.createIndex('name', 'name', { unique: false });
                     store.createIndex('group', 'group', { unique: false });
