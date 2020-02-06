@@ -183,6 +183,21 @@ window.onload = async () => {
         })
     }, false);
 
+    // export
+    document.getElementById('export').addEventListener('click', e => {
+        const maps = editor.skyMaps.children.filter(
+            map => map.userData.group === 'custom'
+        ).map(
+            map => map.deshydrate()
+        );
+
+        var dataStr = encodeURIComponent(JSON.stringify(maps));
+        e.target.setAttribute('href', 'data:text/json;charset=utf-8,' + dataStr);
+        setTimeout(() => {
+            e.target.setAttribute("href", '')
+        }, 500);
+    }, false);
+
     space.canvas.focus();
 
     animate();

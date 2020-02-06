@@ -12,14 +12,16 @@ main {
     width: 100vw;
 }
 
-button {
+button, .button {
+    text-decoration: none;
     display: inline-block;
     background-color: $dark;
     color: $light;
     border: none;
     border-radius: 0;
     height: 1.5rem;
-    line-height: 1.5rem;
+    line-height: 1.5rem !important;
+    padding: 0 0.5rem;
     font: inherit;
     font-size: $ui-fs;
 
@@ -44,6 +46,17 @@ input {
 
     &:invalid {
         outline: 2px red solid;
+    }
+}
+
+[type=button], .button {
+    box-sizing: border-box;
+    &:focus {
+        outline: $ui-focus;
+    }
+    &:hover {
+        background-color: $inter;
+        color: $dark;
     }
 }
 
@@ -129,20 +142,7 @@ floating-labels {
     color: #000074;
 }
 
-#layer-buttons {
-    margin-bottom: 1rem;
-}
 
-[type=button] {
-    box-sizing: border-box;
-    &:focus {
-        outline: $ui-focus;
-    }
-    &:hover {
-        background-color: $inter;
-        color: $dark;
-    }
-}
 
 @import 'ui';
 @import 'fonts';

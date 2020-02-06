@@ -268,7 +268,7 @@ export class RangeBox extends LitElement {
             }
 
             single-range, double-range {
-                margin-top: .5rem;
+                margin-top: .75rem;
             }
 
             input[type=number] {
