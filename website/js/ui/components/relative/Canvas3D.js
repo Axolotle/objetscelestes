@@ -146,7 +146,7 @@ export class SpaceCanvas extends LitElement {
     }
 
     onKeydown(e) {
-        if (e.repeat) return;
+        if (e.repeat || e.ctrlKey || e.shiftKey) return;
         switch (e.code) {
             case keys.PITCH_LEFT:  this._keyboard.x = -1; break;
             case keys.PITCH_RIGHT: this._keyboard.x =  1; break;
@@ -158,6 +158,7 @@ export class SpaceCanvas extends LitElement {
     }
 
     onKeyup(e) {
+        if (e.repeat || e.ctrlKey || e.shiftKey) return;
         switch (e.code) {
             case keys.PITCH_LEFT:  this._keyboard.x === -1 ? this._keyboard.x = 0 : this._keyboard.x =  1; break;
             case keys.PITCH_RIGHT: this._keyboard.x ===  1 ? this._keyboard.x = 0 : this._keyboard.x = -1; break;

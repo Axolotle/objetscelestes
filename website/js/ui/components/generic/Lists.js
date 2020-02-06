@@ -365,14 +365,15 @@ export class ListBox extends LitElement {
         }
     }
 
-    addItem({value, id, group}) {
+    addItem({name, id, group}) {
         const elem = document.createElement('li');
         elem.setAttribute('role', 'option');
-        elem.setAttribute('id', id);
-        elem.textContent = value;
-        const container = group ? this.list.querySelector('#' + group) : this.list;
+        elem.setAttribute('id', group + id);
+        elem.dataset.id = id;
+        elem.textContent = name;
+        const container = group ? this.list.querySelector('#layer-' + group) : this.list;
         container.appendChild(elem);
-        
+
         return elem;
     }
 }
