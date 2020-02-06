@@ -33,12 +33,11 @@ const storage = {
         };
     },
 
-    get() {
+    get(item) {
         return new Promise((resolve, reject) => {
             const [store, transaction] = this.openTransaction('readonly');
-            store.getAll().onsuccess = (e) => {
-                resolve(e.target.result);
-            }
+            let request = item !== undefined ? store.get(item): store.getAll();
+            request.onsuccess = (e) => resolve(e.target.result);
         });
     },
 
