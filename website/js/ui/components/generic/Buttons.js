@@ -12,7 +12,6 @@ export class ButtonSwitch extends LitElement {
         return css`
             :host {
                 display: block;
-                contain: content;
                 width: 100%;
                 box-sizing: border-box;
             }
@@ -26,18 +25,15 @@ export class ButtonSwitch extends LitElement {
 
             button {
                 display: flex;
-                height: calc(1.5rem + 4px);
+                height: 1.5rem;
                 width: 100%;
                 margin: 0;
                 padding: 0;
                 border: none;
                 background-color: transparent;
-                outline: none;
-                border: 2px transparent dashed;
             }
             button:focus {
-                outline: none;
-                border: 2px #ff00ff dashed;
+                outline: 2px #ff00ff dashed;
             }
             button::-moz-focus-inner {
                 border: 0;

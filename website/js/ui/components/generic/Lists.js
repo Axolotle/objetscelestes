@@ -14,7 +14,6 @@ export class ListBox extends LitElement {
         return css`
             :host {
                 display: block;
-                contain: content;
                 width: 100%;
                 box-sizing: border-box;
             }

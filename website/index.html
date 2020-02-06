@@ -24,41 +24,8 @@
             <fieldset>
                 <legend>Modes</legend>
                 <button-switch id="drawMode" data-pressed="DRAW" data-unpressed="OBS" checked="false"></button-switch>
-            </fieldset>
-            <fieldset>
-                <legend>Camera</legend>
                 <button-switch id="dollyMode" data-pressed="DOLLY" data-unpressed="ZOOM" checked="false"></button-switch>
-            </fieldset>
-
-            <h3>SELECTORS</h3>
-            <fieldset>
-                <legend>Stars</legend>
-                <!-- <single-range id="lol" default="2" min="0" max="6.5" step="0.01"></single-range> -->
-                <!-- <double-range id="lol" default="[1,6]" min="0" max="6.5" step="0.01"></double-range> -->
-                <!-- <single-rangebox id="lol" min="0" default="0.5" max="6.5" step="0.01" data-label="magnitude" data-abbr="mag."></single-rangebox> -->
-                <double-rangebox id="magRange" default="[1, 6]" min="0" max="6.5" step="0.01" data-label="magnitude" data-abbr="mag."></double-rangebox>
-            </fieldset>
-
-            <fieldset>
-                <legend>Elements</legend>
-                <list-select id="layer-select" label="Choose a layer:">
-                    <li>
-                        <ul id="layer-custom" role="group" aria-label="Customs">
-                        </ul>
-                    </li>
-                    <li>
-                        <ul id="layer-default" role="group" aria-label="Defaults">
-                        </ul>
-                    </li>
-                </list-select>
-                <div id="layer-buttons">
-                    <button type="button" title="Create a new empty layer" id="add-layer">++</button>
-                    <button type="button" title="Remove the selected layer" id="remove-layer">--</button>
-                    <button type="button" title="Duplicate the selected layer" id="duplicate-layer">+=</button>
-                    <button type="button" title="Rename the selected layer" id="rename-layer">~~</button>
-                </div>
-
-                <list-select id="visibility-checkbox" label="Set visibility:" multiple>
+                <list-select id="visibility-checkbox" label="Set visibility:" multiple >
                     <li>
                         <ul role="group" aria-label="Elements">
                             <li id="vis-grid" role="option" aria-selected="true">Grid</li>
@@ -73,6 +40,36 @@
                         </ul>
                     </li>
                 </list-select>
+            </fieldset>
+
+            <h3>SELECTORS</h3>
+            <fieldset>
+                <legend>Stars</legend>
+                <!-- <single-range id="lol" default="2" min="0" max="6.5" step="0.01"></single-range> -->
+                <!-- <double-range id="lol" default="[1,6]" min="0" max="6.5" step="0.01"></double-range> -->
+                <!-- <single-rangebox id="lol" min="0" default="0.5" max="6.5" step="0.01" data-label="magnitude" data-abbr="mag."></single-rangebox> -->
+                <double-rangebox id="magRange" default="[1, 6]" min="0" max="6.5" step="0.01" data-label="magnitude" data-abbr="mag."></double-rangebox>
+            </fieldset>
+
+            <fieldset>
+                <legend>Asterisms</legend>
+                <list-select id="layer-select" label="Choose a map:">
+                    <li>
+                        <ul id="layer-custom" role="group" aria-label="Customs">
+                        </ul>
+                    </li>
+                    <li>
+                        <ul id="layer-default" role="group" aria-label="Defaults">
+                        </ul>
+                    </li>
+                </list-select>
+                <div id="layer-buttons">
+                    <button type="button" title="Create a new empty map" id="add-layer">++</button>
+                    <button type="button" title="Remove the selected map" id="remove-layer">--</button>
+                    <button type="button" title="Duplicate the selected map" id="duplicate-layer">+=</button>
+                    <button type="button" title="Rename the selected map" id="rename-layer">~~</button>
+                </div>
+                <button type="button" id="save">SAVE</button>
 
             </fieldset>
         </form>
@@ -90,21 +87,21 @@
     <template id="t-add-layer">
         <dialog-input data-legend="map-addition" data-submitmsg="ADD">
             <h2 slot="title">Give a name to this new map:</h2>
-            <input type="text" slot="choice" name="name" pattern="^(?!\s*$)[A-Za-z0-9 \-_]+$" required placeholder="Map name">
+            <input type="text" slot="choice" name="name" pattern="^(?!\s*$)[\wéèêëàâäîïôöûüç\s\u00a0\-_]+$" required placeholder="Map name">
         </dialog-input>
     </template>
 
     <template id="t-duplicate-layer">
         <dialog-input data-legend="map-duplication" data-submitmsg="DUPLICATE">
             <h2 slot="title">Give a name to this new map:</h2>
-            <input type="text" slot="choice" name="name" pattern="^(?!\s*$)[A-Za-z0-9 \-_]+$" required placeholder="Map name">
+            <input type="text" slot="choice" name="name" pattern="^(?!\s*$)[\wéèêëàâäîïôöûüç\s\u00a0\-_]+$" required placeholder="Map name">
         </dialog-input>
     </template>
 
     <template id="t-rename-layer">
         <dialog-input data-legend="map-renaming" data-submitmsg="RENAME">
             <h2 slot="title">Give a new name to this map:</h2>
-            <input type="text" slot="choice" name="name" pattern="^(?!\s*$)[A-Za-z0-9 \-_]+$" required placeholder="Map name">
+            <input type="text" slot="choice" name="name" pattern="^(?!\s*$)[\wéèêëàâäîïôöûüç\s\u00a0\-_]+$" required placeholder="Map name">
         </dialog-input>
     </template>
 

@@ -21,21 +21,19 @@ export class ListSelect extends ListBox {
                 position: relative;
                 width: 100%;
                 min-height: 30px;
-                padding: 0 calc(1rem - 2px);
-                border: 2px black solid;
+                padding: 0 1rem;
                 background-color: black;
                 color: white;
                 font: inherit;
                 text-align: left;
+                border: none;
             }
             button:hover {
-              border-color: #ff00ff;
               background: #ff00ff;
               color: black;
             }
             button:focus {
-                border: 2px #ff00ff dashed;
-                outline: none;
+                outline: 2px #ff00ff dashed;
             }
             button::after {
                 position: absolute;
@@ -47,11 +45,11 @@ export class ListSelect extends ListBox {
                 border-right: 10px solid transparent;
             }
             button:not([aria-expanded])::after {
-                top: 5px;
+                top: 7px;
                 border-top: 15px solid white;
             }
             button[aria-expanded="true"]::after {
-                bottom: 5px;
+                bottom: 7px;
                 border-bottom: 15px solid white;
             }
             button::-moz-focus-inner {
@@ -60,7 +58,6 @@ export class ListSelect extends ListBox {
 
             /* inverted colors */
             :host(.inverted) button {
-                border-color: white;
                 background-color: white;
                 color: black;
             }
@@ -69,6 +66,13 @@ export class ListSelect extends ListBox {
             }
             :host(.inverted) button[aria-expanded="true"]::after {
                 border-bottom: 15px solid black;
+            }
+
+            span#exp_elem {
+                display: block;
+                height: 2rem;
+                line-height: 2rem;
+                margin-top: -0.5rem;
             }
 
             .hidden {
