@@ -29,9 +29,22 @@ floating-labels {
 }
 
 
-#starsNames {
-    text-shadow: none;
+#starsNames span {
+    position: absolute;
+    z-index: 1;
     color: #000074;
+}
+#coordinates span {
+    position: absolute;
+    text-shadow:
+        -1px -1px 0 #0000ff,
+         0   -1px 0 #0000ff,
+         1px -1px 0 #0000ff,
+         1px  0   0 #0000ff,
+         1px  1px 0 #0000ff,
+         0    1px 0 #0000ff,
+        -1px  1px 0 #0000ff,
+        -1px  0   0 #0000ff;
 }
 
 #options {

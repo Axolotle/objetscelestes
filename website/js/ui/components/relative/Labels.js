@@ -12,34 +12,15 @@ export class FloatingLabels extends LitElement {
             :host(.hidden) {
                 display: none;
             }
-            :host(.shadow) span {
-                text-shadow:
-                    -1px -1px 0 #0000ff,
-                     0   -1px 0 #0000ff,
-                     1px -1px 0 #0000ff,
-                     1px  0   0 #0000ff,
-                     1px  1px 0 #0000ff,
-                     0    1px 0 #0000ff,
-                    -1px  1px 0 #0000ff,
-                    -1px  0   0 #0000ff;
-            }
-            span {
-                position: absolute;
-            }
-
-            .hidden {
-                display: none;
-            }
         `;
     }
 
     render() {
-        return html`${this.elems.map((elem) => html`<span style="transform: ${elem.transform}">${elem.text}</span>`)}`;
+        return html`<slot></slot>`;
     }
 
     constructor() {
         super();
-        this.elems = [];
     }
 
     get visible() {
@@ -55,10 +36,26 @@ export class FloatingLabels extends LitElement {
     }
 
     updateContent(elems) {
-        this.elems = elems;
-        this.requestUpdate().then(() => {
-            this.elems = [];
-        });
+        const actualElems = this.querySelectorAll('span');
+        let len = actualElems.length > elems.length ? actualElems.length : elems.length;
+        let documentFragment = document.createDocumentFragment();
+
+        for (let i = 0; i < len; i++) {
+            if (actualElems[i] && elems[i]) {
+                actualElems[i].textContent = elems[i].text;
+                actualElems[i].style.transform = elems[i].transform;
+            } else if (!actualElems[i]){
+                const elem = document.createElement('span');
+                elem.textContent = elems[i].text;
+                elem.style.transform = elems[i].transform;
+                documentFragment.appendChild(elem);
+            } else if (!elems[i]) {
+                actualElems[i].remove()
+            }
+        }
+        if (documentFragment.children.length) {
+            this.appendChild(documentFragment);
+        }
     }
 
 
