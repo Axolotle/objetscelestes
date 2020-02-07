@@ -12,6 +12,13 @@ export class StarsController {
         this.selected = [];
     }
 
+    get selectedStarVector() {
+        if (this.selected.length) {
+            return this.object.getCoordinatesVector(this.selected[0]);
+        }
+        return null;
+    }
+
     raycast(raycaster) {
         let intersect = raycaster.intersectObject(this.object)[0];
         if (intersect !== undefined) {
@@ -20,9 +27,8 @@ export class StarsController {
                 point: this.object.getCoordinatesArray(intersect.index),
                 data: this.data[intersect.index]
             }
-        } else {
-            return null;
         }
+        return null;
     }
 
     select(index, shift) {

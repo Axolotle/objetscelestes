@@ -137,11 +137,13 @@ export class CameraController {
         }
     }
 
-    switchMode(dolly) {
+    switchMode(dolly, applyOffset = true) {
         this.object.zoom = 1;
         if (dolly) {
-            let direction = this.object.getWorldDirection(_VECZERO).multiplyScalar(this.prevDist || 10).negate();
-            this.object.position.add(direction);
+            if (applyOffset) {
+                let direction = this.object.getWorldDirection(_VECZERO).multiplyScalar(this.prevDist || 10).negate();
+                this.object.position.add(direction);
+            }
             this.lookAt(this.target, this.object.rotation.z);
         } else {
             this.prevDist = _prevPos.copy(this.object.position).sub(this.target).length();
@@ -152,6 +154,21 @@ export class CameraController {
         this.object.updateProjectionMatrix();
     }
 
+    changeTarget(newTarget) {
+        if (newTarget === undefined) newTarget = _VECZERO;
+        if (this.target.equals(newTarget)) return false;
+
+        this.target.copy(newTarget);
+
+        if (this.zoomMode === 'zoom') {
+            this.switchMode(true, false);
+            return true;
+        } else {
+            this.lookAt(this.target, this.object.rotation.z);
+            return false;
+        }
+    }
+
     onDrag({vector, type, first}) {
         const move = {};
         if (type === 'mouse') {
@@ -160,8 +177,13 @@ export class CameraController {
             move.x = _move.curr.x - _move.prev.x;
             move.y = _move.curr.y - _move.prev.y;
         } else {
+            const orbit = this
             move.x = vector.x * this.speed.move;
             move.y = vector.y * this.speed.move;
+            if (this.moveMode === 'orbit') {
+                move.x *= -1;
+                move.y *= -1;
+            }
         }
         this[this.moveMode](move);
     }

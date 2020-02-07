@@ -39,14 +39,6 @@ window.onload = async () => {
     const obs = new Observatoire(data, {target: [0, 0, 0]}, space.camera, starCard);
     const editor = new Editor(obs.scene, obs.cameraCtrl, obs.starsCtrl, space.canvas);
 
-    drawButton.addEventListener('switch', (e) => {
-        editor.drawMode = e.detail;
-        starCard.switchDisplayStyle();
-    }, false);
-    dollyButton.addEventListener('switch', (e) =>{
-        obs.cameraCtrl.switchMode(e.detail);
-    }, false);
-
     // canvas click
     space.addEventListener('leftclick', (e) => editor.onclick(e.detail), false);
     space.addEventListener('rightclick', () => editor.onrightclick(), false);
@@ -61,6 +53,7 @@ window.onload = async () => {
     }, false);
     // canvas keyboard
     space.addEventListener('keydown', (e) => {
+        console.log(e.code);
         switch (e.code) {
             case 'Delete':
                 if (editor.drawMode) {
@@ -81,13 +74,57 @@ window.onload = async () => {
                         }
                     });
                 }
+            case 'Space':
+                if (e.ctrlKey) {
+                    changeTarget()
+                } else {
+                    const selected = obs.starsCtrl.selectedStarVector;
+                    if (selected) changeTarget(selected);
+                }
         }
     }, false);
+
+    // Mode switches
+    drawButton.addEventListener('switch', (e) => {
+        editor.drawMode = e.detail;
+        starCard.switchDisplayStyle();
+    }, false);
+    dollyButton.addEventListener('switch', (e) =>{
+        obs.cameraCtrl.switchMode(e.detail);
+    }, false);
+
+    // Target buttons
+    function changeTarget(selected) {
+        const zoomModeChange = obs.cameraCtrl.changeTarget(selected);
+        if (zoomModeChange) dollyButton.setAttribute('checked', zoomModeChange);
+    }
+    document.getElementById('target-star').onclick = () => {
+        const selected = obs.starsCtrl.selectedStarVector;
+        if (selected) changeTarget(selected);
+    }
+    document.getElementById('target-sun').onclick = () => target();
+
+    // visibility
+    visibilitySelect.addEventListener('change', e => {
+        const elems = {
+            'vis-grid': [obs.grid, gridLabels],
+            'vis-asterisms': [editor.skyMaps],
+            'vis-stars': [starLabels],
+        }
+        for (const elem of e.detail.elem) {
+            let isVisible = elem.getAttribute('aria-selected') === 'true';
+            for (const obj of elems[elem.id]) {
+                obj.visible = isVisible;
+            }
+        }
+    }, false);
+
 
     // magnitude
     magRange.addEventListener('change', (e) => {
         obs.stars.updateDrawRange(e.detail.value);
     }, false);
+    obs.stars.updateDrawRange(magRange.range.value)
 
     // layer
     domLayerSelect.addEventListener('change', e => {
@@ -138,20 +175,6 @@ window.onload = async () => {
             elem.textContent = response.name;
             domLayerSelect.onFocusChange(elem);
         })
-    }, false);
-
-    // visibility
-    visibilitySelect.addEventListener('change', e => {
-        const elems = {
-            'vis-grid': [obs.grid, gridLabels],
-            'vis-stars': [starLabels]
-        }
-        for (const elem of e.detail.elem) {
-            let isVisible = elem.getAttribute('aria-selected') === 'true';
-            for (const obj of elems[elem.id]) {
-                obj.visible = isVisible;
-            }
-        }
     }, false);
 
     // init skyMaps
@@ -207,6 +230,7 @@ window.onload = async () => {
         requestAnimationFrame(animate);
         if (space.animating) space.animateKeys();
         space.renderer.render(obs.scene, space.camera);
+        // FIXME try not to update this if there were no camera movements
         gridLabels.updateContent(obs.grid.getLabelsPosition(space));
         starLabels.updateContent(obs.stars.getLabelsPosition(space));
     }

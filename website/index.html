@@ -17,7 +17,10 @@
         <floating-labels id="starsNames"></floating-labels>
         <floating-labels class="shadow" id="coordinates"></floating-labels>
 
-        <object-info></object-info>
+        <div class="test">
+
+            <object-info></object-info>
+        </div>
 
         <form id="options" onSubmit="return false;">
             <h3>MODES</h3>
@@ -29,7 +32,7 @@
                     <li>
                         <ul role="group" aria-label="Elements">
                             <li id="vis-grid" role="option" aria-selected="true">Grid</li>
-                            <!-- <li id="vis-regions" role="option" aria-selected="true">Regions</li> -->
+                            <li id="vis-asterisms" role="option" aria-selected="true">Asterisms</li>
                         </ul>
                     </li>
 
@@ -48,7 +51,9 @@
                 <!-- <single-range id="lol" default="2" min="0" max="6.5" step="0.01"></single-range> -->
                 <!-- <double-range id="lol" default="[1,6]" min="0" max="6.5" step="0.01"></double-range> -->
                 <!-- <single-rangebox id="lol" min="0" default="0.5" max="6.5" step="0.01" data-label="magnitude" data-abbr="mag."></single-rangebox> -->
-                <double-rangebox id="magRange" default="[1, 6]" min="0" max="6.5" step="0.01" data-label="magnitude" data-abbr="mag."></double-rangebox>
+                <double-rangebox id="magRange" default="[0, 4]" min="0" max="6.5" step="0.01" data-label="magnitude" data-abbr="mag."></double-rangebox>
+                <button type="button" title="Define selected star as the center of gravity" id="target-star">TARGET SELECTED</button>
+                <button type="button" title="Define the Solar System as the center of gravity" id="target-sun">TARGET SUN</button>
             </fieldset>
 
             <fieldset>

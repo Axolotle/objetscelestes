@@ -23,7 +23,7 @@ const _position = new Vector3();
 // https://github.com/mrdoob/js/blob/master/src/objects/Points.js
 export class Stars extends Points {
     constructor(stars) {
-        stars = stars.filter(star => star.vmag < 4);
+        // stars = stars.filter(star => star.vmag < 6.5);
 
         let positions = new Float32Array(stars.length * 3);
         let colors = new Float32Array(stars.length * 3);
@@ -31,7 +31,7 @@ export class Stars extends Points {
         for (let i = 0, l = stars.length; i < l; i++) {
             positions.set(stars[i].pos, i * 3);
             colors.set(_color, i * 3);
-            sizes[i] = (5 - Math.floor(stars[i].vmag)) / 4;
+            sizes[i] = (8 - Math.floor(stars[i].vmag)) / 6;
         }
 
         const geometry = new BufferGeometry();
@@ -76,6 +76,7 @@ export class Stars extends Points {
 
         const elems = [];
         for (let i = drawRange.start, l = drawRange.start + drawRange.count; i < l; i++) {
+            if (this.data[i].vmag > 4) continue;
             const elem = {};
             _pos.fromBufferAttribute(vertices, i);
             // this is needed if the sphere is moved
