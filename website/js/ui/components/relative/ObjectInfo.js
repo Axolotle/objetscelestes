@@ -8,7 +8,6 @@ export class ObjectInfo extends LitElement {
         return css`
             :host {
                 display: block;
-                /* contain: content; */
                 box-sizing: border-box;
                 background-color: black;
             }

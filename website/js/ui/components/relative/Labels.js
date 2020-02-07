@@ -8,13 +8,6 @@ export class FloatingLabels extends LitElement {
                 display: block;
                 contain: content;
                 box-sizing: border-box;
-                position: absolute;
-                pointer-events: none;
-                user-select: none;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
             }
             :host(.hidden) {
                 display: none;
@@ -32,9 +25,6 @@ export class FloatingLabels extends LitElement {
             }
             span {
                 position: absolute;
-                left: 0;
-                top: 0;
-
             }
 
             .hidden {
