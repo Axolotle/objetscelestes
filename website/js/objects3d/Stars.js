@@ -44,7 +44,6 @@ export class Stars extends Points {
             fragmentShader: pointShaders.fragment,
             depthTest: false
         });
-        // const shaderMaterial = new PointsMaterial({vertexColors: VertexColors, size: 10, sizeAttenuation: false, depthTest: false})
 
         super(geometry, shaderMaterial);
 
@@ -66,6 +65,20 @@ export class Stars extends Points {
             this.data[0].vmag,
             this.data[this.data.length-1].vmag
         ]
+    }
+
+    switchMaterial() {
+        this.material.dispose();
+        if (this.material.type === 'ShaderMaterial') {
+            this.material = new PointsMaterial({vertexColors: VertexColors, size: 10, sizeAttenuation: true, depthTest: false})
+        } else {
+            this.material = new ShaderMaterial({
+                vertexShader: pointShaders.vertex,
+                fragmentShader: pointShaders.fragment,
+                depthTest: false
+            });
+        }
+        console.log(this.material);
     }
 
     getLabelsPosition(space) {

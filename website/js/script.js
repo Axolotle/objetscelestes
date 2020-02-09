@@ -104,6 +104,9 @@ window.onload = async () => {
     }
     document.getElementById('target-sun').onclick = () => target();
 
+    // material switch
+    document.getElementById('material-change').onclick = () => obs.stars.switchMaterial();
+
     // visibility
     visibilitySelect.addEventListener('change', e => {
         const elems = {
