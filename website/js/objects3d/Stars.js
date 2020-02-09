@@ -55,6 +55,7 @@ export class Stars extends Points {
         // Custom properties
         this.selected = [];
         this.data = stars;
+        this.ignore = null;
 
         this.geometry.setDrawRange(0, this.data.length);
         this.geometry.attributes.position.needsUpdate = true;
@@ -163,6 +164,7 @@ export class Stars extends Points {
         const end = geometry.drawRange.start + geometry.drawRange.count;
 
 		for (let i = start; i < end; i ++ ) {
+            if (i === this.ignore) continue;
 			_position.fromArray( positions, i * 3 );
 
             const rayPointDistanceSq = _ray.distanceSqToPoint(_position);

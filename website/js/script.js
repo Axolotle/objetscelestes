@@ -95,7 +95,10 @@ window.onload = async () => {
 
     // Target buttons
     function changeTarget(selected) {
-        const zoomModeChange = obs.cameraCtrl.changeTarget(selected);
+        const zoomModeChange = obs.cameraCtrl.changeTarget(selected.vector);
+        if (selected) obs.stars.ignore = selected.index;
+        else obs.stars.ignore = null;
+        
         if (zoomModeChange) dollyButton.setAttribute('checked', zoomModeChange);
     }
     document.getElementById('target-star').onclick = () => {

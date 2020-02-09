@@ -14,7 +14,10 @@ export class StarsController {
 
     get selectedStarVector() {
         if (this.selected.length) {
-            return this.object.getCoordinatesVector(this.selected[0]);
+            return {
+                vector: this.object.getCoordinatesVector(this.selected[0]),
+                index: this.selected[0]
+            }
         }
         return null;
     }
