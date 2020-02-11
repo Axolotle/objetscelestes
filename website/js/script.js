@@ -53,7 +53,6 @@ window.onload = async () => {
     }, false);
     // canvas keyboard
     space.addEventListener('keydown', (e) => {
-        console.log(e.code);
         switch (e.code) {
             case 'Delete':
                 if (editor.drawMode) {
@@ -98,7 +97,7 @@ window.onload = async () => {
         const zoomModeChange = obs.cameraCtrl.changeTarget(selected.vector);
         if (selected) obs.stars.ignore = selected.index;
         else obs.stars.ignore = null;
-        
+
         if (zoomModeChange) dollyButton.setAttribute('checked', zoomModeChange);
     }
     document.getElementById('target-star').onclick = () => {
@@ -227,8 +226,9 @@ window.onload = async () => {
         }, 500);
     }, false);
 
-    space.canvas.focus();
-
+    const primaryTarget = obs.stars.getCoordinatesVector(15);
+    obs.cameraCtrl.lookAt(primaryTarget);
+    obs.cameraCtrl.roll(100)
     animate();
 
 
