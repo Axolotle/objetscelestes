@@ -361,15 +361,19 @@ export class DoubleRangeBox extends RangeBox {
         this.range.value = [this.minBox.value, this.maxBox.value];
     }
 
+    stopPropagation(e) {
+        e.stopPropagation();
+    }
+
     render() {
         return html`
         <div>
             <label for="minRange">min ${this.abbr}</label>
-            <input @change="${this.onInputChange}" name="minRange" type="number" min="${this.min}" max="${this.max}" step="${this.step}"/>
+            <input @keydown="${this.stopPropagation}" @keyup="${this.stopPropagation}" @change="${this.onInputChange}" name="minRange" type="number" min="${this.min}" max="${this.max}" step="${this.step}"/>
         </div>
         <div>
             <label for="maxRange">max ${this.abbr}</label>
-            <input @change="${this.onInputChange}" name="maxRange" type="number" min="${this.min}" max="${this.max}" step="${this.step}"/>
+            <input @keydown="${this.stopPropagation}" @keyup="${this.stopPropagation}" @change="${this.onInputChange}" name="maxRange" type="number" min="${this.min}" max="${this.max}" step="${this.step}"/>
         </div>
         <double-range default="${this.default}" min="${this.min}" max="${this.max}" step="${this.step}"></double-range>
         `;

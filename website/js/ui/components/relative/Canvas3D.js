@@ -29,7 +29,6 @@ export class SpaceCanvas extends LitElement {
             @click="${this.onClick}" @contextmenu="${this.onContextmenu}"
             @mousedown="${this.onMousedown}"
             @wheel="${this.onWheel}"
-            @keydown="${this.onKeydown}" @keyup="${this.onKeyup}"
         ></canvas>
         `;
     }
@@ -68,6 +67,8 @@ export class SpaceCanvas extends LitElement {
 
         document.addEventListener('mousemove', this.onMousemove.bind(this), false);
         window.addEventListener('resize', this.onResize.bind(this), false);
+        document.addEventListener('keydown', this.onKeydown.bind(this), false);
+        document.addEventListener('keyup', this.onKeyup.bind(this), false);
     }
 
     get animating() {
